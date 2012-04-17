@@ -81,6 +81,11 @@ class DateTimeTest extends \Gustavus\Test\Test
     $this->assertSame(array('startText' => 'Around ', 'relative' => '2 years '), $this->dateTime->makeNonSpecificRelativeDate(array('year' => 2)));
   }
 
+  /**
+   * Takes an array and runs relative on each item
+   * @param  array  $array
+   * @return void
+   */
   public function testRelativeDatesFromArray(array $array = array())
   {
     foreach ($array as $key => $value) {
