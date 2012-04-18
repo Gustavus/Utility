@@ -42,7 +42,7 @@ class Set extends Base
    * @param array $keyArray
    * @return array
    */
-  private function arrayToSentenceArgumentsArray($rowkey, $row, array $keyArray)
+  private function toSentenceArgumentsArray($rowkey, $row, array $keyArray)
   {
     assert('is_string($rowkey) || is_int($rowkey)');
 
@@ -81,7 +81,7 @@ class Set extends Base
    * @param array $callbacks
    * @return array
    */
-  private function arrayToSentenceCallbacks($args, array $callbacks)
+  private function toSentenceCallbacks($args, array $callbacks)
   {
     if (!empty($callbacks)) {
       foreach ($callbacks as $callback) {
@@ -130,7 +130,7 @@ class Set extends Base
       if ($pattern === '%s' && is_string($row)) {
         $row = trim($row);
         if (!empty($callbacks)) {
-          $row  = $this->arrayToSentenceCallbacks($row, $callbacks);
+          $row  = $this->toSentenceCallbacks($row, $callbacks);
         }
 
         $parts[]  = $row;
@@ -139,15 +139,15 @@ class Set extends Base
         $row[0] = trim($row[0]);
 
         if (!empty($callbacks)) {
-          $row[0]  = $this->arrayToSentenceCallbacks($row[0], $callbacks);
+          $row[0]  = $this->toSentenceCallbacks($row[0], $callbacks);
         }
 
         $parts[]  = $row[0];
       } else {
-        $argsArray  = $this->arrayToSentenceArgumentsArray($rowkey, $row, $keyArray);
+        $argsArray  = $this->toSentenceArgumentsArray($rowkey, $row, $keyArray);
 
         if (!empty($callbacks)) {
-          $argsArray  = $this->arrayToSentenceCallbacks($argsArray, $callbacks);
+          $argsArray  = $this->toSentenceCallbacks($argsArray, $callbacks);
         }
 
         if (!empty($argsArray)) {
