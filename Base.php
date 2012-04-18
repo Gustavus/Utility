@@ -14,7 +14,7 @@ abstract class Base
   /**
    * @var mixed
    */
-  protected $constructorParam;
+  protected $value;
 
   /**
    * Object Constructor
@@ -23,7 +23,7 @@ abstract class Base
    */
   public function __construct($param = null)
   {
-    $this->constructorParam = $param;
+    $this->value = $param;
   }
 
   /**
@@ -33,16 +33,16 @@ abstract class Base
    */
   public function __toString()
   {
-    return $this->constructorParam;
+    return $this->value;
   }
 
   /**
-   * Setter for constructorParam
+   * Setter for value
    *
    * @param mixed $value
    */
   public function setConstructorParam($value)
   {
-    $this->constructorParam = $value;
+    $this->value = $value;
   }
 }
