@@ -13,24 +13,29 @@ use \Format;
 class DateTime extends Base
 {
   /**
-   * Figures out the class name based off of the first value in the array
+   * Figures out the class name based off of the DateInterval
    *
-   * @param  array  $array
+   * @param mixed $now time to get relative time against
    * @return string
    */
-  private function getReturnClassName(array $array)
+  public function relativeClassName($now = null)
   {
+    $date        = $this->makeDateTime($this->value);
+    $now         = $this->makeDateTime($now);
+    $interval    = $date->diff($now);
+    $intervalArr = $this->makeIntervalArray($interval);
+
     // first key will be the greatest time measurement that isn't empty
-    $firstKey = key($array);
+    $firstKey = key($intervalArr);
     // return a single class name
     if (!empty($firstKey)) {
       if ($firstKey === 'second') {
-        if ($array['second'] > 10) {
+        if ($intervalArr['second'] > 10) {
           return 'minute';
         } else {
           return 'now';
         }
-      } else if ($array[$firstKey] > 1) {
+      } else if ($intervalArr[$firstKey] > 1) {
         return $firstKey . 's';
       } else {
         return $firstKey;
@@ -83,33 +88,42 @@ class DateTime extends Base
   }
 
   /**
-   * Outputs a sentence of how long ago this revision was made.
-   * ie. 2 years ago, 3 months ago, 5 days ago, 1 day ago, 3 hours ago, 4 minutes ago, and 23 seconds ago.
+   * Make DateTime object
    *
-   * @param boolean $returnClassName whether to return a single class or not
-   * @param boolean $beSpecific whether to output the greatest time measurement, or to be as specific as possible
-   * @return string
+   * @param  mixed $date
+   * @return DateTime
    */
-  public function relative($returnClassName = false, $beSpecific = false)
+  private function makeDateTime($date = null)
   {
-    require_once('format/format.class.php');
-    $date = $this->constructorParam;
     if (is_int($date)) {
       // $date is a timestamp. We want it as a DateTime object
       $date = new \DateTime('@'.$date);
     }
-    $now         = new \DateTime('now');
-    $interval    = $date->diff($now);
-    $relative    = array();
-    $intervalArr = array('day' => $interval->format('%d'));
-    $days        = (int) $interval->format('%d');
-    $totalDays   = (int) $interval->format('%r%a');
-    $startText   = '';
+    if ($date === null) {
+      // set date to be now
+      $date = new \DateTime('now');
+    }
+    return $date;
+  }
 
+  /**
+   * Make Array with the singular label as the key, and an integer as the value
+   *
+   * @param  DateInterval $interval
+   * @param  integer  $totalDays
+   * @return array
+   */
+  private function makeIntervalArray(\DateInterval $interval, $totalDays = null)
+  {
+    $days = $interval->d;
+    if ($totalDays === null) {
+      // set up total days if not specified
+      $totalDays   = ($interval->invert === 0) ? $interval->days : 0 - $interval->days;
+    }
     if ($totalDays > 1 || $totalDays < -1) {
       $intervalArr = array_filter(array(
-          'year'  => (int) $interval->format('%y'),
-          'month' => (int) $interval->format('%m'),
+          'year'  => $interval->y,
+          'month' => $interval->m,
           'week'  => (int) floor($days / 7),
           'day'   => $days % 7,
           )
@@ -117,16 +131,36 @@ class DateTime extends Base
     } else {
       $intervalArr = array_filter(array(
           'day'    => $days,
-          'hour'   => (int) $interval->format('%h'),
-          'minute' => (int) $interval->format('%i'),
-          'second' => (int) $interval->format('%s'),
+          'hour'   => $interval->h,
+          'minute' => $interval->i,
+          'second' => $interval->s,
           )
       );
     }
+    return $intervalArr;
+  }
 
-    if ($returnClassName) {
-      return $this->getReturnClassName($intervalArr);
-    } else if (!$beSpecific) {
+  /**
+   * Outputs a sentence of how long ago this revision was made.
+   * ie. 2 years ago, 3 months ago, 5 days ago, 1 day ago, 3 hours ago, 4 minutes ago, and 23 seconds ago.
+   *
+   * @param mixed $now Time to get relative time against
+   * @param boolean $beSpecific whether to output the greatest time measurement, or to be as specific as possible
+   * @return string
+   */
+  public function relative($now = null, $beSpecific = false)
+  {
+    require_once('format/format.class.php');
+    $date        = $this->makeDateTime($this->value);
+    $now         = $this->makeDateTime($now);
+
+    $interval    = $date->diff($now);
+    $totalDays   = ($interval->invert === 0) ? $interval->days : 0 - $interval->days;
+    $relative    = array();
+    $startText   = '';
+    $intervalArr = $this->makeIntervalArray($interval, $totalDays);
+
+    if (!$beSpecific) {
       $nonSpecificDate = $this->makeNonSpecificRelativeDate($intervalArr, $totalDays);
       if (is_array($nonSpecificDate)) {
         if (!empty($nonSpecificDate['startText'])) {
@@ -150,12 +184,12 @@ class DateTime extends Base
       return 'Just Now';
     }
 
-    if ($interval->format('%r') === "") {
-      // we are going into the future if it is a "-". format('%r') returns either "" or "-"
-      return $startText . Format::arrayToSentence($relative) . ' ago';
-    } else {
-      return $startText . Format::arrayToSentence($relative) . ' from now';
-    }
+    return sprintf(
+        '%s%s %s',
+        $startText,
+        Format::arrayToSentence($relative),
+        ($interval->format('%r') === "") ? 'ago' : 'from now'
+    );
   }
 
 }
