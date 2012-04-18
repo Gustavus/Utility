@@ -54,7 +54,6 @@ class DateTime extends Base
    */
   private function makeNonSpecificRelativeDate(array $array, $totalDays = 0)
   {
-    require_once('format/format.class.php');
     // first key will be the greatest time measurement that isn't empty
     $firstKey = key($array);
     $return = array();
@@ -82,7 +81,8 @@ class DateTime extends Base
       if ($array[$firstKey] === 1 && !in_array($firstKey, array('hour', 'minute', 'second'))) {
         return ($totalDays < 0) ? 'Next ' . $firstKey : 'Last ' . $firstKey;
       }
-      $return['relative'] = Format::quantity($array[$firstKey], $firstKey . ' ', $firstKey . 's ');
+      $numberUtil = new Number();
+      $return['relative'] = $numberUtil->quantity($array[$firstKey], $firstKey . ' ', $firstKey . 's ');
     }
     return $return;
   }
@@ -150,7 +150,6 @@ class DateTime extends Base
    */
   public function relative($now = null, $beSpecific = false)
   {
-    require_once('format/format.class.php');
     $date        = $this->makeDateTime($this->value);
     $now         = $this->makeDateTime($now);
 
@@ -174,8 +173,9 @@ class DateTime extends Base
       }
     } else {
       // make specific date array
+      $numberUtil = new Number();
       foreach ($intervalArr as $key => $value) {
-        $relative[] = Format::quantity($value, $key . ' ', $key . 's ');
+        $relative[] = $numberUtil->quantity($value, $key . ' ', $key . 's ');
       }
     }
 
@@ -184,10 +184,11 @@ class DateTime extends Base
       return 'Just Now';
     }
 
+    $setUtil = new Set();
     return sprintf(
         '%s%s %s',
         $startText,
-        Format::arrayToSentence($relative),
+        $setUtil->arrayToSentence($relative),
         ($interval->format('%r') === "") ? 'ago' : 'from now'
     );
   }
