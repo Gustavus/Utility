@@ -15,30 +15,22 @@ class Set extends Base
   /**
    * Gets the value of the array at the specified position, regardless of its key
    *
-   * Example:
-   * <code>
-   * $test  = array('a' => 0, 'b' => 'swiftly', 'c' => 1, 'd' => 'owls');
-   * echo Format::array_at($test, 1);
-   * // Outputs: swiftly
-   * </code>
-   *
-   * @param array $array
    * @param int $position
-   * @return mixed Value in $arrayToFormat
+   * @return mixed Value in $this->value
    */
-  public function array_at(array $array, $position = 0)
+  public function at($position = 0)
   {
     assert('is_int($position)');
-
+    assert('is_array($this->value)');
     if ($position === 0) {
-      return reset($array);
-    } else if ($position === count($array) - 1) {
-      return end($array);
+      return reset($this->value);
+    } else if ($position === count($this->value) - 1) {
+      return end($this->value);
     }
 
-    $keys = array_keys($array);
+    $keys = array_keys($this->value);
     if (isset($keys[$position])) {
-      return $array[$keys[$position]];
+      return $this->value[$keys[$position]];
     } else {
       return false;
     }
@@ -71,7 +63,8 @@ class Set extends Base
         } else if (isset($row[$key])) {
           $argsArray[]  = trim($row[$key]);
         } else if (is_array($row)) {
-          $argsArray[]  = trim($this->array_at($row, $position));
+          $set = new Set($row);
+          $argsArray[]  = trim($set->at($position));
         } else {
           $argsArray[]  = trim($row);
         }
@@ -102,16 +95,10 @@ class Set extends Base
 
     return $args;
   }
+
   /**
    * Convert an array to sentence list format (e.g. 'Apples, Cats, and Houses')
    *
-   * Usage:
-   * <code>
-   * echo Format::arrayToSentence(array('Apples', 'Cats', 'Houses'));
-   * // Outputs "Apples, Cats, and Houses"
-   * </code>
-   *
-   * @param array $arrayToFormat Array to format as a sentence
    * @param string $pattern Pattern to format each value of the array in sprintf() pattern format
    * @param array $keyArray Array of keys to use from sub-arrays in order of usage in $pattern. Use '[key]' for the key of the array
    * @param array $callbacks Array of callback functions to perform on each iteration
@@ -119,19 +106,20 @@ class Set extends Base
    * @param string $endWord e.g. 'and' or 'or'
    * @return string
    */
-  public function arrayToSentence(array $arrayToFormat, $pattern = '%s', array $keyArray = array(0), array $callbacks = null, $max = 0, $endWord = 'and')
+  public function arrayToSentence($pattern = '%s', array $keyArray = array(0), array $callbacks = null, $max = 0, $endWord = 'and')
   {
     assert('is_string($pattern)');
     assert('is_int($max)');
     assert('is_string($endWord)');
+    assert('is_array($this->value)');
 
     // Filter out nulls and empty strings
-    //$arrayToFormat  = array_filter($arrayToFormat);
+    //$this->value  = array_filter($this->value);
 
     // Build parts of the sentence
     $parts    = array();
 
-    foreach ($arrayToFormat as $rowkey => $row) {
+    foreach ($this->value as $rowkey => $row) {
       if ($pattern === '%s' && is_string($row)) {
         $row = trim($row);
         if (!empty($callbacks)) {
@@ -182,7 +170,7 @@ class Set extends Base
 
       if ($max > 0 && $totalRows > $max) {
         $id     = 's' . uniqid(rand());
-        $smallArray = array_slice($arrayToFormat, 0, $max);
+        $smallArray = array_slice($this->value, 0, $max);
 
         $r      .= sprintf('<span class="%1$s">%2$s <small><a href="#" class="doToggle" rel="span.%1$s">(more)</a></small></span><span class="nodisplay %1$s">', $id, $this->arrayToSentence($smallArray, $pattern, $keyArray, $callbacks));
       }

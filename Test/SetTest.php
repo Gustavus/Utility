@@ -39,20 +39,21 @@ class SetTest extends \Gustavus\Test\Test
   /**
    * @test
    */
-  public function Array_at()
+  public function arrayAt()
   {
     $array  = array('zero', 'one', 'two', 'three', 'four', 'five');
+    $set = new Utility\Set($array);
 
-    $this->assertSame('zero', $this->set->array_at($array));
-    $this->assertSame('zero', $this->set->array_at($array, 0));
-    $this->assertSame('one', $this->set->array_at($array, 1));
-    $this->assertSame('two', $this->set->array_at($array, 2));
-    $this->assertSame('three', $this->set->array_at($array, 3));
-    $this->assertSame('four', $this->set->array_at($array, 4));
-    $this->assertSame('five', $this->set->array_at($array, 5));
-    $this->assertFalse($this->set->array_at($array, 6));
-    $this->assertFalse($this->set->array_at($array, 7));
-    $this->assertFalse($this->set->array_at($array, -1));
+    $this->assertSame('zero', $set->at());
+    $this->assertSame('zero', $set->at(0));
+    $this->assertSame('one', $set->at(1));
+    $this->assertSame('two', $set->at(2));
+    $this->assertSame('three', $set->at(3));
+    $this->assertSame('four', $set->at(4));
+    $this->assertSame('five', $set->at(5));
+    $this->assertFalse($set->at(6));
+    $this->assertFalse($set->at(7));
+    $this->assertFalse($set->at(-1));
   }
 
   /**
@@ -61,7 +62,8 @@ class SetTest extends \Gustavus\Test\Test
   public function ArrayToSentenceWithOneWord()
   {
     $array  = array('one');
-    $this->assertSame('one', $this->set->arrayToSentence($array));
+    $set = new Utility\Set($array);
+    $this->assertSame('one', $set->arrayToSentence());
   }
 
   /**
@@ -70,7 +72,8 @@ class SetTest extends \Gustavus\Test\Test
   public function ArrayToSentenceWithTwoWord()
   {
     $array  = array('one', 'two');
-    $this->assertSame('one and two', $this->set->arrayToSentence($array));
+    $set = new Utility\Set($array);
+    $this->assertSame('one and two', $set->arrayToSentence());
   }
 
   /**
@@ -79,7 +82,8 @@ class SetTest extends \Gustavus\Test\Test
   public function ArrayToSentenceWithThreeWords()
   {
     $array  = array('one', 'two', 'three');
-    $this->assertSame('one, two, and three', $this->set->arrayToSentence($array));
+    $set = new Utility\Set($array);
+    $this->assertSame('one, two, and three', $set->arrayToSentence());
   }
 
   /**
@@ -88,13 +92,16 @@ class SetTest extends \Gustavus\Test\Test
   public function AliasArrayToSentenceBasic()
   {
     $array  = array('one');
-    $this->assertSame('one', $this->set->arrayToSentence($array));
+    $set = new Utility\Set($array);
+    $this->assertSame('one', $set->arrayToSentence());
 
     $array  = array('one', 'two');
-    $this->assertSame('one and two', $this->set->arrayToSentence($array));
+    $set = new Utility\Set($array);
+    $this->assertSame('one and two', $set->arrayToSentence());
 
     $array  = array('one', 'two', 'three');
-    $this->assertSame('one, two, and three', $this->set->arrayToSentence($array));
+    $set = new Utility\Set($array);
+    $this->assertSame('one, two, and three', $set->arrayToSentence());
   }
 
   /**
@@ -103,7 +110,8 @@ class SetTest extends \Gustavus\Test\Test
   public function ArrayToSentenceWithCommasInArray()
   {
     $array  = array('one, two, and three', 'four, five, and six', 'seven, eight, and nine');
-    $this->assertSame('one, two, and three; four, five, and six; and seven, eight, and nine', $this->set->arrayToSentence($array));
+    $set = new Utility\Set($array);
+    $this->assertSame('one, two, and three; four, five, and six; and seven, eight, and nine', $set->arrayToSentence());
   }
 
   /**
@@ -112,7 +120,8 @@ class SetTest extends \Gustavus\Test\Test
   public function AliasArrayToSentenceWithCommasInArray()
   {
     $array  = array('one, two, and three', 'four, five, and six', 'seven, eight, and nine');
-    $this->assertSame('one, two, and three; four, five, and six; and seven, eight, and nine', $this->set->arrayToSentence($array));
+    $set = new Utility\Set($array);
+    $this->assertSame('one, two, and three; four, five, and six; and seven, eight, and nine', $set->arrayToSentence());
   }
 
   /**
@@ -121,13 +130,16 @@ class SetTest extends \Gustavus\Test\Test
   public function ArrayToSentenceWithNulls()
   {
     $array = array('one', 'two', null, 'three', null, 'four');
-    $this->assertSame('one, two, three, and four', $this->set->arrayToSentence($array));
+    $set = new Utility\Set($array);
+    $this->assertSame('one, two, three, and four', $set->arrayToSentence());
 
     $array = array(null);
-    $this->assertSame('', $this->set->arrayToSentence($array));
+    $set = new Utility\Set($array);
+    $this->assertSame('', $set->arrayToSentence());
 
     $array = array('', null, '', null, ' ', null);
-    $this->assertSame('', $this->set->arrayToSentence($array));
+    $set = new Utility\Set($array);
+    $this->assertSame('', $set->arrayToSentence());
   }
 
   /**
@@ -136,7 +148,8 @@ class SetTest extends \Gustavus\Test\Test
   public function ArrayToSentenceWithPadding()
   {
     $array = array('one', ' two', 'three ', ' four ', '  five  ');
-    $this->assertSame('one, two, three, four, and five', $this->set->arrayToSentence($array));
+    $set = new Utility\Set($array);
+    $this->assertSame('one, two, three, four, and five', $set->arrayToSentence());
   }
 
   /**
@@ -145,7 +158,8 @@ class SetTest extends \Gustavus\Test\Test
   public function ArrayToSentenceWithCallbacks()
   {
     $array = array('ONE', ' two', 'ThReE',);
-    $this->assertSame('ONE, TWO, and THREE', $this->set->arrayToSentence($array, '%s', array(0), array('strtoupper')));
+    $set = new Utility\Set($array);
+    $this->assertSame('ONE, TWO, and THREE', $set->arrayToSentence('%s', array(0), array('strtoupper')));
   }
 
   /**
@@ -154,7 +168,8 @@ class SetTest extends \Gustavus\Test\Test
   public function ArrayToSentenceWithCallbacksAndNestedArrays()
   {
     $array = array(array('one', 'two'), array('three', 'four'), array('five', 'six'));
-    $this->assertSame('TWO, FOUR, and SIX', $this->set->arrayToSentence($array, '%s', array(1), array('strtoupper')));
+    $set = new Utility\Set($array);
+    $this->assertSame('TWO, FOUR, and SIX', $set->arrayToSentence('%s', array(1), array('strtoupper')));
   }
 
   /**
@@ -162,7 +177,8 @@ class SetTest extends \Gustavus\Test\Test
    */
   public function ArrayToSentenceWithoutEndWordTwoWords()
   {
-    $this->assertSame('one two', $this->set->arrayToSentence(array('one', 'two'), '%s', array(0), array(), 0, ''));
+    $set = new Utility\Set(array('one', 'two'));
+    $this->assertSame('one two', $set->arrayToSentence('%s', array(0), array(), 0, ''));
   }
 
   /**
@@ -170,7 +186,8 @@ class SetTest extends \Gustavus\Test\Test
    */
   public function ArrayToSentenceWithoutEndWordThreeWords()
   {
-    $this->assertSame('one, two, three', $this->set->arrayToSentence(array('one', 'two', 'three'), '%s', array(0), array(), 0, ''));
+    $set = new Utility\Set(array('one', 'two', 'three'));
+    $this->assertSame('one, two, three', $set->arrayToSentence('%s', array(0), array(), 0, ''));
   }
 
   /**
@@ -179,8 +196,9 @@ class SetTest extends \Gustavus\Test\Test
   public function ArrayToSentencWithKey()
   {
     $array = array('a' => array('one', 'two'), 'b' => array('three', 'four'), 'c' => array('five', 'six'));
-    $this->assertSame('a, b, and c', $this->set->arrayToSentence($array, '%s', array('[key]')));
-    $this->assertSame('a-two, b-four, and c-six', $this->set->arrayToSentence($array, '%s-%s', array('[key]', 1)));
+    $set = new Utility\Set($array);
+    $this->assertSame('a, b, and c', $set->arrayToSentence('%s', array('[key]')));
+    $this->assertSame('a-two, b-four, and c-six', $set->arrayToSentence('%s-%s', array('[key]', 1)));
   }
 
   /**
@@ -189,7 +207,8 @@ class SetTest extends \Gustavus\Test\Test
   public function ArrayToSentenceFancyPattern()
   {
     $array = array('one', 'two', 'three');
-    $this->assertSame('-one-, -two-, and -three-', $this->set->arrayToSentence($array, '-%s-'));
+    $set = new Utility\Set($array);
+    $this->assertSame('-one-, -two-, and -three-', $set->arrayToSentence('-%s-'));
   }
 
   /**
@@ -197,7 +216,8 @@ class SetTest extends \Gustavus\Test\Test
    */
   public function ArrayToSentenceWithCommasInTags()
   {
-    $ar = array('<a href="#" title="This, is a test">one</a>', 'two', 'three');
-    $this->assertSame('<a href="#" title="This, is a test">one</a>, two, and three', $this->set->arrayToSentence($ar));
+    $array = array('<a href="#" title="This, is a test">one</a>', 'two', 'three');
+    $set = new Utility\Set($array);
+    $this->assertSame('<a href="#" title="This, is a test">one</a>, two, and three', $set->arrayToSentence());
   }
 }
