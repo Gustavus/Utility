@@ -36,6 +36,11 @@ class NumberTest extends \Gustavus\Test\Test
     unset($this->number);
   }
 
+  /**
+   * function to test quantity from an array
+   * @param  array  $array
+   * @return void
+   */
   public function testQuantityFromArray(array $array = array())
   {
     foreach ($array as $key => $value) {
