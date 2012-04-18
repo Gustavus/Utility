@@ -50,7 +50,19 @@ class DateTimeTest extends \Gustavus\Test\Test
   }
 
   /**
-   *
+   * @test
+   */
+  public function toString()
+  {
+    $now = time();
+    $dateTime = new Utility\DateTime($now);
+
+    $this->expectOutputString((string) $now);
+    echo $dateTime;
+  }
+
+  /**
+   * @test
    */
   public function relativeClassName()
   {
