@@ -64,11 +64,33 @@ class DateTimeTest extends \Gustavus\Test\Test
   /**
    * @test
    */
+  public function relativeClassNameMinute()
+  {
+    $testArray = array(
+      'minute' => array(new \DateTime('-40 seconds'), new \DateTime('now')),
+    );
+    $this->testRelativeClassNamesFromArray($testArray);
+  }
+
+  /**
+   * @test
+   */
+  public function relativeClassNameEmptyInterval()
+  {
+    $testArray = array(
+      'now' => array(new \DateTime('now'), new \DateTime('now')),
+    );
+    $this->testRelativeClassNamesFromArray($testArray);
+  }
+
+  /**
+   * @test
+   */
   public function relativeClassName()
   {
     $testArray = array(
       'now' => array(new \DateTime('-2 seconds'), new \DateTime('now')),
-      'minute' => array(new \DateTime('-59 seconds'), new \DateTime('now')),
+      'minute' => array(new \DateTime('-40 seconds'), new \DateTime('now')),
       'minute' => array(new \DateTime('-60 seconds'), new \DateTime('now')),
       'minutes' => array(new \DateTime('-2 minutes'), new \DateTime('now')),
       'now' => array(new \DateTime(), new \DateTime('now')),
@@ -192,6 +214,17 @@ class DateTimeTest extends \Gustavus\Test\Test
   /**
    * @test
    */
+  public function makeRelativeDateSameDates()
+  {
+    $testArray = array(
+      'Just Now' => array(new \DateTime('now'), new \DateTime('now')),
+    );
+    $this->testRelativeDatesFromArray($testArray);
+  }
+
+  /**
+   * @test
+   */
   public function makeDateTime()
   {
     $date = new \DateTime('-2 minutes');
@@ -228,6 +261,21 @@ class DateTimeTest extends \Gustavus\Test\Test
     $expected = array(
       'month' => 2,
       'day' => 4,
+    );
+    $this->assertSame($expected, $this->dateTime->makeIntervalArray($interval));
+  }
+
+  /**
+   * @test
+   */
+  public function makeIntervalArraySeconds()
+  {
+    $date        = new \DateTime('-40 seconds');
+    $now         = new \DateTime('now');
+
+    $interval    = $date->diff($now);
+    $expected = array(
+      'second' => 40,
     );
     $this->assertSame($expected, $this->dateTime->makeIntervalArray($interval));
   }
