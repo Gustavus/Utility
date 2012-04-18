@@ -41,7 +41,7 @@ abstract class Base
    *
    * @param mixed $value
    */
-  public function setConstructorParam($value)
+  public function setValue($value)
   {
     $this->value = $value;
   }
