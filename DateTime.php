@@ -81,8 +81,8 @@ class DateTime extends Base
       if ($array[$firstKey] === 1 && !in_array($firstKey, array('hour', 'minute', 'second'))) {
         return ($totalDays < 0) ? 'Next ' . $firstKey : 'Last ' . $firstKey;
       }
-      $numberUtil = new Number();
-      $return['relative'] = $numberUtil->quantity($array[$firstKey], $firstKey . ' ', $firstKey . 's ');
+      $numberUtil = new Number($array[$firstKey]);
+      $return['relative'] = $numberUtil->quantity($firstKey . ' ', $firstKey . 's ');
     }
     return $return;
   }
@@ -173,9 +173,9 @@ class DateTime extends Base
       }
     } else {
       // make specific date array
-      $numberUtil = new Number();
       foreach ($intervalArr as $key => $value) {
-        $relative[] = $numberUtil->quantity($value, $key . ' ', $key . 's ');
+        $numberUtil = new Number($value);
+        $relative[] = $numberUtil->quantity($key . ' ', $key . 's ');
       }
     }
 
@@ -184,11 +184,11 @@ class DateTime extends Base
       return 'Just Now';
     }
 
-    $setUtil = new Set();
+    $setUtil = new Set($relative);
     return sprintf(
         '%s%s %s',
         $startText,
-        $setUtil->arrayToSentence($relative),
+        $setUtil->arrayToSentence(),
         ($interval->format('%r') === "") ? 'ago' : 'from now'
     );
   }
