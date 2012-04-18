@@ -99,6 +99,13 @@ class Set extends Base
   /**
    * Convert an array to sentence list format (e.g. 'Apples, Cats, and Houses')
    *
+   * Usage:
+   * <code>
+   * $set = new Set(array('Apples', 'Cats', 'Houses'));
+   * echo $set->toSentence();
+   * // Outputs "Apples, Cats, and Houses"
+   * </code>
+   *
    * @param string $pattern Pattern to format each value of the array in sprintf() pattern format
    * @param array $keyArray Array of keys to use from sub-arrays in order of usage in $pattern. Use '[key]' for the key of the array
    * @param array $callbacks Array of callback functions to perform on each iteration
@@ -106,7 +113,7 @@ class Set extends Base
    * @param string $endWord e.g. 'and' or 'or'
    * @return string
    */
-  public function arrayToSentence($pattern = '%s', array $keyArray = array(0), array $callbacks = null, $max = 0, $endWord = 'and')
+  public function toSentence($pattern = '%s', array $keyArray = array(0), array $callbacks = null, $max = 0, $endWord = 'and')
   {
     assert('is_string($pattern)');
     assert('is_int($max)');
@@ -172,7 +179,8 @@ class Set extends Base
         $id     = 's' . uniqid(rand());
         $smallArray = array_slice($this->value, 0, $max);
 
-        $r      .= sprintf('<span class="%1$s">%2$s <small><a href="#" class="doToggle" rel="span.%1$s">(more)</a></small></span><span class="nodisplay %1$s">', $id, $this->arrayToSentence($smallArray, $pattern, $keyArray, $callbacks));
+        $set = new Set($smallArray);
+        $r      .= sprintf('<span class="%1$s">%2$s <small><a href="#" class="doToggle" rel="span.%1$s">(more)</a></small></span><span class="nodisplay %1$s">', $id, $this->toSentence($pattern, $keyArray, $callbacks));
       }
 
       if ($totalRows < 3) {
