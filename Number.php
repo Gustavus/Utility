@@ -17,21 +17,23 @@ class Number extends Base
    *
    * Example:
    * <code>
-   * echo Format::quantity(1, 'dog', 'dogs');
+   * $number = new Number(1);
+   * echo $number->quantity('dog', 'dogs');
    * // Outputs: "1 dog"
    *
-   * echo Format::quantity(5, 'dog', 'dogs');
+   * $number = new Number(5);
+   * echo $number->quantity('dog', 'dogs');
    * // Outputs "5 dogs"
    * </code>
    *
-   * @param float $number Number of object
    * @param string $singular Singular form of object name (e.g. 'dog')
    * @param string $plural Plural form of object name (e.g. 'dogs')
    * @param string|boolean $showCount Possible values are 'all' (or true), 'plural', or 'none' (or false)
    * @return string
    */
-  public function quantity($number, $singular, $plural, $showCount = 'all')
+  public function quantity($singular, $plural, $showCount = 'all')
   {
+    $number = $this->value;
     assert('is_int($number) || is_float($number) || is_numeric($number)');
     assert('is_string($singular)');
     assert('is_string($plural)');
