@@ -8,7 +8,7 @@ namespace Gustavus\Utility\Test;
 
 use Gustavus\Utility,
   Gustavus\Test\Test,
-  Gustavus\Test\Test\TestObject;
+  Gustavus\Test\TestObject;
 
 /**
  * @package Utility
