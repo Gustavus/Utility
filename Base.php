@@ -46,7 +46,7 @@ abstract class Base
     if ($this->valueIsValid($value)) {
       $this->value = $value;
     } else {
-      throw new \DomainException('Invalid value');
+      throw new \DomainException('The value does not belong to the domain of this object.');
     }
   }
 
