@@ -239,4 +239,30 @@ class StringTest extends Test
     );
   }
 
+  /**
+   * @test
+   * @dataProvider stateData
+   */
+  public function state($expected, $value)
+  {
+    $this->string->setValue($value);
+    $this->assertSame($expected, $this->string->state());
+  }
+
+  /**
+   * @return array
+   */
+  public static function stateData()
+  {
+    return array(
+      array('OK', 'Oklahoma'),
+      array('MN', 'Minnesota'),
+      array('AK', 'Alaska'),
+      array('Alaska', 'AK'),
+      array('Alaska', 'ak'),
+      array('AK', 'alaska'),
+      array('MI', 'Michigan'),
+      array('ON', 'ONTARIO'),
+    );
+  }
 }
