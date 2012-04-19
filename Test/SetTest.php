@@ -5,13 +5,16 @@
  */
 
 namespace Gustavus\Utility\Test;
-use Gustavus\Utility;
+
+use Gustavus\Utility,
+  Gustavus\Test\Test,
+  Gustavus\Test\TestObject;
 
 /**
  * @package Utility
  * @subpackage Test
  */
-class SetTest extends \Gustavus\Test\Test
+class SetTest extends Test
 {
   /**
    * @var Utility\Number
@@ -24,7 +27,7 @@ class SetTest extends \Gustavus\Test\Test
    */
   public function setUp()
   {
-    $this->set = new \Gustavus\Test\TestObject(new Utility\Set());
+    $this->set = new TestObject(new Utility\Set());
   }
 
   /**

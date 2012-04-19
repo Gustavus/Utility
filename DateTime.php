@@ -3,7 +3,6 @@
  * @package Utility
  */
 namespace Gustavus\Utility;
-use \Format;
 
 /**
  * Object for working with DateTimes

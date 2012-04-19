@@ -5,13 +5,15 @@
  */
 
 namespace Gustavus\Utility\Test;
-use Gustavus\Utility;
+use Gustavus\Utility,
+  Gustavus\Test\Test,
+  Gustavus\Test\TestObject;
 
 /**
  * @package Utility
  * @subpackage Test
  */
-class DateTimeTest extends \Gustavus\Test\Test
+class DateTimeTest extends Test
 {
   /**
    * @var Utility\DateTime
@@ -24,7 +26,7 @@ class DateTimeTest extends \Gustavus\Test\Test
    */
   public function setUp()
   {
-    $this->dateTime = new \Gustavus\Test\TestObject(new Utility\DateTime());
+    $this->dateTime = new TestObject(new Utility\DateTime());
   }
 
   /**

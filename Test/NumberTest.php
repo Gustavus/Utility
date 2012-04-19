@@ -5,13 +5,16 @@
  */
 
 namespace Gustavus\Utility\Test;
-use Gustavus\Utility;
+
+use Gustavus\Utility,
+  Gustavus\Test\Test,
+  Gustavus\Test\TestObject;
 
 /**
  * @package Utility
  * @subpackage Test
  */
-class NumberTest extends \Gustavus\Test\Test
+class NumberTest extends Test
 {
   /**
    * @var Utility\Number
@@ -24,7 +27,7 @@ class NumberTest extends \Gustavus\Test\Test
    */
   public function setUp()
   {
-    $this->number = new \Gustavus\Test\TestObject(new Utility\Number());
+    $this->number = new TestObject(new Utility\Number());
   }
 
   /**
