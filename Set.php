@@ -19,7 +19,7 @@ class Set extends Base
    */
   final protected function valueIsValid($value)
   {
-    return true;
+    return is_array($value);
   }
 
   /**
