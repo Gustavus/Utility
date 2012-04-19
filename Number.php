@@ -115,7 +115,8 @@ class Number extends Base
     $result = '';
 
     // Declare a lookup array that we will use to traverse the number:
-    $lookup = array('M' => 1000,
+    $lookup = array(
+      'M'   => 1000,
       'CM'  => 900,
       'D'   => 500,
       'CD'  => 400,
