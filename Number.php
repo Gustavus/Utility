@@ -151,4 +151,159 @@ class Number extends Base
     // The Roman numeral should be built, return it
     return $result;
   }
+
+  /**
+   * @param string $number
+   * @return string
+   */
+  private function sentenceProcessNumber($number)
+  {
+    assert('is_string($number)');
+
+    $groupDesignators = array(
+      '',
+      'Thousand',
+      'Million',
+      'Billion',
+      'Trillion',
+      'Quadrillion',
+      'Quintillion',
+      'Sextillion',
+      'Septillion',
+    );
+
+    $numbers = array(
+      1  => 'One',
+      2  => 'Two',
+      3  => 'Three',
+      4  => 'Four',
+      5  => 'Five',
+      6  => 'Six',
+      7  => 'Seven',
+      8  => 'Eight',
+      9  => 'Nine',
+      10 => 'Ten',
+      11 => 'Eleven',
+      12 => 'Twelve',
+      13 => 'Thirteen',
+      14 => 'Fourteen',
+      15 => 'Fifteen',
+      16 => 'Sixteen',
+      17 => 'Seventeen',
+      18 => 'Eighteen',
+      19 => 'Nineteen',
+      20 => 'Twenty',
+      30 => 'Thirty',
+      40 => 'Forty',
+      50 => 'Fifty',
+      60 => 'Sixty',
+      70 => 'Seventy',
+      80 => 'Eighty',
+      90 => 'Ninety',
+    );
+
+    // We already know that we have a numeric string.  Process it in groups of three characters
+
+    $return   = array();
+    $depth    = 0;
+    $position = strlen($number);
+
+    while ($position >= 1) {
+      $processed        = array();
+
+      $previousPosition = $position;
+      $position         = max(0, $position - 3);
+      $length           = $previousPosition - $position;
+      $chunk            = substr($number, $position, $length);
+
+      if (strlen($chunk) === 3) {
+        $processed[] = sprintf('%s Hundred', $numbers[(integer) $chunk[0]]);
+        $chunk       = substr($chunk, 1);
+      }
+
+      if (isset($numbers[(integer) $chunk])) {
+        $processed[] = $numbers[(integer) $chunk];
+      } else {
+        // We're dealing with a number greater than 20 and not divisible by 10:
+        $processed[] = sprintf(
+            '%s %s',
+            $numbers[$chunk[0] * 10],
+            $numbers[(integer) substr($chunk, 1, 1)]
+        );
+      }
+
+      $processed[] = $groupDesignators[$depth];
+      $return[]    = implode(' ', $processed);
+      ++$depth;
+    }
+
+    return implode(' ', array_reverse($return));
+  }
+
+  /**
+   * @param string $number
+   * @return string
+   */
+  private function sentenceProcessDecimal($number)
+  {
+    assert('is_string($number)');
+
+    $suffix = array(
+      'Tenth',
+      'Hundreth',
+      'Thousandth',
+      'Ten Thousandth',
+      'Hundred Thousandth',
+      'Millionth',
+      //enough
+    );
+
+    $numberSuffix = $suffix[strlen($number) - 1];
+    if ($number !== '1') {
+      $numberSuffix .= 's';
+    }
+
+    return sprintf(
+        ' and %s%s',
+        $this->sentenceProcessNumber($number),
+        $numberSuffix
+    );
+  }
+
+  /**
+   * Takes a number and spells it out
+   *
+   * Example:
+   * <code>
+   * $number = new Number(1);
+   * echo $number->sentence();
+   * // Outputs: One
+   *
+   * $number = new Number(101);
+   * echo $number->sentence();
+   * // Outputs: One Hunbred One
+   * </code>
+   *
+   * @return string
+   */
+  public function sentence()
+  {
+    if ($this->isZero()) {
+      return 'Zero';
+    }
+
+    $number         = (string) abs($this->value);
+    $splitByDecimal = explode('.', $number);
+
+    return trim(preg_replace(
+        '`\s+`',
+        ' ',
+        sprintf(
+            '%s%s %s',
+            ($this->isNegative()) ? 'Negative ' : '',
+            $this->sentenceProcessNumber($splitByDecimal[0]),
+            (count($splitByDecimal) > 1) ? $this->sentenceProcessDecimal($splitByDecimal[1]) : ''
+        )
+    ));
+  }
 }

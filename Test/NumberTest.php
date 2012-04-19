@@ -131,9 +131,9 @@ class NumberTest extends \Gustavus\Test\Test
 
   /**
    * @test
-   * @dataProvider OrdinalRomanNumeralData
+   * @dataProvider OrdinalRomanNumeralSentenceData
    */
-  public function Ordinal($ordinal, $romanNumeral, $value)
+  public function Ordinal($ordinal, $romanNumeral, $sentence, $value)
   {
     $this->number->setValue($value);
     $this->assertSame($ordinal, $this->number->ordinal());
@@ -141,38 +141,55 @@ class NumberTest extends \Gustavus\Test\Test
 
   /**
    * @test
-   * @dataProvider OrdinalRomanNumeralData
+   * @dataProvider OrdinalRomanNumeralSentenceData
    */
-  public function RomanNumeral($ordinal, $romanNumeral, $value)
+  public function RomanNumeral($ordinal, $romanNumeral, $sentence, $value)
   {
     $this->number->setValue($value);
     $this->assertSame($romanNumeral, $this->number->romanNumeral());
   }
 
   /**
+   * @test
+   * @dataProvider OrdinalRomanNumeralSentenceData
+   */
+  public function Sentence($ordinal, $romanNumeral, $sentence, $value)
+  {
+    $this->number->setValue($value);
+    $this->assertSame($sentence, $this->number->sentence());
+  }
+
+  /**
    * @return array
    */
-  public static function OrdinalRomanNumeralData()
+  public static function OrdinalRomanNumeralSentenceData()
   {
     return array(
-      array('1st', 'I', 1),
-      array('2nd', 'II', 2),
-      array('3rd', 'III', 3),
-      array('4th', 'IV', 4),
-      array('5th', 'V', 5),
-      array('6th', 'VI', 6),
-      array('7th', 'VII', 7),
-      array('8th', 'VIII', 8),
-      array('9th', 'IX', 9),
-      array('10th', 'X', 10),
-      array('11th', 'XI', 11),
-      array('12th', 'XII', 12),
-      array('13th', 'XIII', 13),
-      array('14th', 'XIV', 14),
-      array('101st', 'CI', 101),
-      array('102nd', 'CII', 102),
-      array('103rd', 'CIII', 103),
-      array('104th', 'CIV', 104),
+      array('-1st', '-I', 'Negative One', -1),
+      array('0th', 'N', 'Zero', 0),
+      array('0th', 'N', 'Zero', 0.0),
+      array('1st', 'I', 'One', 1),
+      array('1st', 'I', 'One and One Tenth', 1.1),
+      array('1st', 'I', 'One and Two Tenths', 1.2),
+      array('2nd', 'II', 'Two', 2),
+      array('3rd', 'III','Three', 3),
+      array('4th', 'IV', 'Four', 4),
+      array('5th', 'V', 'Five', 5),
+      array('6th', 'VI', 'Six', 6),
+      array('7th', 'VII', 'Seven', 7),
+      array('8th', 'VIII', 'Eight', 8),
+      array('9th', 'IX', 'Nine', 9),
+      array('10th', 'X', 'Ten', 10),
+      array('11th', 'XI', 'Eleven', 11),
+      array('12th', 'XII', 'Twelve', 12),
+      array('13th', 'XIII', 'Thirteen', 13),
+      array('14th', 'XIV', 'Fourteen', 14),
+      array('101st', 'CI', 'One Hundred One', 101),
+      array('102nd', 'CII', 'One Hundred Two', 102),
+      array('103rd', 'CIII', 'One Hundred Three', 103),
+      array('104th', 'CIV', 'One Hundred Four', 104),
+      array('12345th', 'MMMMMMMMMMMMCCCXLV', 'Twelve Thousand Three Hundred Forty Five', 12345),
+      array('99999th', 'MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMCMXCIX', 'Ninety Nine Thousand Nine Hundred Ninety Nine', 99999),
     );
   }
 }
