@@ -12,6 +12,33 @@ namespace Gustavus\Utility;
 class DateTime extends Base
 {
   /**
+   * Function to overide abstract function in base to make sure the value is valid
+   *
+   * @param  mixed $value value passed into setValue()
+   * @return boolean
+   */
+  final protected function valueIsValid($value)
+  {
+    // DateTime will throw an exception if the value isn't supported. No need to do our own checks.
+    return true;
+  }
+
+  public function setValue($value)
+  {
+    parent::setValue($this->makeDateTime($value));
+  }
+
+  /**
+   * Magical function to return the constructor param if the object is echoed
+   *
+   * @return mixed
+   */
+  public function __toString()
+  {
+    return $this->value->format('c');
+  }
+
+  /**
    * Figures out the class name based off of the DateInterval
    *
    * @param mixed $now time to get relative time against
@@ -19,7 +46,7 @@ class DateTime extends Base
    */
   public function relativeClassName($now = null)
   {
-    $date        = $this->makeDateTime($this->value);
+    $date        = $this->value;
     $now         = $this->makeDateTime($now);
     $interval    = $date->diff($now);
     $intervalArr = $this->makeIntervalArray($interval);
@@ -81,7 +108,7 @@ class DateTime extends Base
         return ($totalDays < 0) ? 'Next ' . $firstKey : 'Last ' . $firstKey;
       }
       $numberUtil = new Number($array[$firstKey]);
-      $return['relative'] = $numberUtil->quantity($firstKey . ' ', $firstKey . 's ');
+      $return['relative'] = $numberUtil->quantity("%s $firstKey ", "%s {$firstKey}s ");
     }
     return $return;
   }
@@ -97,10 +124,11 @@ class DateTime extends Base
     if (is_int($date)) {
       // $date is a timestamp. We want it as a DateTime object
       $date = new \DateTime('@'.$date);
-    }
-    if ($date === null) {
+    } else if ($date === null) {
       // set date to be now
       $date = new \DateTime('now');
+    } else {
+      $date = new \DateTime($date);
     }
     return $date;
   }
@@ -149,7 +177,7 @@ class DateTime extends Base
    */
   public function relative($now = null, $beSpecific = false)
   {
-    $date        = $this->makeDateTime($this->value);
+    $date        = $this->value;
     $now         = $this->makeDateTime($now);
 
     $interval    = $date->diff($now);
@@ -174,7 +202,7 @@ class DateTime extends Base
       // make specific date array
       foreach ($intervalArr as $key => $value) {
         $numberUtil = new Number($value);
-        $relative[] = $numberUtil->quantity($key . ' ', $key . 's ');
+        $relative[] = $numberUtil->quantity("%s $key ", "%s {$key}s ");
       }
     }
 
