@@ -26,7 +26,7 @@ class DateTimeTest extends Test
    */
   public function setUp()
   {
-    $this->dateTime = new TestObject(new Utility\DateTime());
+    $this->dateTime = new TestObject(new Utility\DateTime('now'));
   }
 
   /**
@@ -140,7 +140,7 @@ class DateTimeTest extends Test
       array('1 year, 1 month, 3 weeks, and 2 days from now', '+1 years +1 months +3 weeks +3 days', null, true),
       array('1 minute ago', '-1 minutes'),
 
-      array('Just Now', null, 'now'),
+      array('Just Now', '', 'now'),
       array('Just Now', '-5 seconds', 'now'),
       array('A few seconds ago', '-11 seconds', 'now'),
       array('1 minute ago', '-61 seconds', 'now'),
