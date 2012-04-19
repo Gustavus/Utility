@@ -62,6 +62,79 @@ class DateTimeTest extends Test
   }
 
   /**
+   * @test
+   * @dataProvider timeOfDayData
+   */
+  public function isMorning($isMorning, $isAfternoon, $isEvening, $isNight, $value)
+  {
+    $this->dateTime->setValue($value);
+    $this->assertSame($isMorning, $this->dateTime->isMorning());
+  }
+
+  /**
+   * @test
+   * @dataProvider timeOfDayData
+   */
+  public function isAfternoon($isMorning, $isAfternoon, $isEvening, $isNight, $value)
+  {
+    $this->dateTime->setValue($value);
+    $this->assertSame($isAfternoon, $this->dateTime->isAfternoon());
+  }
+
+  /**
+   * @test
+   * @dataProvider timeOfDayData
+   */
+  public function isEvening($isMorning, $isAfternoon, $isEvening, $isNight, $value)
+  {
+    $this->dateTime->setValue($value);
+    $this->assertSame($isEvening, $this->dateTime->isEvening());
+  }
+
+  /**
+   * @test
+   * @dataProvider timeOfDayData
+   */
+  public function isNight($isMorning, $isAfternoon, $isEvening, $isNight, $value)
+  {
+    $this->dateTime->setValue($value);
+    $this->assertSame($isNight, $this->dateTime->isNight());
+  }
+
+  /**
+   * @return array
+   */
+  public static function timeOfDayData()
+  {
+    return array(
+      array(false, false, false, true, '12 am'),
+      array(false, false, false, true, '1 am'),
+      array(false, false, false, true, '2 am'),
+      array(false, false, false, true, '3 am'),
+      array(true, false, false, false, '4 am'),
+      array(true, false, false, false, '5 am'),
+      array(true, false, false, false, '6 am'),
+      array(true, false, false, false, '7 am'),
+      array(true, false, false, false, '8 am'),
+      array(true, false, false, false, '9 am'),
+      array(true, false, false, false, '10 am'),
+      array(true, false, false, false, '11 am'),
+      array(false, true, false, false, '12 pm'),
+      array(false, true, false, false, '1 pm'),
+      array(false, true, false, false, '2 pm'),
+      array(false, true, false, false, '3 pm'),
+      array(false, true, false, false, '4 pm'),
+      array(false, true, false, false, '5 pm'),
+      array(false, false, true, false, '6 pm'),
+      array(false, false, true, false, '7 pm'),
+      array(false, false, true, false, '8 pm'),
+      array(false, false, true, false, '9 pm'),
+      array(false, false, false, true, '10 pm'),
+      array(false, false, false, true, '11 pm'),
+    );
+  }
+
+  /**
    * @return array
    */
   public function relativeClassNameData()

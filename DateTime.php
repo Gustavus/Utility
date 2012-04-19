@@ -40,6 +40,46 @@ class DateTime extends Base
   }
 
   /**
+   * @return boolean
+   */
+  public function isMorning()
+  {
+    $hour = (integer) $this->value->format('G');
+    // 4-11 am
+    return $hour >= 4 && $hour <= 11;
+  }
+
+  /**
+   * @return boolean
+   */
+  public function isAfternoon()
+  {
+    $hour = (integer) $this->value->format('G');
+    // 12-5 pm
+    return $hour >= 12 && $hour <= 17;
+  }
+
+  /**
+   * @return boolean
+   */
+  public function isEvening()
+  {
+    $hour = (integer) $this->value->format('G');
+    // 6-9 pm
+    return $hour >= 18 && $hour <= 21;
+  }
+
+  /**
+   * @return boolean
+   */
+  public function isNight()
+  {
+    $hour = (integer) $this->value->format('G');
+    // 10 pm to 3 am
+    return $hour >= 22 || $hour <= 3;
+  }
+
+  /**
    * Figures out the class name based off of the DateInterval
    *
    * @param mixed $now time to get relative time against
