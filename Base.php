@@ -23,7 +23,7 @@ abstract class Base
    */
   public function __construct($param = null)
   {
-    $this->value = $param;
+    $this->setValue($param);
   }
 
   /**
@@ -43,6 +43,12 @@ abstract class Base
    */
   public function setValue($value)
   {
-    $this->value = $value;
+    if ($this->valueIsValid($value)) {
+      $this->value = $value;
+    } else {
+      throw new \DomainException('Invalid value');
+    }
   }
+
+  abstract protected function valueIsValid($value);
 }
