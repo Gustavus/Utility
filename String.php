@@ -119,4 +119,116 @@ class String extends Base
     return preg_replace("|([^\s])\s+([^\s]{1,$lastWordMaxLength})(</.+?>)*\s*$|", '$1&nbsp;$2$3', $this->value);
   }
 
+  /**
+   * Returns the possessive form of the sent string,
+   * or the same string if @string is already possessive)
+   *
+   * Example:
+   * <code>
+   * $strings = array('Jesus', 'Nick', 'I', 'RYAN', 'the hero', 'my',
+   *                  'HIS', 'He', 'you', 'We', 'i');
+   * foreach($strings as $string) {
+   *  echo '<p><strong>' . $string . ':</strong> ' .
+   *  Format::possessive($string) . ' stuff</p>';
+   * }
+   * echo Format::possessive($string1);
+   * // Will output:
+   * // Jesus: Jesus' stuff
+   * // Nick: Nick's stuff
+   * // I: my stuff
+   * // RYAN: RYAN'S stuff
+   * // the hero: the hero's stuff
+   * // my: my stuff
+   * // HIS: HIS stuff
+   * // He: His stuff
+   * // you: your stuff
+   * // We: Our stuff
+   * // i: my stuff
+   * </code>
+   *
+   * Note: In the case of 'I', we return 'my', so the caller should modify
+   *       the result manually if it ought to be 'My' or 'MY'
+   *
+   * @return string
+   *
+   * @todo Add proteins to the method by optionally returning possessive pronouns ('mine', 'yours', 'ours', 'theirs')
+   * @todo Allow string to be HTML and possessivise its contents
+   */
+  public function possessive()
+  {
+    $stringToPossessiveise = trim($this->value);
+
+    if (empty($stringToPossessiveise)) {
+      return $this->value;
+    }
+
+    switch (strtolower($stringToPossessiveise)) {
+      // Pronouns
+      case 'i':
+      case 'my':
+        $result = 'my';
+          break;
+
+      case 'you':
+      case 'your':
+        $result = 'your';
+          break;
+
+      case 'he':
+      case 'his':
+        $result = 'his';
+          break;
+
+      case 'she':
+      case 'her':
+        $result = 'her';
+          break;
+
+      case 'it':
+      case 'its':
+        $result = 'its';
+          break;
+
+      case 'we':
+      case 'our':
+        $result = 'our';
+          break;
+
+      case 'they':
+      case 'their':
+        $result = 'their';
+          break;
+
+      // Non-pronouns
+      default:
+        if (substr($stringToPossessiveise, -2) === "'s" || substr($stringToPossessiveise, -2) === "s'") {
+          // Already possessive
+          $result = $stringToPossessiveise;
+        } else if (substr($stringToPossessiveise, -1) === 's' || substr($stringToPossessiveise, -1) === 'z') {
+          // Ends in an s sound (should x be included here?)
+          $result = "$stringToPossessiveise'";
+        } else {
+          // Normal
+          $result = "$stringToPossessiveise's";
+        }
+          break;
+    }
+
+    // Restore capitalization
+
+    if ($stringToPossessiveise === 'I') {
+      // "I" is a special case (pardon the pun), and we don't know what
+      // case "my" should have, so guess that it should be lowercase
+      return 'my';
+    } else if ($stringToPossessiveise === strtoupper($stringToPossessiveise)) {
+      // The pronoun was ALL CAPS
+      return strtoupper($result);
+    } else if ($stringToPossessiveise === ucfirst($stringToPossessiveise)) {
+      // The pronoun was Capitalized
+      return ucfirst($result);
+    } else {
+      return $result;
+    }
+  }
+
 }

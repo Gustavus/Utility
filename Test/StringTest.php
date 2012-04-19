@@ -203,4 +203,41 @@ class StringTest extends Test
     );
   }
 
+  /**
+   * @test
+   * @dataProvider possessiveData
+   */
+  public function possessive($expected, $value)
+  {
+    $this->string->setValue($value);
+    $this->assertSame($expected, $this->string->possessive());
+  }
+
+  /**
+   * @return array
+   */
+  public static function possessiveData()
+  {
+    return array(
+      array("Gustavus'", 'Gustavus'),
+      array("Jesus'", 'Jesus'),
+      array("Nick's", 'Nick'),
+      array('my', 'I'),
+      array("RYAN'S", 'RYAN'),
+      array("the hero's", 'the hero'),
+      array('my', 'my'),
+      array('HIS', 'HIS'),
+      array('His', 'He'),
+      array('your', 'you'),
+      array('Our', 'We'),
+      array('my', 'i'),
+      array('her', 'she'),
+      array('her', 'her'),
+      array('its', 'it'),
+      array('their', 'they'),
+      array('Joe\'s', 'Joe\'s'),
+      array('', ''),
+    );
+  }
+
 }
