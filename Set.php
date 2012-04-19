@@ -12,6 +12,17 @@ namespace Gustavus\Utility;
 class Set extends Base
 {
   /**
+   * Function to overide abstract function in base to make sure the value is valid
+   *
+   * @param  mixed $value value passed into setValue()
+   * @return boolean
+   */
+  final protected function valueIsValid($value)
+  {
+    return true;
+  }
+
+  /**
    * Gets the value of the array at the specified position, regardless of its key
    *
    * @param int $position
