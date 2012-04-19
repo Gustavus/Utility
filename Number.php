@@ -112,7 +112,13 @@ class Number extends Base
   {
     // Make sure that we only use the integer portion of the value
     $number = (integer) $this->value;
-    $result = '';
+
+    if ($number === 0) {
+      return 'N';
+    }
+
+    $result = $this->isNegative() ? '-' : '';
+    $number = abs($number);
 
     // Declare a lookup array that we will use to traverse the number:
     $lookup = array(
