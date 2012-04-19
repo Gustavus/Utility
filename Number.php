@@ -52,4 +52,80 @@ class Number extends Base
 
     return sprintf($pattern, $displayNumber);
   }
+
+  /**
+   * Format a number as an ordinal.
+   *
+   * @return string e.g. '1st', '2nd', '3rd'
+   * @link http://www.php.net/manual/en/ref.math.php#77609
+   */
+  public function ordinal()
+  {
+    $cardinal = (int) $this->value;
+    $digit    = substr($cardinal, -1, 1);
+
+    if ($cardinal < 100) {
+      $tens = round($cardinal / 10);
+    } else {
+      $tens = substr($cardinal, -2, 1);
+    }
+
+    if ($tens == 1) {
+      return $cardinal.'th';
+    }
+
+    switch ($digit) {
+      case 1:
+        return $cardinal.'st';
+      case 2:
+        return $cardinal.'nd';
+      case 3:
+        return $cardinal.'rd';
+      default:
+        return $cardinal.'th';
+    }
+  }
+
+  /**
+   * Convert an arabic numeral to a roman numeral
+   *
+   * @return string Roman numeral
+   * @link http://www.go4expert.com/forums/showthread.php?t=4948
+   */
+  public function romanNumeral()
+  {
+    // Make sure that we only use the integer portion of the value
+    $number = (integer) $this->value;
+    $result = '';
+
+    // Declare a lookup array that we will use to traverse the number:
+    $lookup = array('M' => 1000,
+      'CM'  => 900,
+      'D'   => 500,
+      'CD'  => 400,
+      'C'   => 100,
+      'XC'  => 90,
+      'L'   => 50,
+      'XL'  => 40,
+      'X'   => 10,
+      'IX'  => 9,
+      'V'   => 5,
+      'IV'  => 4,
+      'I'   => 1,
+    );
+
+    foreach ($lookup as $roman => $value) {
+      // Determine the number of matches
+      $matches = (integer) ($number / $value);
+
+      // Store that many characters
+      $result .= str_repeat($roman, $matches);
+
+      // Substract that from the number
+      $number  = $number % $value;
+    }
+
+    // The Roman numeral should be built, return it
+    return $result;
+  }
 }
