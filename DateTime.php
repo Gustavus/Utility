@@ -3,6 +3,7 @@
  * @package Utility
  */
 namespace Gustavus\Utility;
+use \DateTime as PHPDateTime;
 
 /**
  * Object for working with DateTimes
@@ -123,12 +124,12 @@ class DateTime extends Base
   {
     if (is_int($date)) {
       // $date is a timestamp. We want it as a DateTime object
-      $date = new \DateTime('@'.$date);
+      $date = new PHPDateTime('@'.$date);
     } else if ($date === null) {
       // set date to be now
-      $date = new \DateTime('now');
+      $date = new PHPDateTime('now');
     } else {
-      $date = new \DateTime($date);
+      $date = new PHPDateTime($date);
     }
     return $date;
   }
