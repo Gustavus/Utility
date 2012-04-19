@@ -71,18 +71,18 @@ class Number extends Base
     }
 
     if ($tens == 1) {
-      return $cardinal.'th';
+      return "{$cardinal}th";
     }
 
     switch ($digit) {
       case 1:
-        return $cardinal.'st';
+        return "{$cardinal}st";
       case 2:
-        return $cardinal.'nd';
+        return "{$cardinal}nd";
       case 3:
-        return $cardinal.'rd';
+        return "{$cardinal}rd";
       default:
-        return $cardinal.'th';
+        return "{$cardinal}th";
     }
   }
 
