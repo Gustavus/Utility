@@ -316,4 +316,31 @@ class Number extends Base
         )
     ));
   }
+
+  /**
+   * Formats a number as a readable length of time in weeks, days, hours, minutes, and seconds
+   *
+   * @return string
+   */
+  public function duration()
+  {
+    $vals = array(
+      '<abbr title="weeks">w</abbr>'        => (int) ($this->value / 86400 / 7),
+      '<abbr title="days">d</abbr>'         => $this->value / 86400 % 7,
+      '<abbr title="hours">h</abbr>'        => $this->value / 3600 % 24,
+      '<abbr title="minutes">m</abbr>'      => $this->value / 60 % 60,
+      '<abbr title="seconds">s</abbr>'      => $this->value % 60,
+      '<abbr title="miliseconds">ms</abbr>' => round(($this->value - (int) $this->value) * 100),
+    );
+
+    $ret  = array();
+
+    foreach ($vals as $k => $v) {
+      if ($v > 0) {
+        $ret[]  = (string) $v . $k;
+      }
+    }
+
+    return join(' ', $ret);
+  }
 }

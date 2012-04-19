@@ -195,4 +195,38 @@ class NumberTest extends Test
       array('99999th', 'MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMCMXCIX', 'Ninety Nine Thousand Nine Hundred Ninety Nine', 99999),
     );
   }
+
+  /**
+   * @test
+   * @dataProvider durationData
+   */
+  public function duration($expected, $value)
+  {
+    $this->number->setValue($value);
+    $this->assertSame($expected, $this->number->duration());
+  }
+
+  /**
+   * @return array
+   */
+  public static function durationData()
+  {
+    return array(
+      array('1<abbr title="seconds">s</abbr>', 1),
+      array('1<abbr title="minutes">m</abbr>', 60),
+      array('1<abbr title="minutes">m</abbr> 1<abbr title="seconds">s</abbr>', 61),
+      array('1<abbr title="hours">h</abbr>', 3600),
+      array('1<abbr title="hours">h</abbr> 1<abbr title="seconds">s</abbr>', 3601),
+      array('1<abbr title="hours">h</abbr> 1<abbr title="minutes">m</abbr>', 3660),
+      array('1<abbr title="hours">h</abbr> 1<abbr title="minutes">m</abbr> 1<abbr title="seconds">s</abbr>', 3661),
+      array('1<abbr title="days">d</abbr>', 86400),
+      array('1<abbr title="days">d</abbr> 1<abbr title="seconds">s</abbr>', 86401),
+      array('1<abbr title="days">d</abbr> 1<abbr title="minutes">m</abbr>', 86460),
+      array('1<abbr title="days">d</abbr> 1<abbr title="minutes">m</abbr> 1<abbr title="seconds">s</abbr>', 86461),
+      array('1<abbr title="days">d</abbr> 1<abbr title="hours">h</abbr>', 90000),
+      array('1<abbr title="days">d</abbr> 1<abbr title="hours">h</abbr> 1<abbr title="seconds">s</abbr>', 90001),
+      array('1<abbr title="weeks">w</abbr>', 604800),
+      array('1<abbr title="weeks">w</abbr> 1<abbr title="seconds">s</abbr>', 604801),
+    );
+  }
 }
