@@ -39,16 +39,13 @@ class DateTimeTest extends Test
   }
 
   /**
-   * Takes an array and runs relativeClassName on each item
-   * @param  array  $array
+   * @test
+   * @dataProvider relativeClassNameData
    */
-  public function testRelativeClassNamesFromArray(array $testArray = array())
+  public function relativeClassName($expected, $date, $now = null)
   {
-    foreach ($testArray as $key => $value) {
-      $this->dateTime->setValue($value[0]);
-      $now = (isset($value[1])) ? $value[1] : null;
-      $this->assertSame($key, $this->dateTime->relativeClassName($now));
-    }
+    $date = new Utility\DateTime($date);
+    $this->assertSame($expected, $date->relativeClassName($now));
   }
 
   /**
@@ -65,66 +62,36 @@ class DateTimeTest extends Test
   }
 
   /**
-   * @test
+   * @return array
    */
-  public function relativeClassNameMinute()
+  public function relativeClassNameData()
   {
-    $testArray = array(
-      'minute' => array('-40 seconds', 'now'),
-    );
-    $this->testRelativeClassNamesFromArray($testArray);
-  }
+    return array(
+      array('minute', '-40 seconds', 'now'),
+      array('now', 'now', 'now'),
+      array('now', '-2 seconds', '-1 seconds'),
+      array('now', '-70 seconds', '-60 seconds'),
+      array('now', '-2 seconds', 'now'),
 
-  /**
-   * @test
-   */
-  public function relativeClassNameEmptyInterval()
-  {
-    $testArray = array(
-      'now' => array('now', 'now'),
+      array('minute', '-40 seconds', 'now'),
+      array('minute', '-60 seconds', 'now'),
+      array('minutes', '-2 minutes', 'now'),
+      array('now', 'now', 'now'),
+      array('now', '-5 seconds', 'now'),
+      array('minute', '-11 seconds', 'now'),
+      array('minute', '-61 seconds', 'now'),
+      array('minutes', '-120 seconds', 'now'),
+      array('hour', '-3600 seconds', 'now'),
+      array('hours', '-7200 seconds', 'now'),
+      array('day', '-86400 seconds', 'now'),
+      array('days', '-172800 seconds', 'now'),
+      array('week', '-604800 seconds', 'now'),
+      array('weeks', '-1209600 seconds', 'now'),
+      array('month', '-1 month', 'now'),
+      array('months', '-61 days', 'now'),
+      array('year', '-366 days', 'now'),
+      array('years', '-2 years', 'now'),
     );
-    $this->testRelativeClassNamesFromArray($testArray);
-  }
-
-  /**
-   *
-   */
-  public function relativeClassName()
-  {
-    $testArray = array(
-      'now' => array('-2 seconds', 'now'),
-      'minute' => array('-40 seconds', 'now'),
-      'minute' => array('-60 seconds', 'now'),
-      'minutes' => array('-2 minutes', 'now'),
-      'now' => array('now', 'now'),
-      'now' => array('-5 seconds', 'now'),
-      'minute' => array('-11 seconds', 'now'),
-      'minute' => array('-61 seconds', 'now'),
-      'minutes' => array('-120 seconds', 'now'),
-      'hour' => array('-3600 seconds', 'now'),
-      'hours' => array('-7200 seconds', 'now'),
-      'day' => array('-86400 seconds', 'now'),
-      'days' => array('-172800 seconds', 'now'),
-      'week' => array('-604800 seconds', 'now'),
-      'weeks' => array('-1209600 seconds', 'now'),
-      'month' => array('-1 month', 'now'),
-      'months' => array('-61 days', 'now'),
-      'year' => array('-366 days', 'now'),
-      'years' => array('-2 years', 'now'),
-    );
-    $this->testRelativeClassNamesFromArray($testArray);
-  }
-
-  /**
-   * @test
-   */
-  public function relativeClassNameNowSpecified()
-  {
-    $testArray = array(
-      'now' => array('-2 seconds', '-1 seconds'),
-      'now' => array('-70 seconds', '-60 seconds'),
-    );
-    $this->testRelativeClassNamesFromArray($testArray);
   }
 
   /**
@@ -151,78 +118,54 @@ class DateTimeTest extends Test
   }
 
   /**
-   * Takes an array and runs relative on each item
-   * @param  array  $array
-   * @return void
+   * @test
+   * @dataProvider relativeDateData
    */
-  public function testRelativeDatesFromArray(array $array = array())
+  public function relativeDatesFromArray($expected, $date, $now = null, $beSpecific = false)
   {
-    foreach ($array as $key => $value) {
-      $now             = (isset($value[1])) ? $value[1] : null;
-      $beSpecific      = (isset($value[2])) ? $value[2] : false;
-      $this->dateTime->setValue($value[0]);
-      $this->assertSame($key, $this->dateTime->relative($now, $beSpecific));
-    }
+    $date = new Utility\DateTime($date);
+    $this->assertSame($expected, $date->relative($now, $beSpecific));
   }
 
   /**
-   * @test
+   * @return array
    */
-  public function makeRelativeDate()
+  public function relativeDateData()
   {
-    $testArray = array(
-      'Last month' => array('-1 months -3 weeks'),
+    return array(
+      array('Last month', '-1 months -3 weeks'),
 
-      '1 month, 3 weeks, and 2 days ago' => array('-1 months -3 weeks', null, true),
+      array('1 month, 3 weeks, and 2 days ago', '-1 months -3 weeks', null, true),
 
-      '1 year, 1 month, 3 weeks, and 2 days from now' => array('+1 years +1 months +3 weeks +3 days', null, true),
-      '1 minute ago' => array('-1 minutes'),
+      array('1 year, 1 month, 3 weeks, and 2 days from now', '+1 years +1 months +3 weeks +3 days', null, true),
+      array('1 minute ago', '-1 minutes'),
 
-      'Just Now' => array(null, 'now'),
-      'Just Now' => array('-5 seconds', 'now'),
-      'A few seconds ago' => array('-11 seconds', 'now'),
-      '1 minute ago' => array('-61 seconds', 'now'),
-      '2 minutes ago' => array('-120 seconds', 'now'),
-      '1 hour ago' => array('-3600 seconds', 'now'),
-      '2 hours ago' => array('-7200 seconds', 'now'),
-      'Yesterday' => array('-86400 seconds', 'now'),
-      '2 days ago' => array('-172800 seconds', 'now'),
-      'Last week' => array('-604800 seconds', 'now'),
-      '2 weeks ago' => array('-1209600 seconds', 'now'),
-      'Last month' => array('-1 months', 'now'),
-      '2 months ago' => array('-2 months', 'now'),
-      'Last year' => array('-12 months', 'now'),
-      'Around 2 years ago' => array('-2 years', 'now'),
+      array('Just Now', null, 'now'),
+      array('Just Now', '-5 seconds', 'now'),
+      array('A few seconds ago', '-11 seconds', 'now'),
+      array('1 minute ago', '-61 seconds', 'now'),
+      array('2 minutes ago', '-120 seconds', 'now'),
+      array('1 hour ago', '-3600 seconds', 'now'),
+      array('2 hours ago', '-7200 seconds', 'now'),
+      array('Yesterday', '-86400 seconds', 'now'),
+      array('2 days ago', '-172800 seconds', 'now'),
+      array('Last week', '-604800 seconds', 'now'),
+      array('2 weeks ago', '-1209600 seconds', 'now'),
+      array('Last month', '-1 months', 'now'),
+      array('2 months ago', '-2 months', 'now'),
+      array('Last year', '-12 months', 'now'),
+      array('Around 2 years ago', '-2 years', 'now'),
 
-      '1 minute ago' => array(time()-60, 'now'),
-      'Around 2 years ago' => array(time()-(62899200 + 86400 * 3), 'now'),
-      'Next year' => array(time()+62899200, 'now'),
+      array('1 minute ago', time()-60, 'now'),
+      array('Around 2 years ago', time()-(62899200 + 86400 * 3), 'now'),
+      array('Next year', time()+62899200, 'now'),
+
+      array('Last week', '-1 months -1 weeks', '-1 months'),
+
+      array('1 month, 3 weeks, and 3 days ago', '-1 year -1 months -3 weeks', '-1 year', true),
+
+      array('Just Now', 'now', 'now'),
     );
-    $this->testRelativeDatesFromArray($testArray);
-  }
-
-  /**
-   * @test
-   */
-  public function makeRelativeDateNowSpecified()
-  {
-    $testArray = array(
-      'Last week' => array('-1 months -1 weeks', '-1 months'),
-
-      '1 month, 3 weeks, and 3 days ago' => array('-1 year -1 months -3 weeks', '-1 year', true),
-    );
-    $this->testRelativeDatesFromArray($testArray);
-  }
-
-  /**
-   * @test
-   */
-  public function makeRelativeDateSameDates()
-  {
-    $testArray = array(
-      'Just Now' => array('now', 'now'),
-    );
-    $this->testRelativeDatesFromArray($testArray);
   }
 
   /**
