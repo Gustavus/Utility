@@ -38,6 +38,51 @@ class NumberTest extends \Gustavus\Test\Test
 
   /**
    * @test
+   * @dataProvider negativeZeroData
+   */
+  public function isNegative($isNegative, $isZero, $value)
+  {
+    $this->number->setValue($value);
+    $this->assertSame($isNegative, $this->number->isNegative());
+  }
+
+  /**
+   * @test
+   * @dataProvider negativeZeroData
+   */
+  public function isZero($isNegative, $isZero, $value)
+  {
+    $this->number->setValue($value);
+    $this->assertSame($isZero, $this->number->isZero());
+  }
+
+  /**
+   * @return array
+   */
+  public static function negativeZeroData()
+  {
+    return array(
+      array(true, false, -2),
+      array(true, false, -1.1),
+      array(true, false, -1),
+      array(true, false, -0.1),
+      array(true, false, -0.00000001),
+
+      array(false, true, -0.0000),
+      array(false, true, -0.0),
+      array(false, true, -0),
+      array(false, true, 0),
+
+      array(false, false, 0.000000001),
+      array(false, false, 0.1),
+      array(false, false, 1),
+      array(false, false, 1.0),
+      array(false, false, 1.1),
+    );
+  }
+
+  /**
+   * @test
    * @dataProvider QuantityData
    */
   public function Quantity($expected, $value, $singular, $plural, $zero = null)

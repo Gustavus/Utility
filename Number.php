@@ -13,6 +13,22 @@ use \Format;
 class Number extends Base
 {
   /**
+   * @return boolean
+   */
+  public function isNegative()
+  {
+    return $this->value < 0;
+  }
+
+  /**
+   * @return boolean
+   */
+  public function isZero()
+  {
+    return $this->value === 0 || $this->value === 0.0;
+  }
+
+  /**
    * Format a quantity of an object (e.g. '1 dog' or '5 dogs')
    *
    * Example:
