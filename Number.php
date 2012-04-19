@@ -18,48 +18,38 @@ class Number extends Base
    * Example:
    * <code>
    * $number = new Number(1);
-   * echo $number->quantity('dog', 'dogs');
+   * echo $number->quantity('%s dog', '%s dogs');
    * // Outputs: "1 dog"
    *
    * $number = new Number(5);
-   * echo $number->quantity('dog', 'dogs');
+   * echo $number->quantity('%s dog', '%s dogs');
    * // Outputs "5 dogs"
    * </code>
    *
-   * @param string $singular Singular form of object name (e.g. 'dog')
-   * @param string $plural Plural form of object name (e.g. 'dogs')
-   * @param string|boolean $showCount Possible values are 'all' (or true), 'plural', or 'none' (or false)
+   * @param string $singularPattern Singular form of object name (e.g. '%s dog')
+   * @param string $pluralPattern Plural form of object name (e.g. '%s dogs')
+   * @param string $zeroPattern Zero form of object name (e.g. 'no dogs')
    * @return string
    */
-  public function quantity($singular, $plural, $showCount = 'all')
+  public function quantity($singularPattern, $pluralPattern, $zeroPattern = null)
   {
-    $number = $this->value;
-    assert('is_int($number) || is_float($number) || is_numeric($number)');
-    assert('is_string($singular)');
-    assert('is_string($plural)');
-    assert('is_string($showCount) || is_bool($showCount)');
+    assert('is_string($singularPattern)');
+    assert('is_string($pluralPattern)');
+    assert('is_string($zeroPattern) || is_null($zeroPattern)');
 
-    $number = (float) $number;
-    $r      = ($number === 1.0) ? $singular : $plural;
-
-    if (is_bool($showCount)) {
-      $showCount  = ($showCount) ? 'all' : 'none';
+    if ($this->value === 1 || $this->value === 1.0) {
+      $pattern = $singularPattern;
+    } else if ($zeroPattern !== null && ($this->value === 0 || $this->value === 0.0)) {
+      $pattern = $zeroPattern;
+    } else {
+      $pattern = $pluralPattern;
     }
 
-    if (!is_string($showCount) || !in_array(strtolower($showCount), array('all', 'plural', 'none'))) {
-      $showCount  = 'all';
+    $displayNumber = number_format($this->value);
+    if (is_float($this->value)) {
+      $displayNumber .= ltrim((string) $this->value, '-1234567890');
     }
 
-    if ($showCount === 'all' || ($showCount === 'plural' && $number !== 1.0)) {
-      $displayNumber  = number_format($number);
-
-      if (!is_int($number)) {
-        $displayNumber  .= ltrim((string) $number, '-1234567890');
-      }
-
-      $r  = "$displayNumber $r";
-    }
-
-    return $r;
+    return sprintf($pattern, $displayNumber);
   }
 }
