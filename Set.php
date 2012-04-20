@@ -52,7 +52,7 @@ class Set extends Base
    * @param array $keyArray
    * @return array
    */
-  private function toSentenceArgumentsArray($rowkey, $row, array $keyArray)
+  private function sentenceArgumentsArray($rowkey, $row, array $keyArray)
   {
     assert('is_string($rowkey) || is_int($rowkey)');
 
@@ -91,7 +91,7 @@ class Set extends Base
    * @param array $callbacks
    * @return array
    */
-  private function toSentenceCallbacks($args, array $callbacks)
+  private function sentenceCallbacks($args, array $callbacks)
   {
     if (!empty($callbacks)) {
       foreach ($callbacks as $callback) {
@@ -112,7 +112,7 @@ class Set extends Base
    * Usage:
    * <code>
    * $set = new Set(array('Apples', 'Cats', 'Houses'));
-   * echo $set->toSentence();
+   * echo $set->sentence();
    * // Outputs "Apples, Cats, and Houses"
    * </code>
    *
@@ -123,7 +123,7 @@ class Set extends Base
    * @param string $endWord e.g. 'and' or 'or'
    * @return string
    */
-  public function toSentence($pattern = '%s', array $keyArray = array(0), array $callbacks = null, $max = 0, $endWord = 'and')
+  public function sentence($pattern = '%s', array $keyArray = array(0), array $callbacks = null, $max = 0, $endWord = 'and')
   {
     assert('is_string($pattern)');
     assert('is_int($max)');
@@ -140,7 +140,7 @@ class Set extends Base
       if ($pattern === '%s' && is_string($row)) {
         $row = trim($row);
         if (!empty($callbacks)) {
-          $row  = $this->toSentenceCallbacks($row, $callbacks);
+          $row  = $this->sentenceCallbacks($row, $callbacks);
         }
 
         $parts[]  = $row;
@@ -149,15 +149,15 @@ class Set extends Base
         $row[0] = trim($row[0]);
 
         if (!empty($callbacks)) {
-          $row[0]  = $this->toSentenceCallbacks($row[0], $callbacks);
+          $row[0]  = $this->sentenceCallbacks($row[0], $callbacks);
         }
 
         $parts[]  = $row[0];
       } else {
-        $argsArray  = $this->toSentenceArgumentsArray($rowkey, $row, $keyArray);
+        $argsArray  = $this->sentenceArgumentsArray($rowkey, $row, $keyArray);
 
         if (!empty($callbacks)) {
-          $argsArray  = $this->toSentenceCallbacks($argsArray, $callbacks);
+          $argsArray  = $this->sentenceCallbacks($argsArray, $callbacks);
         }
 
         if (!empty($argsArray)) {
@@ -190,7 +190,7 @@ class Set extends Base
         $smallArray = array_slice($this->value, 0, $max);
 
         $set = new Set($smallArray);
-        $r      .= sprintf('<span class="%1$s">%2$s <small><a href="#" class="doToggle" rel="span.%1$s">(more)</a></small></span><span class="nodisplay %1$s">', $id, $this->toSentence($pattern, $keyArray, $callbacks));
+        $r      .= sprintf('<span class="%1$s">%2$s <small><a href="#" class="doToggle" rel="span.%1$s">(more)</a></small></span><span class="nodisplay %1$s">', $id, $this->sentence($pattern, $keyArray, $callbacks));
       }
 
       if ($totalRows < 3) {
