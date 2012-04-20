@@ -256,7 +256,7 @@ class DateTime extends Base
     return sprintf(
         '%s%s %s',
         $startText,
-        $setUtil->toSentence(),
+        $setUtil->sentence(),
         ($interval->format('%r') === "") ? 'ago' : 'from now'
     );
   }
