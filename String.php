@@ -19,8 +19,7 @@ class String extends Base
    */
   final protected function valueIsValid($value)
   {
-    // DateTime will throw an exception if the value isn't supported. No need to do our own checks.
-    return true;
+    return is_string($value);
   }
 
   /**
