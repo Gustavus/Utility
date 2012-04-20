@@ -19,7 +19,7 @@ class Number extends Base
    */
   final protected function valueIsValid($value)
   {
-    return true;
+    return (is_int($value) || is_float($value));
   }
 
   /**
