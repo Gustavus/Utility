@@ -26,18 +26,35 @@
       {% endif %}
     {% endfor %}
 
+    {% set id = 0 %}
     {% for word in filteredValues %}
       {% if loop.first %}
         {% set delimiterToUse = '' %}
       {% elseif loop.last %}
-        {% set delimiterToUse = delimiter ~ ' ' ~ endWord %}
+        {% set delimiterToUse = delimiter ~ ' ' ~ endWord ~ ' ' %}
       {% else %}
-        {% set delimiterToUse = delimiter %}
+        {% set delimiterToUse = delimiter ~ ' ' %}
       {% endif %}
 
-      {% set output = output ~ delimiterToUse ~ ' ' ~ word %}
+      {% if max != 0 and max == loop.index0 %}
+        {% if max == 1 %}
+          {% set moreDelimiterToUse = 'and ' %}
+        {% else %}
+          {% set moreDelimiterToUse = delimiterToUse %}
+        {% endif %}
+        {% set id = "now"|date('U') %}
+        {% set output %}<span class="{{ id }}">{{ output }} <small><a href="#" class="doToggle" rel="span.{{ id }}">{{ moreDelimiterToUse }}more</a></small></span><span class="nodisplay {{ id }}">{% endset %}
+      {% endif %}
+
+      {% set output = output ~ delimiterToUse ~ word %}
 
     {% endfor %}
+
+    {% if id != 0 %}
+      {% set output %}{{ output }}<small><a href="#" class="doToggle" rel="span.{{ id }}">less</a></small></span>
+      {% endset %}
+    {% endif %}
+
     {{ output }}
   {% endautoescape %}
 {% endspaceless %}{% endif %}

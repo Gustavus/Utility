@@ -367,4 +367,21 @@ class SetTest extends Test
     $set = new Utility\Set($array);
     $this->assertSame('<a href="#" title="This, is a test">one</a>, two, and three', $set->newSentence('{{ value }}'));
   }
+
+  /**
+   * @test
+   */
+  public function newSentenceNonZeroMax()
+  {
+    $set = new Utility\Set(array('one', 'two', 'three'));
+    $expected = '<span class="">one <small><a href="#" class="doToggle" rel="span.">and more</a></small></span><span class="nodisplay ">, two, and three<small><a href="#" class="doToggle" rel="span.">less</a></small></span>';
+    // filter out random class names
+    $actual = $set->newSentence('{{ value }}', 'and', 1);
+    preg_match('`class="([^"]+)"`', $actual, $match);
+    $actual = str_replace($match[1], '', $actual);
+
+    $this->assertSame($expected, $actual);
+  }
+
+  // add non 1 max
 }
