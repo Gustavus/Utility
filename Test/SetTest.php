@@ -312,4 +312,59 @@ class SetTest extends Test
 
     $this->assertSame($expected, $actual);
   }
+
+  /**
+   * @test
+   */
+  public function newSentence()
+  {
+    $set = new Utility\Set(array('one', 'two', 'three'));
+    $this->assertSame('one, two, and three', $set->newSentence('{{ value }}'));
+  }
+
+  /**
+   * @test
+   */
+  public function newSentenceToUpper()
+  {
+    $set = new Utility\Set(array('one', 'two', 'three'));
+    $this->assertSame('ONE, TWO, and THREE', $set->newSentence('{{ value|upper }}'));
+  }
+
+  /**
+   * @test
+   */
+  public function newSentenceWithCommas()
+  {
+    $set = new Utility\Set(array('one, two', 'two', 'three'));
+    $this->assertSame('one, two; two; and three', $set->newSentence('{{ value }}'));
+  }
+
+  /**
+   * @test
+   */
+  public function newSentenceWithArrays()
+  {
+    $set = new Utility\Set(array('a' => array('one', 'two'), 'b' => array('three', 'four'), 'c' => 'five'));
+    $this->assertSame('two, and four', $set->newSentence('{{ value.1 }}'));
+  }
+
+  /**
+   * @test
+   */
+  public function newSentenceWithArraysAtFirstPos()
+  {
+    $set = new Utility\Set(array('a' => array('one', 'two'), 'b' => array('three', 'four'), 'c' => 'five'));
+    $this->assertSame('a-one, b-three, and c-', $set->newSentence('{{ key }}-{{ value.0 }}'));
+  }
+
+  /**
+   * @test
+   */
+  public function newSentenceWithCommasInTags()
+  {
+    $array = array('<a href="#" title="This, is a test">one</a>', 'two', 'three');
+    $set = new Utility\Set($array);
+    $this->assertSame('<a href="#" title="This, is a test">one</a>, two, and three', $set->newSentence('{{ value }}'));
+  }
 }

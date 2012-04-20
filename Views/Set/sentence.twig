@@ -1,0 +1,43 @@
+{% if values|length > 0 %}{% spaceless %}
+  {% autoescape false %}
+    {% set output = '' %}
+
+    {% set valueStr = '' %}
+    {% for value in values %}
+      {% set valueStr = valueStr ~ value|join(' ')|striptags %}
+    {% endfor %}
+
+    {% if values|length > 2 %}
+      {% if ',' in valueStr %}
+        {% set delimiter = ';' %}
+      {% else %}
+        {% set delimiter = ',' %}
+      {% endif %}
+    {% else %}
+      {% set delimiter = '' %}
+    {% endif %}
+
+    {% set filteredValues = [] %}
+
+    {% for key,value in values %}
+      {% set word %}{% include wordUnit %}{% endset %}
+      {% if word != '' %}
+        {% set filteredValues = filteredValues|merge([word]) %}
+      {% endif %}
+    {% endfor %}
+
+    {% for word in filteredValues %}
+      {% if loop.first %}
+        {% set delimiterToUse = '' %}
+      {% elseif loop.last %}
+        {% set delimiterToUse = delimiter ~ ' ' ~ endWord %}
+      {% else %}
+        {% set delimiterToUse = delimiter %}
+      {% endif %}
+
+      {% set output = output ~ delimiterToUse ~ ' ' ~ word %}
+
+    {% endfor %}
+    {{ output }}
+  {% endautoescape %}
+{% endspaceless %}{% endif %}

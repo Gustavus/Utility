@@ -217,4 +217,19 @@ class Set extends Base
 
     return $r;
   }
+
+  public function newSentence($pattern = '{{ value }}', $endWord = 'and', $max = 0)
+  {
+    $loader = new \Twig_Loader_String();
+    $twig =  new \Twig_Environment($loader, array(
+      'cache'       => '/cis/www-etc/cache/Twig',
+      'auto_reload' => true,
+      'autoescape' => false,
+    ));
+
+    //$template = new \Twig_Loader_String($pattern);
+    //$twig = new \Twig_Environment($loader, $pattern);
+    //
+    return \Gustavus\TwigFactory\TwigFactory::renderTwigFilesystemTemplate("/cis/lib/Gustavus/Utility/Views/Set/sentence.twig", array('values' => $this->value, 'endWord' => $endWord, 'max' => $max, 'wordUnit' => $twig->loadTemplate($pattern)));
+  }
 }
