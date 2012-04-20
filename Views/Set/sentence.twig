@@ -36,14 +36,14 @@
         {% set delimiterToUse = delimiter ~ ' ' %}
       {% endif %}
 
-      {% if max != 0 and max == loop.index0 %}
-        {% if max == 1 %}
+      {% if (max != 0 and max != loop.length and ((max == 1 and loop.index0 == max) or (max > 1 and max == loop.index))) %}
+        {% if max == 1 or max == 2 %}
           {% set moreDelimiterToUse = 'and ' %}
         {% else %}
-          {% set moreDelimiterToUse = delimiterToUse %}
+          {% set moreDelimiterToUse = delimiterToUse ~ 'and ' %}
         {% endif %}
         {% set id = "now"|date('U') %}
-        {% set output %}<span class="{{ id }}">{{ output }} <small><a href="#" class="doToggle" rel="span.{{ id }}">{{ moreDelimiterToUse }}more</a></small></span><span class="nodisplay {{ id }}">{% endset %}
+        {% set output %}{{ output }}<span class="{{ id }}"><small><a href="#" class="doToggle" rel="span.{{ id }}">{{ moreDelimiterToUse }}more</a></small></span><span class="nodisplay {{ id }}">{% endset %}
       {% endif %}
 
       {% set output = output ~ delimiterToUse ~ word %}
@@ -51,7 +51,7 @@
     {% endfor %}
 
     {% if id != 0 %}
-      {% set output %}{{ output }}<small><a href="#" class="doToggle" rel="span.{{ id }}">less</a></small></span>
+      {% set output %}{{ output }} <small><a href="#" class="doToggle" rel="span.{{ id }}">less</a></small></span>
       {% endset %}
     {% endif %}
 

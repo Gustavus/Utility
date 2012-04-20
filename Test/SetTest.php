@@ -374,7 +374,7 @@ class SetTest extends Test
   public function newSentenceNonZeroMax()
   {
     $set = new Utility\Set(array('one', 'two', 'three'));
-    $expected = '<span class="">one <small><a href="#" class="doToggle" rel="span.">and more</a></small></span><span class="nodisplay ">, two, and three<small><a href="#" class="doToggle" rel="span.">less</a></small></span>';
+    $expected = 'one<span class=""><small><a href="#" class="doToggle" rel="span.">and more</a></small></span><span class="nodisplay ">, two, and three <small><a href="#" class="doToggle" rel="span.">less</a></small></span>';
     // filter out random class names
     $actual = $set->newSentence('{{ value }}', 'and', 1);
     preg_match('`class="([^"]+)"`', $actual, $match);
@@ -383,5 +383,44 @@ class SetTest extends Test
     $this->assertSame($expected, $actual);
   }
 
-  // add non 1 max
+  /**
+   * @test
+   */
+  public function newSentenceNonOneMax()
+  {
+    $set = new Utility\Set(array('one', 'two', 'three'));
+    $expected = 'one<span class=""><small><a href="#" class="doToggle" rel="span.">and more</a></small></span><span class="nodisplay ">, two, and three <small><a href="#" class="doToggle" rel="span.">less</a></small></span>';
+    // filter out random class names
+    $actual = $set->newSentence('{{ value }}', 'and', 2);
+    preg_match('`class="([^"]+)"`', $actual, $match);
+    $actual = str_replace($match[1], '', $actual);
+
+    $this->assertSame($expected, $actual);
+  }
+
+  /**
+   * @test
+   */
+  public function newSentenceNonTwoMax()
+  {
+    $set = new Utility\Set(array('one', 'two', 'three', 'four'));
+    $expected = 'one, two<span class=""><small><a href="#" class="doToggle" rel="span.">, and more</a></small></span><span class="nodisplay ">, three, and four <small><a href="#" class="doToggle" rel="span.">less</a></small></span>';
+    // filter out random class names
+    $actual = $set->newSentence('{{ value }}', 'and', 3);
+    preg_match('`class="([^"]+)"`', $actual, $match);
+    $actual = str_replace($match[1], '', $actual);
+
+    $this->assertSame($expected, $actual);
+  }
+
+  /**
+   * @test
+   */
+  public function newSentenceThreeMaxAndThreeTotal()
+  {
+    $set = new Utility\Set(array('one', 'two', 'three'));
+    $expected = 'one, two, and three';
+
+    $this->assertSame($expected, $set->newSentence('{{ value }}', 'and', 3));
+  }
 }
