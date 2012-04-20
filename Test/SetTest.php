@@ -304,7 +304,7 @@ class SetTest extends Test
   public function ArrayToSentenceNonZeroMax()
   {
     $set = new Utility\Set(array('one', 'two', 'three'));
-    $expected = '<span class="">one, two, and three <small><a href="#" class="doToggle" rel="span.">(more)</a></small></span><span class="nodisplay ">one, two, and three <small><a href="#" class="doToggle" rel="span.">(less)</a></small></span>';
+    $expected = '<span class="">one <small><a href="#" class="doToggle" rel="span.">(more)</a></small></span><span class="nodisplay ">one, two, and three <small><a href="#" class="doToggle" rel="span.">(less)</a></small></span>';
     // filter out random class names
     $actual = $set->sentence('%s', array(0), array(), 1);
     preg_match('`class="([^"]+)"`', $actual, $match);

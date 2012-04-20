@@ -200,7 +200,7 @@ class Set extends Base
         $smallArray = array_slice($this->value, 0, $max);
 
         $set = new Set($smallArray);
-        $r      .= sprintf('<span class="%1$s">%2$s <small><a href="#" class="doToggle" rel="span.%1$s">(more)</a></small></span><span class="nodisplay %1$s">', $id, $this->sentence($pattern, $keyArray, $callbacks));
+        $r      .= sprintf('<span class="%1$s">%2$s <small><a href="#" class="doToggle" rel="span.%1$s">(more)</a></small></span><span class="nodisplay %1$s">', $id, $set->sentence($pattern, $keyArray, $callbacks));
       }
 
       if ($totalRows < 3) {
