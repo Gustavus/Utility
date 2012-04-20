@@ -23,6 +23,16 @@ class Set extends Base
   }
 
   /**
+   * Magical function to return the constructor param if the object is echoed
+   *
+   * @return mixed
+   */
+  public function __toString()
+  {
+    return $this->sentence();
+  }
+
+  /**
    * Gets the value of the array at the specified position, regardless of its key
    *
    * @param int $position
