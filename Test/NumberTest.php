@@ -7,7 +7,8 @@
 namespace Gustavus\Utility\Test;
 
 use Gustavus\Utility,
-  Gustavus\Test\Test;
+  Gustavus\Test\Test,
+  Gustavus\Test\TestObject;
 
 /**
  * @package Utility
@@ -36,6 +37,38 @@ class NumberTest extends Test
   public function tearDown()
   {
     unset($this->number);
+  }
+
+  /**
+   * @test
+   */
+  public function toString()
+  {
+    $number = new Utility\Number(1001);
+
+    $this->expectOutputString('1001');
+    echo $number;
+  }
+
+  /**
+   * @test
+   * @expectedException DomainException
+   */
+  public function setValue()
+  {
+    $this->assertInstanceOf('DomainException', new Utility\Number('hello'));
+  }
+
+  /**
+   * @test
+   */
+  public function valueIsValid()
+  {
+    $number = new TestObject($this->number);
+    $this->assertTrue($number->valueIsValid(1));
+    $this->assertTrue($number->valueIsValid(1.0));
+    $this->assertFalse($number->valueIsValid('1'));
+    $this->assertFalse($number->valueIsValid(array(1)));
   }
 
   /**

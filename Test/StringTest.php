@@ -7,7 +7,8 @@
 namespace Gustavus\Utility\Test;
 
 use Gustavus\Utility,
-  Gustavus\Test\Test;
+  Gustavus\Test\Test,
+  Gustavus\Test\TestObject;
 
 /**
  * @package Utility
@@ -26,7 +27,7 @@ class StringTest extends Test
    */
   public function setUp()
   {
-    $this->string = new Utility\String();
+    $this->string = new Utility\String('set up');
   }
 
   /**
@@ -36,6 +37,38 @@ class StringTest extends Test
   public function tearDown()
   {
     unset($this->string);
+  }
+
+  /**
+   * @test
+   */
+  public function toString()
+  {
+    $set = new Utility\String('one, two, and three');
+
+    $this->expectOutputString('one, two, and three');
+    echo $set;
+  }
+
+  /**
+   * @test
+   * @expectedException DomainException
+   */
+  public function setValue()
+  {
+    $this->assertInstanceOf('DomainException', new Utility\String(1));
+  }
+
+  /**
+   * @test
+   */
+  public function valueIsValid()
+  {
+    $string = new TestObject($this->string);
+    $this->assertTrue($string->valueIsValid('1'));
+    $this->assertTrue($string->valueIsValid('hello'));
+    $this->assertFalse($string->valueIsValid(1));
+    $this->assertFalse($string->valueIsValid(array(1)));
   }
 
   /**
