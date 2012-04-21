@@ -42,7 +42,7 @@
         {% else %}
           {% set moreDelimiterToUse = delimiterToUse ~ 'and ' %}
         {% endif %}
-        {% set id = random("now"|date('U')) %}
+        {% set id = "now"|date('U') %}
         {% set output %}{{ output }}<span class="{{ id }}"><small><a href="#" class="doToggle" rel="span.{{ id }}">{{ moreDelimiterToUse }}more</a></small></span><span class="nodisplay {{ id }}">{% endset %}
       {% endif %}
 
