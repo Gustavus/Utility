@@ -28,7 +28,23 @@ class String extends Base
   public function titleCase()
   {
     // @todo Make this smarter by having it ignore words that should not be capitalized
-    return ucwords($this->value);
+    return ucwords($this->lowerCase());
+  }
+
+  /**
+   * @return string
+   */
+  public function lowerCase()
+  {
+    return strtolower($this->value);
+  }
+
+  /**
+   * @return string
+   */
+  public function upperCase()
+  {
+    return strtoupper($this->value);
   }
 
   /**

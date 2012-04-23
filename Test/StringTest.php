@@ -77,7 +77,8 @@ class StringTest extends Test
   public static function caseData()
   {
     return array(
-      array('testing case', 'Testing Case'),
+      array('testing case', 'Testing Case', 'testing case', 'TESTING CASE'),
+      array('TESTING CASE', 'Testing Case', 'testing case', 'TESTING CASE'),
     );
   }
 
@@ -85,11 +86,32 @@ class StringTest extends Test
    * @test
    * @dataProvider caseData
    */
-  public function titleCase($value, $title)
+  public function titleCase($value, $title, $lower, $upper)
   {
     $this->string->setValue($value);
     $this->assertSame($title, $this->string->titleCase());
   }
+
+  /**
+   * @test
+   * @dataProvider caseData
+   */
+  public function lowerCase($value, $title, $lower, $upper)
+  {
+    $this->string->setValue($value);
+    $this->assertSame($lower, $this->string->lowerCase());
+  }
+
+  /**
+   * @test
+   * @dataProvider caseData
+   */
+  public function upperCase($value, $title, $lower, $upper)
+  {
+    $this->string->setValue($value);
+    $this->assertSame($upper, $this->string->upperCase());
+  }
+
 
   /**
    * @test
