@@ -23,7 +23,9 @@ abstract class Base
    */
   public function __construct($param = null)
   {
-    $this->setValue($param);
+    if ($param !== null) {
+      $this->setValue($param);
+    }
   }
 
   /**
