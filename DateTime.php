@@ -115,7 +115,7 @@ class DateTime extends Base
   /**
    * Make non specific relative date. Either makes a string or an array of data
    *
-   * @param  array  $array
+   * @param  array  $array  Typically output from makeIntervalArray()
    * @param  integer $totalDays
    * @return mixed either a string, or an array
    */
@@ -175,10 +175,10 @@ class DateTime extends Base
   }
 
   /**
-   * Make Array with the singular label as the key, and an integer as the value
+   * Makes an array out of the DateInterval with the singular label of the measurement as the key, and the amount for that measurement as the value
    *
    * @param  DateInterval $interval
-   * @param  integer  $totalDays
+   * @param  integer  $totalDays total number of days in the DateInterval
    * @return array
    */
   private function makeIntervalArray(\DateInterval $interval, $totalDays = null)
