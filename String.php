@@ -36,7 +36,7 @@ class String extends Base
    */
   public function lowerCase()
   {
-    return strtolower($this->value);
+    return mb_strtolower($this->value);
   }
 
   /**
@@ -44,7 +44,7 @@ class String extends Base
    */
   public function upperCase()
   {
-    return strtoupper($this->value);
+    return mb_strtoupper($this->value);
   }
 
   /**
