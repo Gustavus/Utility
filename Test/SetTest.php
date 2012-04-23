@@ -86,7 +86,7 @@ class SetTest extends Test
    */
   public function titleCase()
   {
-    $array = array('testing this thing', 'another test');
+    $array = array('testing this thing', 'ANOTHER test');
     $this->set->setValue($array);
     $this->set->titleCase();
     $this->assertSame(array('Testing This Thing', 'Another Test'), $this->set->value);
