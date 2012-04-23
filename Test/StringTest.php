@@ -27,7 +27,7 @@ class StringTest extends Test
    */
   public function setUp()
   {
-    $this->string = new Utility\String('set up');
+    $this->string = new TestObject(new Utility\String('set up'));
   }
 
   /**
@@ -92,6 +92,16 @@ class StringTest extends Test
   {
     $this->string->setValue($value);
     $this->assertSame($title, $this->string->titleCase());
+  }
+
+  /**
+   * @test
+   * @dataProvider caseData
+   */
+  public function titleCaseWithExceptions($value, $title, $lower, $upper)
+  {
+    $this->string->setValue($value);
+    $this->assertSame($title, $this->string->titleCase(array_keys($this->string->titleCaseExceptions)));
   }
 
   /**
