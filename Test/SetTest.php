@@ -70,6 +70,16 @@ class SetTest extends Test
     $this->assertFalse($this->set->valueIsValid(1));
   }
 
+  /**
+   * @test
+   */
+  public function mapRecursive()
+  {
+    $array = array('zero', 'one', array('two', 'three', array('four')));
+    $this->set->setValue($array);
+    $this->set->mapRecursive('strtoupper');
+    $this->assertSame(array('ZERO', 'ONE', array('TWO', 'THREE', array('FOUR'))), $this->set->value);
+  }
 
   /**
    * @test

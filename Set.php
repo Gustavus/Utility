@@ -33,6 +33,40 @@ class Set extends Base
   }
 
   /**
+   * @param callable $callback
+   * @param array $array
+   * @param array $arguments
+   * @return array
+   */
+  public function mapRecursiveArray($callback, array $array, array $arguments)
+  {
+    $mappedValues = array();
+
+    foreach ($array as $key => $value) {
+      $mappedValues[$key] = is_array($value)
+        ? $this->mapRecursiveArray($callback, $value, $arguments)
+        : call_user_func_array($callback, (array) $value + $arguments);
+    }
+
+    return $mappedValues;
+  }
+
+  /**
+   * @param callable $callback
+   * @return $this
+   */
+  public function mapRecursive($callback)
+  {
+    $arguments = func_get_args();
+    // Drop the first argument, because that is is our callback function
+    array_shift($arguments);
+
+    $this->value = $this->mapRecursiveArray($callback, $this->value, $arguments);
+
+    return $this;
+  }
+
+  /**
    * Gets the value of the array at the specified position, regardless of its key
    *
    * @param int $position
