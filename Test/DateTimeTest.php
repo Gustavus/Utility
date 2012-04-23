@@ -304,7 +304,6 @@ class DateTimeTest extends Test
   {
     $date        = new \DateTime('-40 seconds');
     $now         = new \DateTime('now');
-    //var_dump(gettype($now));
 
     $interval    = $date->diff($now);
     $expected = array(
