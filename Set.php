@@ -69,13 +69,14 @@ class Set extends Base
   /**
    * Converts the set to title case
    *
+   * @param array $exceptions
    * @return $this
    */
-  public function titleCase()
+  public function titleCase(array $exceptions = null)
   {
-    $this->mapRecursive(function ($value) {
+    $this->mapRecursive(function ($value) use ($exceptions) {
       $string = new String($value);
-      return $string->titleCase();
+      return $string->titleCase($exceptions);
     });
 
     return $this;
