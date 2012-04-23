@@ -72,12 +72,23 @@ class StringTest extends Test
   }
 
   /**
-   * @test
+   * @return array
    */
-  public function titleCase()
+  public static function caseData()
   {
-    $this->string->setValue('testing title case');
-    $this->assertSame('Testing Title Case', $this->string->titleCase());
+    return array(
+      array('testing case', 'Testing Case'),
+    );
+  }
+
+  /**
+   * @test
+   * @dataProvider caseData
+   */
+  public function titleCase($value, $title)
+  {
+    $this->string->setValue($value);
+    $this->assertSame($title, $this->string->titleCase());
   }
 
   /**
