@@ -79,6 +79,8 @@ class StringTest extends Test
     return array(
       array('testing case', 'Testing Case', 'testing case', 'TESTING CASE'),
       array('TESTING CASE', 'Testing Case', 'testing case', 'TESTING CASE'),
+      array('a test of case', 'A Test of Case', 'a test of case', 'A TEST OF CASE'),
+      array('king henry The viii', 'King Henry the VIII', 'king henry the viii', 'KING HENRY THE VIII'),
     );
   }
 

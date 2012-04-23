@@ -12,6 +12,29 @@ namespace Gustavus\Utility;
 class String extends Base
 {
   /**
+   * @var array Exceptions for title case
+   */
+  private $titleCaseExceptions = array(
+    'to'   => 1,
+    'a'    => 1,
+    'the'  => 1,
+    'of'   => 1,
+    'by'   => 1,
+    'and'  => 1,
+    'with' => 1,
+
+    'II'   => 1,
+    'III'  => 1,
+    'IV'   => 1,
+    'V'    => 1,
+    'VI'   => 1,
+    'VII'  => 1,
+    'VIII' => 1,
+    'IX'   => 1,
+    'X'   => 1,
+  );
+
+  /**
    * Function to overide abstract function in base to make sure the value is valid
    *
    * @param  mixed $value value passed into setValue()
@@ -25,10 +48,30 @@ class String extends Base
   /**
    * @return string
    */
-  public function titleCase()
+  public function titleCase(array $exceptions = null)
   {
-    // @todo Make this smarter by having it ignore words that should not be capitalized
-    return ucwords($this->lowerCase());
+    if ($exceptions === null) {
+      $exceptions = $this->titleCaseExceptions;
+    } else {
+      // Flip array for quicker lookups
+      $exceptions = array_flip($exceptions);
+    }
+
+    $string = mb_convert_case($this->value, MB_CASE_TITLE);
+
+    $words  = preg_split('`\b`', $string, null, PREG_SPLIT_NO_EMPTY);
+    $wordsWithExceptions = array();
+    foreach ($words as $word) {
+      if (isset($exceptions[mb_strtoupper($word)])) {
+        $wordsWithExceptions[] = mb_strtoupper($word);
+      } else if (isset($exceptions[mb_strtolower($word)])) {
+        $wordsWithExceptions[] = mb_strtolower($word);
+      } else {
+        $wordsWithExceptions[] = $word;
+      }
+    }
+
+    return ucfirst(implode('', $wordsWithExceptions));
   }
 
   /**
