@@ -23,6 +23,15 @@ class String extends Base
   }
 
   /**
+   * @return string
+   */
+  public function titleCase()
+  {
+    // @todo Make this smarter by having it ignore words that should not be capitalized
+    return ucwords($this->value);
+  }
+
+  /**
    * Fixes up sloppy URLs so they are correctly and uniformly formatted
    *
    * Usage:

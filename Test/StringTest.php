@@ -73,6 +73,15 @@ class StringTest extends Test
 
   /**
    * @test
+   */
+  public function titleCase()
+  {
+    $this->string->setValue('testing title case');
+    $this->assertSame('Testing Title Case', $this->string->titleCase());
+  }
+
+  /**
+   * @test
    * @dataProvider urlData
    */
   public function url($expected, $url)

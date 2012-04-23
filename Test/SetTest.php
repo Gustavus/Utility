@@ -84,6 +84,17 @@ class SetTest extends Test
   /**
    * @test
    */
+  public function titleCase()
+  {
+    $array = array('testing this thing', 'another test');
+    $this->set->setValue($array);
+    $this->set->titleCase();
+    $this->assertSame(array('Testing This Thing', 'Another Test'), $this->set->value);
+  }
+
+  /**
+   * @test
+   */
   public function arrayAt()
   {
     $array  = array('zero', 'one', 'two', 'three', 'four', 'five');

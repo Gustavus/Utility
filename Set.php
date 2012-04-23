@@ -67,6 +67,21 @@ class Set extends Base
   }
 
   /**
+   * Converts the set to title case
+   *
+   * @return $this
+   */
+  public function titleCase()
+  {
+    $this->mapRecursive(function ($value) {
+      $string = new String($value);
+      return $string->titleCase();
+    });
+
+    return $this;
+  }
+
+  /**
    * Gets the value of the array at the specified position, regardless of its key
    *
    * @param int $position
