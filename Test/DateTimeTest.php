@@ -208,7 +208,7 @@ class DateTimeTest extends Test
     return array(
       array('Last month', '-1 months -3 weeks'),
 
-      array('1 month, 3 weeks, and 2 days ago', '-1 months -3 weeks', null, true),
+      array('1 month, 3 weeks, and 2 days ago', '-1 months -4 weeks', '-1 weeks', true),
 
       array('1 year, 1 month, 3 weeks, and 2 days from now', '+1 years +1 months +3 weeks +3 days', null, true),
       array('1 minute ago', '-1 minutes'),
@@ -235,7 +235,7 @@ class DateTimeTest extends Test
 
       array('Last week', '-1 months -1 weeks', '-1 months'),
 
-      array('1 month, 3 weeks, and 3 days ago', '-1 year -1 months -3 weeks', '-1 year', true),
+      array('1 month, 3 weeks, and 3 days ago', '-1 year -1 months -4 weeks', '-1 year -1 weeks', true),
 
       array('Just Now', 'now', 'now'),
     );
