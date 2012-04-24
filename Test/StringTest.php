@@ -72,6 +72,48 @@ class StringTest extends Test
   }
 
   /**
+   * @test
+   */
+  public function arrayAccess()
+  {
+    $string = new Utility\String('test');
+
+    $this->assertSame('t', $string[0]);
+    $this->assertSame('e', $string[1]);
+    $this->assertSame('s', $string[2]);
+    $this->assertSame('t', $string[3]);
+
+    $this->assertTrue(isset($string[0]));
+    $this->assertTrue(isset($string[1]));
+    $this->assertTrue(isset($string[2]));
+    $this->assertTrue(isset($string[3]));
+    $this->assertFalse(isset($string[4]));
+
+    $string[0] = 'b';
+
+    $this->assertSame('best', $string->getValue());
+
+    $string[1] = 'l';
+    $string[2] = 'a';
+    $string[3] = 'r';
+
+    $this->assertSame('blar', $string->getValue());
+
+    $string[4] = 'f';
+
+    $this->assertSame('blarf', $string->getValue());
+
+    // skip one
+    $string[6] = '!';
+
+    $this->assertSame('blarf !', $string->getValue());
+
+    unset($string[1]);
+
+    $this->assertSame('barf !', $string->getValue());
+  }
+
+  /**
    * @return array
    */
   public static function caseData()

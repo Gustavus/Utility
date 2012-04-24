@@ -72,7 +72,7 @@ class String extends Base implements ArrayAccess
     if ($offset === 0) {
       // Offset is at the very beginning of the string
       $this->value = $value . substr($this->value, 1);
-    } else if ($offset === strlen($this->value)) {
+    } else if ($offset === strlen($this->value) - 1) {
       // Offset is at the very end of the string
       $this->value = substr($this->value, 0, -1) . $value;
     } else if ($this->offsetExists($offset)) {
