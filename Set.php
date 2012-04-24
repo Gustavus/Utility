@@ -310,8 +310,25 @@ class Set extends Base implements ArrayAccess
     return new String($r);
   }
 
-
-
+  /**
+   * Convert an array to sentence list format (e.g. 'Apples, Cats, and Houses')
+   *
+   * Usage:
+   * <code>
+   * $set = new Set(array('Apples', 'Cats', 'Houses'));
+   * echo $set->sentence();
+   * // Outputs "Apples, Cats, and Houses"
+   * </code>
+   *
+   * echo $set->sentence({{ key }}-{{ value }});
+   * // Outputs "1-Apples, 1-Cats, and 1-Houses"
+   * </code>
+   *
+   * @param  string  $templateString twig code for how you want each word parsed.
+   * @param  string  $endWord        e.g. 'and' or 'or'
+   * @param  integer $max            Number of items to display in the sentence
+   * @return String
+   */
   public function newSentence($templateString = '{{ value }}', $endWord = 'and', $max = 0)
   {
     $twig = TwigFactory::getTwigFilesystem("/cis/lib/Gustavus/Utility/Views/Set/");
