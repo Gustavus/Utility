@@ -321,7 +321,7 @@ class Set extends Base implements ArrayAccess
    * </code>
    *
    * echo $set->sentence({{ key }}-{{ value }});
-   * // Outputs "1-Apples, 1-Cats, and 1-Houses"
+   * // Outputs "0-Apples, 1-Cats, and 2-Houses"
    * </code>
    *
    * @param  string  $templateString twig code for how you want each word parsed.
