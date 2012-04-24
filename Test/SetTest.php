@@ -398,6 +398,15 @@ class SetTest extends Test
   /**
    * @test
    */
+  public function newSentenceWithArraysLogicInTwig()
+  {
+    $set = new Utility\Set(array('a' => array('one', 'two'), 'b' => array('three', 'four'), 'c' => 'five'));
+    $this->assertSame('a-one, b-three, and c-five', $set->newSentence('{% if value|keys|length > 0 %}{{ key }}-{{ value.0 }}{% else %}{{ key }}-{{ value }}{% endif %}')->getValue());
+  }
+
+  /**
+   * @test
+   */
   public function newSentenceWithCommasInTags()
   {
     $array = array('<a href="#" title="This, is a test">one</a>', 'two', 'three');
