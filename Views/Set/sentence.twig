@@ -20,7 +20,7 @@
     {% set filteredValues = [] %}
 
     {% for key,value in values %}
-      {% set word %}{% include wordUnit %}{% endset %}
+      {% set word %}{{ wordUnit|eval }}{% endset %}
       {% if word != '' %}
         {% set filteredValues = filteredValues|merge([word]) %}
       {% endif %}
