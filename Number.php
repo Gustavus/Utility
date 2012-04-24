@@ -55,9 +55,9 @@ class Number extends Base
    * @param string $singularPattern Singular form of object name (e.g. '%s dog')
    * @param string $pluralPattern Plural form of object name (e.g. '%s dogs')
    * @param string $zeroPattern Zero form of object name (e.g. 'no dogs')
-   * @return string
+   * @return String
    */
-  public function quantity($singularPattern, $pluralPattern, $zeroPattern = null)
+  public function toQuantity($singularPattern, $pluralPattern, $zeroPattern = null)
   {
     assert('is_string($singularPattern)');
     assert('is_string($pluralPattern)');
@@ -76,16 +76,17 @@ class Number extends Base
       $displayNumber .= ltrim((string) $this->value, '-1234567890');
     }
 
-    return sprintf($pattern, $displayNumber);
+    $string = new String(sprintf($pattern, $displayNumber));
+    return $string;
   }
 
   /**
    * Format a number as an ordinal.
    *
-   * @return string e.g. '1st', '2nd', '3rd'
+   * @return String e.g. '1st', '2nd', '3rd'
    * @link http://www.php.net/manual/en/ref.math.php#77609
    */
-  public function ordinal()
+  public function toOrdinal()
   {
     $cardinal = (int) $this->value;
     $digit    = substr($cardinal, -1, 1);
@@ -97,34 +98,34 @@ class Number extends Base
     }
 
     if ($tens == 1) {
-      return "{$cardinal}th";
+      return new String("{$cardinal}th");
     }
 
     switch ($digit) {
       case 1:
-        return "{$cardinal}st";
+        return new String("{$cardinal}st");
       case 2:
-        return "{$cardinal}nd";
+        return new String("{$cardinal}nd");
       case 3:
-        return "{$cardinal}rd";
+        return new String("{$cardinal}rd");
       default:
-        return "{$cardinal}th";
+        return new String("{$cardinal}th");
     }
   }
 
   /**
    * Convert an arabic numeral to a roman numeral
    *
-   * @return string Roman numeral
+   * @return String Roman numeral
    * @link http://www.go4expert.com/forums/showthread.php?t=4948
    */
-  public function romanNumeral()
+  public function toRomanNumeral()
   {
     // Make sure that we only use the integer portion of the value
     $number = (integer) $this->value;
 
     if ($number === 0) {
-      return 'N';
+      return new String('N');
     }
 
     $result = $this->isNegative() ? '-' : '';
@@ -159,7 +160,7 @@ class Number extends Base
     }
 
     // The Roman numeral should be built, return it
-    return $result;
+    return new String($result);
   }
 
   /**
@@ -294,18 +295,18 @@ class Number extends Base
    * // Outputs: One Hunbred One
    * </code>
    *
-   * @return string
+   * @return String
    */
-  public function sentence()
+  public function toSentence()
   {
     if ($this->isZero()) {
-      return 'Zero';
+      return new String('Zero');
     }
 
     $number         = (string) abs($this->value);
     $splitByDecimal = explode('.', $number);
 
-    return trim(preg_replace(
+    return new String(trim(preg_replace(
         '`\s+`',
         ' ',
         sprintf(
@@ -314,15 +315,15 @@ class Number extends Base
             $this->sentenceProcessNumber($splitByDecimal[0]),
             (count($splitByDecimal) > 1) ? $this->sentenceProcessDecimal($splitByDecimal[1]) : ''
         )
-    ));
+    )));
   }
 
   /**
    * Formats a number as a readable length of time in weeks, days, hours, minutes, and seconds
    *
-   * @return string
+   * @return String
    */
-  public function duration()
+  public function toDuration()
   {
     $vals = array(
       '<abbr title="weeks">w</abbr>'        => (int) ($this->value / 86400 / 7),
@@ -341,6 +342,6 @@ class Number extends Base
       }
     }
 
-    return join(' ', $ret);
+    return new String(join(' ', $ret));
   }
 }

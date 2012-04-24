@@ -91,7 +91,7 @@ class StringTest extends Test
   public function titleCase($value, $title, $lower, $upper)
   {
     $this->string->setValue($value);
-    $this->assertSame($title, $this->string->titleCase());
+    $this->assertSame($title, $this->string->titleCase()->getValue());
   }
 
   /**
@@ -101,7 +101,7 @@ class StringTest extends Test
   public function titleCaseWithExceptions($value, $title, $lower, $upper)
   {
     $this->string->setValue($value);
-    $this->assertSame($title, $this->string->titleCase(array_keys($this->string->titleCaseExceptions)));
+    $this->assertSame($title, $this->string->titleCase(array_keys($this->string->titleCaseExceptions))->getValue());
   }
 
   /**
@@ -111,7 +111,7 @@ class StringTest extends Test
   public function lowerCase($value, $title, $lower, $upper)
   {
     $this->string->setValue($value);
-    $this->assertSame($lower, $this->string->lowerCase());
+    $this->assertSame($lower, $this->string->lowerCase()->getValue());
   }
 
   /**
@@ -121,7 +121,7 @@ class StringTest extends Test
   public function upperCase($value, $title, $lower, $upper)
   {
     $this->string->setValue($value);
-    $this->assertSame($upper, $this->string->upperCase());
+    $this->assertSame($upper, $this->string->upperCase()->getValue());
   }
 
 
@@ -132,7 +132,7 @@ class StringTest extends Test
   public function url($expected, $url)
   {
     $this->string->setValue($url);
-    $this->assertSame($expected, $this->string->url());
+    $this->assertSame($expected, $this->string->url()->getValue());
   }
 
   /**
@@ -189,7 +189,7 @@ class StringTest extends Test
   public function email($expected, $email)
   {
     $this->string->setValue($email);
-    $this->assertSame($expected, $this->string->email());
+    $this->assertSame($expected, $this->string->email()->getValue());
   }
 
   /**
@@ -244,7 +244,7 @@ class StringTest extends Test
   public function widont($expected, $value, $lastWordMaxLength = null)
   {
     $this->string->setValue($value);
-    $this->assertSame($expected, $this->string->widont($lastWordMaxLength));
+    $this->assertSame($expected, $this->string->widont($lastWordMaxLength)->getValue());
   }
 
   /**
@@ -296,7 +296,7 @@ class StringTest extends Test
   public function possessive($expected, $value)
   {
     $this->string->setValue($value);
-    $this->assertSame($expected, $this->string->possessive());
+    $this->assertSame($expected, $this->string->possessive()->getValue());
   }
 
   /**
@@ -333,7 +333,7 @@ class StringTest extends Test
   public function state($expected, $value)
   {
     $this->string->setValue($value);
-    $this->assertSame($expected, $this->string->state());
+    $this->assertSame($expected, $this->string->state()->getValue());
   }
 
   /**

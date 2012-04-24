@@ -120,10 +120,10 @@ class NumberTest extends Test
    * @test
    * @dataProvider QuantityData
    */
-  public function Quantity($expected, $value, $singular, $plural, $zero = null)
+  public function toQuantity($expected, $value, $singular, $plural, $zero = null)
   {
     $this->number->setValue($value);
-    $this->assertSame($expected, $this->number->quantity($singular, $plural, $zero));
+    $this->assertSame($expected, $this->number->toQuantity($singular, $plural, $zero)->getValue());
   }
 
   /**
@@ -168,30 +168,30 @@ class NumberTest extends Test
    * @test
    * @dataProvider OrdinalRomanNumeralSentenceData
    */
-  public function Ordinal($ordinal, $romanNumeral, $sentence, $value)
+  public function toOrdinal($ordinal, $romanNumeral, $sentence, $value)
   {
     $this->number->setValue($value);
-    $this->assertSame($ordinal, $this->number->ordinal());
+    $this->assertSame($ordinal, $this->number->toOrdinal()->getValue());
   }
 
   /**
    * @test
    * @dataProvider OrdinalRomanNumeralSentenceData
    */
-  public function RomanNumeral($ordinal, $romanNumeral, $sentence, $value)
+  public function toRomanNumeral($ordinal, $romanNumeral, $sentence, $value)
   {
     $this->number->setValue($value);
-    $this->assertSame($romanNumeral, $this->number->romanNumeral());
+    $this->assertSame($romanNumeral, $this->number->toRomanNumeral()->getValue());
   }
 
   /**
    * @test
    * @dataProvider OrdinalRomanNumeralSentenceData
    */
-  public function Sentence($ordinal, $romanNumeral, $sentence, $value)
+  public function toSentence($ordinal, $romanNumeral, $sentence, $value)
   {
     $this->number->setValue($value);
-    $this->assertSame($sentence, $this->number->sentence());
+    $this->assertSame($sentence, $this->number->toSentence()->getValue());
   }
 
   /**
@@ -232,10 +232,10 @@ class NumberTest extends Test
    * @test
    * @dataProvider durationData
    */
-  public function duration($expected, $value)
+  public function toDuration($expected, $value)
   {
     $this->number->setValue($value);
-    $this->assertSame($expected, $this->number->duration());
+    $this->assertSame($expected, $this->number->toDuration()->getValue());
   }
 
   /**

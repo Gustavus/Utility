@@ -4,12 +4,14 @@
  */
 namespace Gustavus\Utility;
 
+use ArrayAccess;
+
 /**
  * Object for working with Strings
  *
  * @package Utility
  */
-class String extends Base
+class String extends Base implements ArrayAccess
 {
   /**
    * @var array Exceptions for title case
@@ -34,6 +36,64 @@ class String extends Base
     'X'   => 1,
   );
 
+  // ArrayAccess methods
+
+  /**
+   * @param integer $offset
+   * @return boolean
+   */
+  public function offsetExists($offset)
+  {
+    assert('is_int($offset)');
+
+    return strlen($this->value) > $offset;
+  }
+
+  /**
+   * @param integer $offset
+   * @return string
+   */
+  public function offsetGet($offset)
+  {
+    assert('is_int($offset)');
+
+    return $this->value[$offset];
+  }
+
+  /**
+   * @param integer $offset
+   * @param string $value
+   * @return void
+   */
+  public function offsetSet($offset, $value)
+  {
+    assert('is_int($offset) && is_string($value)');
+
+    if ($offset === 0) {
+      // Offset is at the very beginning of the string
+      $this->value = $value . substr($this->value, 1);
+    } else if ($offset === strlen($this->value)) {
+      // Offset is at the very end of the string
+      $this->value = substr($this->value, 0, -1) . $value;
+    } else if ($this->offsetExists($offset)) {
+      // Offset is somewhere in the middle of the string
+      $this->value = substr($this->value, 0, $offset) . $value . substr($this->value, $offset + 1);
+    } else {
+      // String is not long enough, so we need to add spaces
+      $this->value = str_pad($this->value, $offset) . $value;
+    }
+  }
+
+  /**
+   * @param integer $offset
+   * @return void
+   */
+  public function offsetUnset($offset)
+  {
+    assert('is_int($offset)');
+    $this->offsetSet($offset, '');
+  }
+
   /**
    * Function to overide abstract function in base to make sure the value is valid
    *
@@ -46,7 +106,7 @@ class String extends Base
   }
 
   /**
-   * @return string
+   * @return $this
    */
   public function titleCase(array $exceptions = null)
   {
@@ -71,23 +131,26 @@ class String extends Base
       }
     }
 
-    return ucfirst(implode('', $wordsWithExceptions));
+    $this->value = ucfirst(implode('', $wordsWithExceptions));
+    return $this;
   }
 
   /**
-   * @return string
+   * @return $this
    */
   public function lowerCase()
   {
-    return mb_strtolower($this->value);
+    $this->value = mb_strtolower($this->value);
+    return $this;
   }
 
   /**
-   * @return string
+   * @return $this
    */
   public function upperCase()
   {
-    return mb_strtoupper($this->value);
+    $this->value = mb_strtoupper($this->value);
+    return $this;
   }
 
   /**
@@ -108,7 +171,7 @@ class String extends Base
    * // Outputs: http://gustavus.edu
    * </code>
    *
-   * @return string
+   * @return $this
    */
   public function url()
   {
@@ -116,7 +179,8 @@ class String extends Base
 
     // A URL must be at least 3 characters because it needs to have a domain name, a dot, and a TLD
     if (strlen($url) < 3) {
-      return '';
+      $this->value = '';
+      return $this;
     }
 
     $url = preg_replace('`^(.*?):[/\\\]+`', '$1://', $url);
@@ -128,7 +192,8 @@ class String extends Base
 
     $url  = preg_replace('`(?<!homepages\.)(?:www\.)?g(?>ustavus|ac)\.edu`', 'gustavus.edu', $url);
 
-    return $url;
+    $this->value = $url;
+    return $this;
   }
 
   /**
@@ -149,19 +214,21 @@ class String extends Base
    * // Outputs: jerry@gustavus.edu
    * </code>
    *
-   * @return string
+   * @return $this
    */
   public function email()
   {
     $email = trim($this->value);
 
     if (empty($email)) {
-      return '';
+      $this->value = '';
     } else if (strpos($email, '@') === false) {
-      return "$email@gustavus.edu";
+      $this->value = "$email@gustavus.edu";
     } else {
-      return str_replace('@gac.edu', '@gustavus.edu', $email);
+      $this->value = str_replace('@gac.edu', '@gustavus.edu', $email);
     }
+
+    return $this;
   }
 
   /**
@@ -175,7 +242,8 @@ class String extends Base
    * </code>
    *
    * @param integer $lastWordMaxLength
-   * @return string String with widows removed
+   * @return $this String with widows removed
+   *
    * @author Shaun Inman <io@shauninman.com>
    * @link http://shauninman.com/archive/2007/01/03/widont_2_1_wordpress_plugin
    */
@@ -183,7 +251,8 @@ class String extends Base
   {
     assert('is_int($lastWordMaxLength) || is_null($lastWordMaxLength)');
 
-    return preg_replace("|([^\s])\s+([^\s]{1,$lastWordMaxLength})(</.+?>)*\s*$|", '$1&nbsp;$2$3', $this->value);
+    $this->value = preg_replace("|([^\s])\s+([^\s]{1,$lastWordMaxLength})(</.+?>)*\s*$|", '$1&nbsp;$2$3', $this->value);
+    return $this;
   }
 
   /**
@@ -216,7 +285,7 @@ class String extends Base
    * Note: In the case of 'I', we return 'my', so the caller should modify
    *       the result manually if it ought to be 'My' or 'MY'
    *
-   * @return string
+   * @return $this
    *
    * @todo Add proteins to the method by optionally returning possessive pronouns ('mine', 'yours', 'ours', 'theirs')
    * @todo Allow string to be HTML and possessivise its contents
@@ -226,57 +295,57 @@ class String extends Base
     $stringToPossessiveise = trim($this->value);
 
     if (empty($stringToPossessiveise)) {
-      return $this->value;
+      return $this;
     }
 
     switch (strtolower($stringToPossessiveise)) {
       // Pronouns
       case 'i':
       case 'my':
-        $result = 'my';
+        $this->value = 'my';
           break;
 
       case 'you':
       case 'your':
-        $result = 'your';
+        $this->value = 'your';
           break;
 
       case 'he':
       case 'his':
-        $result = 'his';
+        $this->value = 'his';
           break;
 
       case 'she':
       case 'her':
-        $result = 'her';
+        $this->value = 'her';
           break;
 
       case 'it':
       case 'its':
-        $result = 'its';
+        $this->value = 'its';
           break;
 
       case 'we':
       case 'our':
-        $result = 'our';
+        $this->value = 'our';
           break;
 
       case 'they':
       case 'their':
-        $result = 'their';
+        $this->value = 'their';
           break;
 
       // Non-pronouns
       default:
         if (substr($stringToPossessiveise, -2) === "'s" || substr($stringToPossessiveise, -2) === "s'") {
           // Already possessive
-          $result = $stringToPossessiveise;
+          $this->value = $stringToPossessiveise;
         } else if (substr($stringToPossessiveise, -1) === 's' || substr($stringToPossessiveise, -1) === 'z') {
           // Ends in an s sound (should x be included here?)
-          $result = "$stringToPossessiveise'";
+          $this->value = "$stringToPossessiveise'";
         } else {
           // Normal
-          $result = "$stringToPossessiveise's";
+          $this->value = "$stringToPossessiveise's";
         }
           break;
     }
@@ -286,22 +355,22 @@ class String extends Base
     if ($stringToPossessiveise === 'I') {
       // "I" is a special case (pardon the pun), and we don't know what
       // case "my" should have, so guess that it should be lowercase
-      return 'my';
+      $this->value = 'my';
     } else if ($stringToPossessiveise === strtoupper($stringToPossessiveise)) {
       // The pronoun was ALL CAPS
-      return strtoupper($result);
+      $this->upperCase();
     } else if ($stringToPossessiveise === ucfirst($stringToPossessiveise)) {
       // The pronoun was Capitalized
-      return ucfirst($result);
-    } else {
-      return $result;
+      $this->value = ucfirst($this->value);
     }
+
+    return $this;
   }
 
   /**
    * Takes a state, province, or territory, or an abbreviation. If it isn't abbreviated, it abreviates it. If it is abbreviated, it expands it.
    *
-   * @return string Abbreviation of the state, province or territory.
+   * @return $this Abbreviation of the state, province or territory.
    */
   public function state()
   {
@@ -383,10 +452,14 @@ class String extends Base
       'YUKON'                          => 'YT',
     );
 
-    if (strlen($this->value) == 2) {
-      return ucwords(strtolower(array_search(strtoupper($this->value), $state)));
+    if (strlen($this->value) === 2) {
+      // We have an abbreviation and want to get the full state name
+      $this->value = array_search(strtoupper($this->value), $state);
+      return $this->titleCase();
     } else {
-      return ucwords($state[strtoupper($this->value)]);
+      // We have the full state name and want to get an abbreviation
+      $this->value = $state[strtoupper($this->value)];
+      return $this;
     }
   }
 }

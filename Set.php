@@ -4,6 +4,8 @@
  */
 namespace Gustavus\Utility;
 
+use Gustavus\TwigFactory\TwigFactory;
+
 /**
  * Object for working with Arrays
  *
@@ -25,11 +27,11 @@ class Set extends Base
   /**
    * Magical function to return the constructor param if the object is echoed
    *
-   * @return mixed
+   * @return String
    */
   public function __toString()
   {
-    return $this->sentence();
+    return $this->toSentence()->getValue();
   }
 
   /**
@@ -76,7 +78,7 @@ class Set extends Base
   {
     $this->mapRecursive(function ($value) use ($exceptions) {
       $string = new String($value);
-      return $string->titleCase($exceptions);
+      return $string->titleCase($exceptions)->getValue();
     });
 
     return $this;
@@ -181,9 +183,9 @@ class Set extends Base
    * @param array $callbacks Array of callback functions to perform on each iteration
    * @param int $max Number of items to display in the sentence
    * @param string $endWord e.g. 'and' or 'or'
-   * @return string
+   * @return String
    */
-  public function sentence($pattern = '%s', array $keyArray = array(0), array $callbacks = null, $max = 0, $endWord = 'and')
+  public function toSentence($pattern = '%s', array $keyArray = array(0), array $callbacks = null, $max = 0, $endWord = 'and')
   {
     assert('is_string($pattern)');
     assert('is_int($max)');
@@ -250,7 +252,7 @@ class Set extends Base
         $smallArray = array_slice($this->value, 0, $max);
 
         $set = new Set($smallArray);
-        $r      .= sprintf('<span class="%1$s">%2$s <small><a href="#" class="doToggle" rel="span.%1$s">(more)</a></small></span><span class="nodisplay %1$s">', $id, $set->sentence($pattern, $keyArray, $callbacks));
+        $r      .= sprintf('<span class="%1$s">%2$s <small><a href="#" class="doToggle" rel="span.%1$s">(more)</a></small></span><span class="nodisplay %1$s">', $id, $set->toSentence($pattern, $keyArray, $callbacks));
       }
 
       if ($totalRows < 3) {
@@ -265,7 +267,7 @@ class Set extends Base
       }
     } // if
 
-    return $r;
+    return new String($r);
   }
 
   public function newSentence($pattern = '{{ value }}', $endWord = 'and', $max = 0)
@@ -277,9 +279,8 @@ class Set extends Base
       'autoescape' => false,
     ));
 
-    //$template = new \Twig_Loader_String($pattern);
-    //$twig = new \Twig_Environment($loader, $pattern);
-    //
-    return \Gustavus\TwigFactory\TwigFactory::renderTwigFilesystemTemplate("/cis/lib/Gustavus/Utility/Views/Set/sentence.twig", array('values' => $this->value, 'endWord' => $endWord, 'max' => $max, 'wordUnit' => $twig->loadTemplate($pattern)));
+    // TwigFactory::loadStringTemplate($loader, array('autoescape' => false));
+
+    return new String(TwigFactory::renderTwigFilesystemTemplate("/cis/lib/Gustavus/Utility/Views/Set/sentence.twig", array('values' => $this->value, 'endWord' => $endWord, 'max' => $max, 'wordUnit' => $twig->loadTemplate($pattern))));
   }
 }

@@ -3,7 +3,9 @@
  * @package Utility
  */
 namespace Gustavus\Utility;
-use \DateTime as PHPDateTime;
+
+use DateTime as PHPDateTime,
+  DateInterval;
 
 /**
  * Object for working with DateTimes
@@ -83,9 +85,9 @@ class DateTime extends Base
    * Figures out the class name based off of the DateInterval
    *
    * @param mixed $now time to get relative time against
-   * @return string
+   * @return String
    */
-  public function relativeClassName($now = null)
+  public function toRelativeClassName($now = null)
   {
     $date        = $this->value;
     $now         = $this->makeDateTime($now);
@@ -98,17 +100,17 @@ class DateTime extends Base
     if (!empty($firstKey)) {
       if ($firstKey === 'second') {
         if ($intervalArr['second'] > 10) {
-          return 'minute';
+          return new String('minute');
         } else {
-          return 'now';
+          return new String('now');
         }
       } else if ($intervalArr[$firstKey] > 1) {
-        return $firstKey . 's';
+        return new String("{$firstKey}s");
       } else {
-        return $firstKey;
+        return new String($firstKey);
       }
     } else {
-      return 'now';
+      return new String('now');
     }
   }
 
@@ -149,7 +151,7 @@ class DateTime extends Base
         return ($totalDays < 0) ? 'Next ' . $firstKey : 'Last ' . $firstKey;
       }
       $numberUtil = new Number($array[$firstKey]);
-      $return['relative'] = $numberUtil->quantity("%s $firstKey ", "%s {$firstKey}s ");
+      $return['relative'] = $numberUtil->toQuantity("%s $firstKey ", "%s {$firstKey}s ")->getValue();
     }
     return $return;
   }
@@ -181,7 +183,7 @@ class DateTime extends Base
    * @param  integer  $totalDays total number of days in the DateInterval
    * @return array
    */
-  private function makeIntervalArray(\DateInterval $interval, $totalDays = null)
+  private function makeIntervalArray(DateInterval $interval, $totalDays = null)
   {
     $days = $interval->d;
     if ($totalDays === null) {
@@ -214,9 +216,9 @@ class DateTime extends Base
    *
    * @param mixed $now Time to get relative time against
    * @param boolean $beSpecific whether to output the greatest time measurement, or to be as specific as possible
-   * @return string
+   * @return String
    */
-  public function relative($now = null, $beSpecific = false)
+  public function toRelative($now = null, $beSpecific = false)
   {
     $date        = $this->value;
     $now         = $this->makeDateTime($now);
@@ -237,28 +239,27 @@ class DateTime extends Base
           $relative[] = $nonSpecificDate['relative'];
         }
       } else {
-        return $nonSpecificDate;
+        return new String($nonSpecificDate);
       }
     } else {
       // make specific date array
       foreach ($intervalArr as $key => $value) {
         $numberUtil = new Number($value);
-        $relative[] = $numberUtil->quantity("%s $key ", "%s {$key}s ");
+        $relative[] = $numberUtil->toQuantity("%s $key ", "%s {$key}s ")->getValue();
       }
     }
 
     if (empty($relative)) {
       // modified less than a second ago, output just now
-      return 'Just Now';
+      return new String('Just Now');
     }
 
     $setUtil = new Set($relative);
-    return sprintf(
+    return new String(sprintf(
         '%s%s %s',
         $startText,
-        $setUtil->sentence(),
+        $setUtil->toSentence(),
         ($interval->format('%r') === "") ? 'ago' : 'from now'
-    );
+    ));
   }
-
 }

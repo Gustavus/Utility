@@ -52,5 +52,13 @@ abstract class Base
     }
   }
 
+  /**
+   * @return mixed $value
+   */
+  public function getValue()
+  {
+    return $this->value;
+  }
+
   abstract protected function valueIsValid($value);
 }

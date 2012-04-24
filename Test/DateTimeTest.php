@@ -45,7 +45,7 @@ class DateTimeTest extends Test
   public function relativeClassName($expected, $date, $now = null)
   {
     $date = new Utility\DateTime($date);
-    $this->assertSame($expected, $date->relativeClassName($now));
+    $this->assertSame($expected, $date->toRelativeClassName($now)->getValue());
   }
 
   /**
@@ -197,7 +197,7 @@ class DateTimeTest extends Test
   public function relativeDatesFromArray($expected, $date, $now = null, $beSpecific = false)
   {
     $date = new Utility\DateTime($date);
-    $this->assertSame($expected, $date->relative($now, $beSpecific));
+    $this->assertSame($expected, $date->toRelative($now, $beSpecific)->getValue());
   }
 
   /**
@@ -270,12 +270,12 @@ class DateTimeTest extends Test
    */
   public function makeIntervalArray()
   {
-    $date        = new \DateTime('-2 hours -4 minutes');
-    $now         = new \DateTime('now');
+    $date     = new \DateTime('-2 hours -4 minutes');
+    $now      = new \DateTime('now');
 
-    $interval    = $date->diff($now);
+    $interval = $date->diff($now);
     $expected = array(
-      'hour' => 2,
+      'hour'   => 2,
       'minute' => 4,
     );
     $this->assertSame($expected, $this->dateTime->makeIntervalArray($interval));
@@ -286,13 +286,13 @@ class DateTimeTest extends Test
    */
   public function makeIntervalArrayDaysAgo()
   {
-    $date        = new \DateTime('-2 months -4 days');
-    $now         = new \DateTime('now');
+    $date     = new \DateTime('-2 months -4 days');
+    $now      = new \DateTime('now');
 
-    $interval    = $date->diff($now);
+    $interval = $date->diff($now);
     $expected = array(
       'month' => 2,
-      'day' => 4,
+      'day'   => 4,
     );
     $this->assertSame($expected, $this->dateTime->makeIntervalArray($interval));
   }
@@ -302,10 +302,10 @@ class DateTimeTest extends Test
    */
   public function makeIntervalArraySeconds()
   {
-    $date        = new \DateTime('-40 seconds');
-    $now         = new \DateTime('now');
+    $date     = new \DateTime('-40 seconds');
+    $now      = new \DateTime('now');
 
-    $interval    = $date->diff($now);
+    $interval = $date->diff($now);
     $expected = array(
       'second' => 40,
     );
