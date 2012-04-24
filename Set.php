@@ -310,17 +310,15 @@ class Set extends Base implements ArrayAccess
     return new String($r);
   }
 
-  public function newSentence($pattern = '{{ value }}', $endWord = 'and', $max = 0)
+
+
+  public function newSentence($templateString = '{{ value }}', $endWord = 'and', $max = 0)
   {
-    $loader = new \Twig_Loader_String();
-    $twig =  new \Twig_Environment($loader, array(
-      'cache'       => '/cis/www-etc/cache/Twig',
-      'auto_reload' => true,
-      'autoescape' => false,
-    ));
+    $twig = TwigFactory::getTwigFilesystem("/cis/lib/Gustavus/Utility/Views/Set/");
+    $twig->addExtension(new Eval_Twig_Extension());
 
-    // TwigFactory::loadStringTemplate($loader, array('autoescape' => false));
+    $templateString = "{% autoescape false %}$templateString{% endautoescape %}";
 
-    return new String(TwigFactory::renderTwigFilesystemTemplate("/cis/lib/Gustavus/Utility/Views/Set/sentence.twig", array('values' => $this->value, 'endWord' => $endWord, 'max' => $max, 'wordUnit' => $twig->loadTemplate($pattern))));
+    return new String($twig->render("sentence.twig", array('values' => $this->value, 'endWord' => $endWord, 'max' => $max, 'wordUnit' => $templateString)));
   }
 }
