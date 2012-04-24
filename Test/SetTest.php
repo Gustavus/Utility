@@ -73,6 +73,39 @@ class SetTest extends Test
   /**
    * @test
    */
+  public function ArrayAccess()
+  {
+    $set = new Utility\Set(array('one', 'two', 'three'));
+
+    $this->assertSame('one', $set[0]);
+    $this->assertSame('two', $set[1]);
+    $this->assertSame('three', $set[2]);
+
+    $this->assertTrue(isset($set[0]));
+    $this->assertTrue(isset($set[1]));
+    $this->assertTrue(isset($set[2]));
+    $this->assertFalse(isset($set[3]));
+
+    $set[1] = '2';
+
+    $this->assertSame('2', $set[1]);
+
+    $set['test'] = 'testing';
+
+    $this->assertSame('testing', $set['test']);
+
+    $this->assertTrue(isset($set[2]));
+
+    unset($set[2]);
+
+    $this->assertFalse(isset($set[2]));
+
+    $this->assertSame(array('one', '2', 'test' => 'testing'), $set->getValue());
+  }
+
+  /**
+   * @test
+   */
   public function mapRecursive()
   {
     $array = array('zero', 'one', array('two', 'three', array('four')));

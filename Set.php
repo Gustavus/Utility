@@ -4,14 +4,15 @@
  */
 namespace Gustavus\Utility;
 
-use Gustavus\TwigFactory\TwigFactory;
+use Gustavus\TwigFactory\TwigFactory,
+  ArrayAccess;
 
 /**
  * Object for working with Arrays
  *
  * @package Utility
  */
-class Set extends Base
+class Set extends Base implements ArrayAccess
 {
   /**
    * Function to overide abstract function in base to make sure the value is valid
@@ -32,6 +33,45 @@ class Set extends Base
   public function __toString()
   {
     return $this->toSentence()->getValue();
+  }
+
+  // ArrayAccess functions
+
+  /**
+   * @param mixed $offset
+   * @return boolean
+   */
+  public function offsetExists($offset)
+  {
+    return isset($this->value[$offset]);
+  }
+
+  /**
+   * @param mixed $offset
+   * @return mixed
+   */
+  public function offsetGet($offset)
+  {
+    return $this->value[$offset];
+  }
+
+  /**
+   * @param mixed $offset
+   * @param mixed $value
+   * @return void
+   */
+  public function offsetSet($offset, $value)
+  {
+    $this->value[$offset] = $value;
+  }
+
+  /**
+   * @param mixed $offset
+   * @return void
+   */
+  public function offsetUnset($offset)
+  {
+    unset($this->value[$offset]);
   }
 
   /**
