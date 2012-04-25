@@ -42,11 +42,13 @@ abstract class Base
    * Setter for value
    *
    * @param mixed $value
+   * @return $this
    */
   public function setValue($value)
   {
     if ($this->valueIsValid($value)) {
       $this->value = $value;
+      return $this;
     } else {
       throw new \DomainException('The value does not belong to the domain of this object.');
     }
