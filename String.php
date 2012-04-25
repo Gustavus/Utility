@@ -71,16 +71,16 @@ class String extends Base implements ArrayAccess
 
     if ($offset === 0) {
       // Offset is at the very beginning of the string
-      $this->value = $value . substr($this->value, 1);
+      $this->setValue($value . substr($this->value, 1));
     } else if ($offset === strlen($this->value) - 1) {
       // Offset is at the very end of the string
-      $this->value = substr($this->value, 0, -1) . $value;
+      $this->setValue(substr($this->value, 0, -1) . $value);
     } else if ($this->offsetExists($offset)) {
       // Offset is somewhere in the middle of the string
-      $this->value = substr($this->value, 0, $offset) . $value . substr($this->value, $offset + 1);
+      $this->setValue(substr($this->value, 0, $offset) . $value . substr($this->value, $offset + 1));
     } else {
       // String is not long enough, so we need to add spaces
-      $this->value = str_pad($this->value, $offset) . $value;
+      $this->setValue(str_pad($this->value, $offset) . $value);
     }
   }
 
@@ -131,8 +131,7 @@ class String extends Base implements ArrayAccess
       }
     }
 
-    $this->value = ucfirst(implode('', $wordsWithExceptions));
-    return $this;
+    return $this->setValue(ucfirst(implode('', $wordsWithExceptions)));
   }
 
   /**
@@ -140,8 +139,7 @@ class String extends Base implements ArrayAccess
    */
   public function lowerCase()
   {
-    $this->value = mb_strtolower($this->value);
-    return $this;
+    return $this->setValue(mb_strtolower($this->value));
   }
 
   /**
@@ -149,8 +147,7 @@ class String extends Base implements ArrayAccess
    */
   public function upperCase()
   {
-    $this->value = mb_strtoupper($this->value);
-    return $this;
+    return $this->setValue(mb_strtoupper($this->value));
   }
 
   /**
@@ -179,7 +176,7 @@ class String extends Base implements ArrayAccess
 
     // A URL must be at least 3 characters because it needs to have a domain name, a dot, and a TLD
     if (strlen($url) < 3) {
-      $this->value = '';
+      $this->setValue('');
       return $this;
     }
 
@@ -192,8 +189,7 @@ class String extends Base implements ArrayAccess
 
     $url  = preg_replace('`(?<!homepages\.)(?:www\.)?g(?>ustavus|ac)\.edu`', 'gustavus.edu', $url);
 
-    $this->value = $url;
-    return $this;
+    return $this->setValue($url);
   }
 
   /**
@@ -221,14 +217,12 @@ class String extends Base implements ArrayAccess
     $email = trim($this->value);
 
     if (empty($email)) {
-      $this->value = '';
+      return $this->setValue('');
     } else if (strpos($email, '@') === false) {
-      $this->value = "$email@gustavus.edu";
+      return $this->setValue("$email@gustavus.edu");
     } else {
-      $this->value = str_replace('@gac.edu', '@gustavus.edu', $email);
+      return $this->setValue(str_replace('@gac.edu', '@gustavus.edu', $email));
     }
-
-    return $this;
   }
 
   /**
@@ -251,8 +245,7 @@ class String extends Base implements ArrayAccess
   {
     assert('is_int($lastWordMaxLength) || is_null($lastWordMaxLength)');
 
-    $this->value = preg_replace("|([^\s])\s+([^\s]{1,$lastWordMaxLength})(</.+?>)*\s*$|", '$1&nbsp;$2$3', $this->value);
-    return $this;
+    return $this->setValue(preg_replace("|([^\s])\s+([^\s]{1,$lastWordMaxLength})(</.+?>)*\s*$|", '$1&nbsp;$2$3', $this->value));
   }
 
   /**
@@ -302,50 +295,50 @@ class String extends Base implements ArrayAccess
       // Pronouns
       case 'i':
       case 'my':
-        $this->value = 'my';
+        $this->setValue('my');
           break;
 
       case 'you':
       case 'your':
-        $this->value = 'your';
+        $this->setValue('your');
           break;
 
       case 'he':
       case 'his':
-        $this->value = 'his';
+        $this->setValue('his');
           break;
 
       case 'she':
       case 'her':
-        $this->value = 'her';
+        $this->setValue('her');
           break;
 
       case 'it':
       case 'its':
-        $this->value = 'its';
+        $this->setValue('its');
           break;
 
       case 'we':
       case 'our':
-        $this->value = 'our';
+        $this->setValue('our');
           break;
 
       case 'they':
       case 'their':
-        $this->value = 'their';
+        $this->setValue('their');
           break;
 
       // Non-pronouns
       default:
         if (substr($stringToPossessiveise, -2) === "'s" || substr($stringToPossessiveise, -2) === "s'") {
           // Already possessive
-          $this->value = $stringToPossessiveise;
+          $this->setValue($stringToPossessiveise);
         } else if (substr($stringToPossessiveise, -1) === 's' || substr($stringToPossessiveise, -1) === 'z') {
           // Ends in an s sound (should x be included here?)
-          $this->value = "$stringToPossessiveise'";
+          $this->setValue("$stringToPossessiveise'");
         } else {
           // Normal
-          $this->value = "$stringToPossessiveise's";
+          $this->setValue("$stringToPossessiveise's");
         }
           break;
     }
@@ -355,13 +348,13 @@ class String extends Base implements ArrayAccess
     if ($stringToPossessiveise === 'I') {
       // "I" is a special case (pardon the pun), and we don't know what
       // case "my" should have, so guess that it should be lowercase
-      $this->value = 'my';
+      $this->setValue('my');
     } else if ($stringToPossessiveise === strtoupper($stringToPossessiveise)) {
       // The pronoun was ALL CAPS
       $this->upperCase();
     } else if ($stringToPossessiveise === ucfirst($stringToPossessiveise)) {
       // The pronoun was Capitalized
-      $this->value = ucfirst($this->value);
+      $this->setValue(ucfirst($this->value));
     }
 
     return $this;
@@ -454,12 +447,11 @@ class String extends Base implements ArrayAccess
 
     if (strlen($this->value) === 2) {
       // We have an abbreviation and want to get the full state name
-      $this->value = array_search(strtoupper($this->value), $state);
-      return $this->titleCase();
+      return $this->setValue(array_search(strtoupper($this->value), $state))
+        ->titleCase();
     } else {
       // We have the full state name and want to get an abbreviation
-      $this->value = $state[strtoupper($this->value)];
-      return $this;
+      return $this->setValue($state[strtoupper($this->value)]);
     }
   }
 }
