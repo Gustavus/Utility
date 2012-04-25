@@ -80,7 +80,7 @@ class Set extends Base implements ArrayAccess
    * @param array $arguments
    * @return array
    */
-  public function mapRecursiveArray($callback, array $array, array $arguments)
+  protected function mapRecursiveArray($callback, array $array, array $arguments)
   {
     $mappedValues = array();
 
