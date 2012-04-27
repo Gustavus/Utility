@@ -336,6 +336,6 @@ class Set extends Base implements ArrayAccess
 
     $templateString = "{% autoescape false %}$templateString{% endautoescape %}";
 
-    return new String($twig->render("sentence.twig", array('values' => $this->value, 'endWord' => $endWord, 'max' => $max, 'wordUnit' => $templateString)));
+    return new String($twig->render('sentence.twig', array('values' => $this->value, 'endWord' => $endWord, 'max' => $max, 'wordUnit' => $templateString)));
   }
 }
