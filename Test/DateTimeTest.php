@@ -208,9 +208,9 @@ class DateTimeTest extends Test
     return array(
       array('Last month', '-1 months -3 weeks'),
 
-      array('1 month, 3 weeks, and 2 days ago', '-1 months -4 weeks', '-1 weeks', true),
+      array('1 month, 3 weeks, and 2 days ago', '-1 months -3 weeks -2 days', '', true),
 
-      array('1 year, 1 month, 3 weeks, and 2 days from now', '+1 years +1 months +3 weeks +3 days', null, true),
+      array('1 year, 1 month, 3 weeks, and 3 days from now', '+1 years +1 months +3 weeks +3 days', null, true),
       array('1 minute ago', '-1 minutes'),
 
       array('Just Now', '', 'now'),
@@ -235,7 +235,7 @@ class DateTimeTest extends Test
 
       array('Last week', '-1 months -1 weeks', '-1 months'),
 
-      array('1 month, 3 weeks, and 3 days ago', '-1 year -1 months -4 weeks', '-1 year -1 weeks', true),
+      array('1 month, 3 weeks, and 3 days ago', '-1 year -1 months -3 weeks -3 days', '-1 year', true),
 
       array('Just Now', 'now', 'now'),
     );
@@ -273,7 +273,7 @@ class DateTimeTest extends Test
     $date     = new \DateTime('-2 hours -4 minutes');
     $now      = new \DateTime('now');
 
-    $interval = $date->diff($now);
+    $interval = $now->diff($date);
     $expected = array(
       'hour'   => 2,
       'minute' => 4,
@@ -289,7 +289,7 @@ class DateTimeTest extends Test
     $date     = new \DateTime('-2 months -4 days');
     $now      = new \DateTime('now');
 
-    $interval = $date->diff($now);
+    $interval = $now->diff($date);
     $expected = array(
       'month' => 2,
       'day'   => 4,
@@ -305,7 +305,7 @@ class DateTimeTest extends Test
     $date     = new \DateTime('-40 seconds');
     $now      = new \DateTime('now');
 
-    $interval = $date->diff($now);
+    $interval = $now->diff($date);
     $expected = array(
       'second' => 40,
     );

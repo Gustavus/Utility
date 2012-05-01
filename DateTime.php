@@ -223,8 +223,8 @@ class DateTime extends Base
     $date        = $this->value;
     $now         = $this->makeDateTime($now);
 
-    $interval    = $date->diff($now);
-    $totalDays   = ($interval->invert === 0) ? $interval->days : 0 - $interval->days;
+    $interval    = $now->diff($date);
+    $totalDays   = ($interval->invert === 1) ? $interval->days : 0 - $interval->days;
     $relative    = array();
     $startText   = '';
     $intervalArr = $this->makeIntervalArray($interval, $totalDays);
@@ -259,7 +259,7 @@ class DateTime extends Base
         '%s%s %s',
         $startText,
         $setUtil->toSentence(),
-        ($interval->format('%r') === "") ? 'ago' : 'from now'
+        ($interval->format('%r') === "-") ? 'ago' : 'from now'
     ));
   }
 }
