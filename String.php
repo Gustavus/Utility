@@ -361,11 +361,11 @@ class String extends Base implements ArrayAccess
   }
 
   /**
-   * Takes a state, province, or territory, or an abbreviation. If it isn't abbreviated, it abreviates it. If it is abbreviated, it expands it.
+   * Takes a state, province, or territory and abreviates it.
    *
    * @return $this Abbreviation of the state, province or territory.
    */
-  public function state()
+  public function abbreviateState()
   {
     $state = array(
       'ALABAMA'                        => 'AL',
@@ -445,13 +445,9 @@ class String extends Base implements ArrayAccess
       'YUKON'                          => 'YT',
     );
 
-    if (strlen($this->value) === 2) {
-      // We have an abbreviation and want to get the full state name
-      return $this->setValue(array_search(strtoupper($this->value), $state))
-        ->titleCase();
-    } else {
-      // We have the full state name and want to get an abbreviation
-      return $this->setValue($state[strtoupper($this->value)]);
+    if (isset($state[strtoupper($this->value)])) {
+      $this->setValue($state[strtoupper($this->value)]);
     }
+    return $this;
   }
 }

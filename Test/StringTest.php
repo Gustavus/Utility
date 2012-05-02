@@ -372,10 +372,10 @@ class StringTest extends Test
    * @test
    * @dataProvider stateData
    */
-  public function state($expected, $value)
+  public function abbreviateState($expected, $value)
   {
     $this->string->setValue($value);
-    $this->assertSame($expected, $this->string->state()->getValue());
+    $this->assertSame($expected, $this->string->abbreviateState()->getValue());
   }
 
   /**
@@ -387,8 +387,6 @@ class StringTest extends Test
       array('OK', 'Oklahoma'),
       array('MN', 'Minnesota'),
       array('AK', 'Alaska'),
-      array('Alaska', 'AK'),
-      array('Alaska', 'ak'),
       array('AK', 'alaska'),
       array('MI', 'Michigan'),
       array('ON', 'ONTARIO'),
