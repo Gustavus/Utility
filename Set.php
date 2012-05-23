@@ -149,66 +149,6 @@ class Set extends Base implements ArrayAccess
   }
 
   /**
-   * @param string|integer $rowkey
-   * @param mixed $row
-   * @param array $keyArray
-   * @return array
-   */
-  private function sentenceArgumentsArray($rowkey, $row, array $keyArray)
-  {
-    assert('is_string($rowkey) || is_int($rowkey)');
-
-    $argsArray  = array();
-
-    if (is_string($row)) {
-      foreach ($keyArray as $key) {
-        if ($key === '[key]') {
-          $argsArray[]  = trim($rowkey);
-        } else {
-          $argsArray[]  = trim($row);
-        }
-      } // foreach
-    } else {
-      foreach ($keyArray as $position => $key) {
-        if ($key === '[key]') {
-          $argsArray[]  = trim($rowkey);
-        } else if (isset($row[$key])) {
-          $argsArray[]  = trim($row[$key]);
-        } else if (is_array($row)) {
-          $set = new Set($row);
-          $argsArray[]  = trim($set->at($position));
-        } else {
-          $argsArray[]  = trim($row);
-        }
-      } // foreach
-    } // if
-
-    return $argsArray;
-  }
-
-  /**
-   * Applies callbacks to the arguments array
-   *
-   * @param mixed $args
-   * @param array $callbacks
-   * @return array
-   */
-  private function sentenceCallbacks($args, array $callbacks)
-  {
-    if (!empty($callbacks)) {
-      foreach ($callbacks as $callback) {
-        if (is_array($args)) {
-          $args = array_map($callback, $args);
-        } else {
-          $args = call_user_func($callback, $args);
-        }
-      }
-    } // if
-
-    return $args;
-  }
-
-  /**
    * Convert an array to sentence list format (e.g. 'Apples, Cats, and Houses')
    *
    * Usage:
