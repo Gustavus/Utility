@@ -245,7 +245,7 @@ class DateTime extends Base
       // make specific date array
       foreach ($intervalArr as $key => $value) {
         $numberUtil = new Number($value);
-        $relative[] = $numberUtil->toQuantity("%s $key ", "%s {$key}s ")->getValue();
+        $relative[] = $numberUtil->toQuantity("%s $key", "%s {$key}s")->getValue();
       }
     }
 
