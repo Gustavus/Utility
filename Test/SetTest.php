@@ -159,170 +159,55 @@ class SetTest extends Test
   /**
    * @test
    */
-  public function toSentenceWithOneWord()
-  {
-    $array  = array('one');
-    $set = new Utility\Set($array);
-    $this->assertSame('one', $set->toSentence()->getValue());
-  }
-
-  /**
-   * @test
-   */
-  public function toSentenceWithTwoWord()
-  {
-    $array  = array('one', 'two');
-    $set = new Utility\Set($array);
-    $this->assertSame('one and two', $set->toSentence()->getValue());
-  }
-
-  /**
-   * @test
-   */
-  public function toSentenceWithThreeWords()
-  {
-    $array  = array('one', 'two', 'three');
-    $set = new Utility\Set($array);
-    $this->assertSame('one, two, and three', $set->toSentence()->getValue());
-  }
-
-  /**
-   * @test
-   */
-  public function toSentenceWithCommasInArray()
-  {
-    $array  = array('one, two, and three', 'four, five, and six', 'seven, eight, and nine');
-    $set = new Utility\Set($array);
-    $this->assertSame('one, two, and three; four, five, and six; and seven, eight, and nine', $set->toSentence()->getValue());
-  }
-
-  /**
-   * @test
-   */
-  public function toSentenceWithNulls()
-  {
-    $array = array('one', 'two', null, 'three', null, 'four');
-    $set = new Utility\Set($array);
-    $this->assertSame('one, two, three, and four', $set->toSentence()->getValue());
-
-    $array = array(null);
-    $set = new Utility\Set($array);
-    $this->assertSame('', $set->toSentence()->getValue());
-
-    $array = array('', null, '', null, ' ', null);
-    $set = new Utility\Set($array);
-    $this->assertSame('', $set->toSentence()->getValue());
-  }
-
-  /**
-   * @test
-   */
-  public function toSentenceWithPadding()
-  {
-    $array = array('one', ' two', 'three ', ' four ', '  five  ');
-    $set = new Utility\Set($array);
-    $this->assertSame('one, two, three, four, and five', $set->toSentence()->getValue());
-  }
-
-  /**
-   * @test
-   */
-  public function toSentenceWithCallbacks()
-  {
-    $array = array('ONE', ' two', 'ThReE',);
-    $set = new Utility\Set($array);
-    $this->assertSame('ONE, TWO, and THREE', $set->toSentence('%s', array(0), array('strtoupper'))->getValue());
-  }
-
-  /**
-   * @test
-   */
-  public function toSentenceWithCallbacksArrays()
-  {
-    $array = array('a' => array('ONE', 'two'), 'b' => array(' two', 'three'), 'c' => 'ThReE',);
-    $set = new Utility\Set($array);
-    $this->assertSame('ONE, TWO, and THREE', $set->toSentence('%s', array(0), array('strtoupper'))->getValue());
-  }
-
-
-  /**
-   * @test
-   */
-  public function toSentenceWithCallbacksAndNestedArrays()
-  {
-    $array = array(array('one', 'two'), array('three', 'four'), array('five', 'six'));
-    $set = new Utility\Set($array);
-    $this->assertSame('TWO, FOUR, and SIX', $set->toSentence('%s', array(1), array('strtoupper'))->getValue());
-  }
-
-  /**
-   * @test
-   */
-  public function toSentenceWithoutEndWordTwoWords()
-  {
-    $set = new Utility\Set(array('one', 'two'));
-    $this->assertSame('one two', $set->toSentence('%s', array(0), array(), 0, '')->getValue());
-  }
-
-  /**
-   * @test
-   */
-  public function toSentenceWithoutEndWordThreeWords()
+  public function toSentence()
   {
     $set = new Utility\Set(array('one', 'two', 'three'));
-    $this->assertSame('one, two, three', $set->toSentence('%s', array(0), array(), 0, '')->getValue());
+    $this->assertSame('one, two, and three', $set->toSentence('{{ value }}')->getValue());
   }
 
   /**
    * @test
    */
-  public function toSentenceWithKey()
+  public function toSentenceToUpper()
   {
-    $array = array('a' => array('one', 'two'), 'b' => array('three', 'four'), 'c' => array('five', 'six'));
-    $set = new Utility\Set($array);
-    $this->assertSame('a, b, and c', $set->toSentence('%s', array('[key]'))->getValue());
-    $this->assertSame('a-two, b-four, and c-six', $set->toSentence('%s-%s', array('[key]', 1))->getValue());
+    $set = new Utility\Set(array('one', 'two', 'three'));
+    $this->assertSame('ONE, TWO, and THREE', $set->toSentence('{{ value|upper }}')->getValue());
   }
 
   /**
    * @test
    */
-  public function toSentenceWithKeyNonArray()
+  public function toSentenceWithCommas()
   {
-    $array = array('a' => 'one', 'b' => 'three', 'c' => 'five');
-    $set = new Utility\Set($array);
-    $this->assertSame('a-one, b-three, and c-five', $set->toSentence('%s-%s', array('[key]', 1))->getValue());
+    $set = new Utility\Set(array('one, two', 'two', 'three'));
+    $this->assertSame('one, two; two; and three', $set->toSentence('{{ value }}')->getValue());
   }
 
   /**
    * @test
    */
-  public function toSentenceWithKeyArrays()
+  public function toSentenceWithArrays()
   {
-    $array = array('a' => array('one', 'two'), 'b' => array('three', 'four'), 'c' => array('five', 'six'));
-    $set = new Utility\Set($array);
-    $this->assertSame('a-two, b-four, and c-six', $set->toSentence('%s-%s', array('[key]', 3))->getValue());
+    $set = new Utility\Set(array('a' => array('one', 'two'), 'b' => array('three', 'four'), 'c' => 'five'));
+    $this->assertSame('two, and four', $set->toSentence('{{ value.1 }}')->getValue());
   }
 
   /**
    * @test
    */
-  public function toSentenceWithKeyNumbers()
+  public function toSentenceWithArraysAtFirstPos()
   {
-    $array = array('a' => 1, 'b' => 3, 'c' => 4);
-    $set = new Utility\Set($array);
-    $this->assertSame('a-1, b-3, and c-4', $set->toSentence('%s-%s', array('[key]', 3))->getValue());
+    $set = new Utility\Set(array('a' => array('one', 'two'), 'b' => array('three', 'four'), 'c' => 'five'));
+    $this->assertSame('a-one, b-three, and c-', $set->toSentence('{{ key }}-{{ value.0 }}')->getValue());
   }
-
 
   /**
    * @test
    */
-  public function toSentenceFancyPattern()
+  public function toSentenceWithArraysLogicInTwig()
   {
-    $array = array('one', 'two', 'three');
-    $set = new Utility\Set($array);
-    $this->assertSame('-one-, -two-, and -three-', $set->toSentence('-%s-')->getValue());
+    $set = new Utility\Set(array('a' => array('one', 'two'), 'b' => array('three', 'four'), 'c' => 'five'));
+    $this->assertSame('a-one, b-three, and c-five', $set->toSentence('{% if value|keys|length > 0 %}{{ key }}-{{ value.0 }}{% else %}{{ key }}-{{ value }}{% endif %}')->getValue());
   }
 
   /**
@@ -332,7 +217,7 @@ class SetTest extends Test
   {
     $array = array('<a href="#" title="This, is a test">one</a>', 'two', 'three');
     $set = new Utility\Set($array);
-    $this->assertSame('<a href="#" title="This, is a test">one</a>, two, and three', $set->toSentence()->getValue());
+    $this->assertSame('<a href="#" title="This, is a test">one</a>, two, and three', $set->toSentence('{{ value }}')->getValue());
   }
 
   /**
@@ -341,9 +226,9 @@ class SetTest extends Test
   public function toSentenceNonZeroMax()
   {
     $set = new Utility\Set(array('one', 'two', 'three'));
-    $expected = '<span class="">one <small><a href="#" class="doToggle" rel="span.">(more)</a></small></span><span class="nodisplay ">one, two, and three <small><a href="#" class="doToggle" rel="span.">(less)</a></small></span>';
+    $expected = 'one<span class=""><small><a href="#" class="doToggle" rel="span.">and more</a></small></span><span class="nodisplay ">, two, and three <small><a href="#" class="doToggle" rel="span.">less</a></small></span>';
     // filter out random class names
-    $actual = $set->toSentence('%s', array(0), array(), 1)->getValue();
+    $actual = $set->toSentence('{{ value }}', 'and', 1)->getValue();
     preg_match('`class="([^"]+)"`', $actual, $match);
     $actual = str_replace($match[1], '', $actual);
 
@@ -353,76 +238,12 @@ class SetTest extends Test
   /**
    * @test
    */
-  public function newSentence()
-  {
-    $set = new Utility\Set(array('one', 'two', 'three'));
-    $this->assertSame('one, two, and three', $set->newSentence('{{ value }}')->getValue());
-  }
-
-  /**
-   * @test
-   */
-  public function newSentenceToUpper()
-  {
-    $set = new Utility\Set(array('one', 'two', 'three'));
-    $this->assertSame('ONE, TWO, and THREE', $set->newSentence('{{ value|upper }}')->getValue());
-  }
-
-  /**
-   * @test
-   */
-  public function newSentenceWithCommas()
-  {
-    $set = new Utility\Set(array('one, two', 'two', 'three'));
-    $this->assertSame('one, two; two; and three', $set->newSentence('{{ value }}')->getValue());
-  }
-
-  /**
-   * @test
-   */
-  public function newSentenceWithArrays()
-  {
-    $set = new Utility\Set(array('a' => array('one', 'two'), 'b' => array('three', 'four'), 'c' => 'five'));
-    $this->assertSame('two, and four', $set->newSentence('{{ value.1 }}')->getValue());
-  }
-
-  /**
-   * @test
-   */
-  public function newSentenceWithArraysAtFirstPos()
-  {
-    $set = new Utility\Set(array('a' => array('one', 'two'), 'b' => array('three', 'four'), 'c' => 'five'));
-    $this->assertSame('a-one, b-three, and c-', $set->newSentence('{{ key }}-{{ value.0 }}')->getValue());
-  }
-
-  /**
-   * @test
-   */
-  public function newSentenceWithArraysLogicInTwig()
-  {
-    $set = new Utility\Set(array('a' => array('one', 'two'), 'b' => array('three', 'four'), 'c' => 'five'));
-    $this->assertSame('a-one, b-three, and c-five', $set->newSentence('{% if value|keys|length > 0 %}{{ key }}-{{ value.0 }}{% else %}{{ key }}-{{ value }}{% endif %}')->getValue());
-  }
-
-  /**
-   * @test
-   */
-  public function newSentenceWithCommasInTags()
-  {
-    $array = array('<a href="#" title="This, is a test">one</a>', 'two', 'three');
-    $set = new Utility\Set($array);
-    $this->assertSame('<a href="#" title="This, is a test">one</a>, two, and three', $set->newSentence('{{ value }}')->getValue());
-  }
-
-  /**
-   * @test
-   */
-  public function newSentenceNonZeroMax()
+  public function toSentenceNonOneMax()
   {
     $set = new Utility\Set(array('one', 'two', 'three'));
     $expected = 'one<span class=""><small><a href="#" class="doToggle" rel="span.">and more</a></small></span><span class="nodisplay ">, two, and three <small><a href="#" class="doToggle" rel="span.">less</a></small></span>';
     // filter out random class names
-    $actual = $set->newSentence('{{ value }}', 'and', 1)->getValue();
+    $actual = $set->toSentence('{{ value }}', 'and', 2)->getValue();
     preg_match('`class="([^"]+)"`', $actual, $match);
     $actual = str_replace($match[1], '', $actual);
 
@@ -432,27 +253,12 @@ class SetTest extends Test
   /**
    * @test
    */
-  public function newSentenceNonOneMax()
-  {
-    $set = new Utility\Set(array('one', 'two', 'three'));
-    $expected = 'one<span class=""><small><a href="#" class="doToggle" rel="span.">and more</a></small></span><span class="nodisplay ">, two, and three <small><a href="#" class="doToggle" rel="span.">less</a></small></span>';
-    // filter out random class names
-    $actual = $set->newSentence('{{ value }}', 'and', 2)->getValue();
-    preg_match('`class="([^"]+)"`', $actual, $match);
-    $actual = str_replace($match[1], '', $actual);
-
-    $this->assertSame($expected, $actual);
-  }
-
-  /**
-   * @test
-   */
-  public function newSentenceNonTwoMax()
+  public function toSentenceNonTwoMax()
   {
     $set = new Utility\Set(array('one', 'two', 'three', 'four'));
     $expected = 'one, two<span class=""><small><a href="#" class="doToggle" rel="span.">, and more</a></small></span><span class="nodisplay ">, three, and four <small><a href="#" class="doToggle" rel="span.">less</a></small></span>';
     // filter out random class names
-    $actual = $set->newSentence('{{ value }}', 'and', 3)->getValue();
+    $actual = $set->toSentence('{{ value }}', 'and', 3)->getValue();
     preg_match('`class="([^"]+)"`', $actual, $match);
     $actual = str_replace($match[1], '', $actual);
 
@@ -462,11 +268,11 @@ class SetTest extends Test
   /**
    * @test
    */
-  public function newSentenceThreeMaxAndThreeTotal()
+  public function toSentenceThreeMaxAndThreeTotal()
   {
     $set = new Utility\Set(array('one', 'two', 'three'));
     $expected = 'one, two, and three';
 
-    $this->assertSame($expected, $set->newSentence('{{ value }}', 'and', 3)->getValue());
+    $this->assertSame($expected, $set->toSentence('{{ value }}', 'and', 3)->getValue());
   }
 }
