@@ -262,4 +262,23 @@ class DateTime extends Base
         ($interval->format('%r') === "-") ? 'ago' : 'from now'
     ));
   }
+
+  /**
+   * Checks to see if $this->value is in the date range of firstDate and endDate
+   *
+   * @param  string $firstDate
+   * @param  string $endDate
+   * @return boolean
+   */
+  public function inDateRange($firstDate, $endDate)
+  {
+    $firstDate = $this->makeDateTime($firstDate)->format('U');
+    $endDate   = $this->makeDateTime($endDate)->format('U');
+    $date      = $this->value->format('U');
+    if ($firstDate > $endDate) {
+      return ($endDate <= $date && $date <= $firstDate);
+    } else {
+      return ($firstDate <= $date && $date <= $endDate);
+    }
+  }
 }
