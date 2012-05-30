@@ -311,4 +311,30 @@ class DateTimeTest extends Test
     );
     $this->assertSame($expected, $this->dateTime->makeIntervalArray($interval));
   }
+
+  /**
+   * @test
+   * @dataProvider inDateRangeData
+   */
+  public function inDateRange($expected, $start, $end, $date)
+  {
+    $date = new Utility\DateTime($date);
+    $this->assertSame($expected, $date->inDateRange($start, $end));
+  }
+
+  /**
+   * @return array
+   */
+  public function inDateRangeData()
+  {
+    return array(
+      array(false, 'June 1', 'August 15', 'May 31'),
+      array(false, 'June 1', 'August 15', 'August 16'),
+      array(true, 'June 1', 'August 15', 'June 1'),
+      array(true, 'June 1', 'August 15', 'July 29'),
+      array(true, 'June 1', 'August 15', 'August 15'),
+      array(true, 'August 15', 'June 15', 'August 14'),
+      array(false, 'August 15', 'June 15', 'August 16'),
+    );
+  }
 }
