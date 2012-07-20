@@ -8,10 +8,10 @@
     {% endfor %}
 
     {% if values|length > 2 %}
-      {% if ',' in valueStr %}
+      {% if separator in valueStr %}
         {% set delimiter = ';' %}
       {% else %}
-        {% set delimiter = ',' %}
+        {% set delimiter = separator %}
       {% endif %}
     {% else %}
       {% set delimiter = '' %}
@@ -31,7 +31,12 @@
       {% if loop.first %}
         {% set delimiterToUse = '' %}
       {% elseif loop.last %}
-        {% set delimiterToUse = delimiter ~ ' ' ~ endWord ~ ' ' %}
+        {% if endWord == '' %}
+          {% set endWordToUse = '' %}
+        {% else %}
+          {% set endWordToUse = ' ' ~ endWord %}
+        {% endif %}
+        {% set delimiterToUse = delimiter ~ endWordToUse ~ ' ' %}
       {% else %}
         {% set delimiterToUse = delimiter ~ ' ' %}
       {% endif %}

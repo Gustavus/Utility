@@ -279,6 +279,15 @@ class SetTest extends Test
   /**
    * @test
    */
+  public function toSentenceNonCommaSeparator()
+  {
+    $set = new Utility\Set(array('one', 'two', 'three'));
+    $this->assertSame('one| two| three', $set->toSentence('{{ value }}', '', 0, '|')->getValue());
+  }
+
+  /**
+   * @test
+   */
   public function getSynonyms()
   {
     $set = new Utility\Set(array('billy'));
