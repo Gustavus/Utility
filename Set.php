@@ -175,4 +175,44 @@ class Set extends Base implements ArrayAccess
 
     return new String($twig->render('sentence.twig', array('values' => $this->value, 'endWord' => $endWord, 'max' => $max, 'wordUnit' => $templateString)));
   }
+
+  /**
+   * Takes an array and returns an array of all the values of any nested arrays
+   *
+   * @return Set
+   */
+  public function arrayValues()
+  {
+    $newArray = array();
+    array_walk_recursive($this->value,
+        function($value, $key, $newArray) {
+          $newArray[] = $value;
+        },
+        &$newArray
+    );
+    return $this->setValue($newArray);
+  }
+
+  /**
+   * Gets an array of synonyms given an array of items to get synonyms for
+   *
+   * @return Set
+   */
+  public function getSynonyms()
+  {
+    $dbal = \Gustavus\Doctrine\DBAL::getDBAL('synonyms');
+    $qb = $dbal->createQueryBuilder();
+
+    $where = \Doctrine\ORM\Query\Expr::in('s1.synonym', ':words');
+
+    $qb->select('s2.synonym')
+      ->from('synonyms', 's1')
+      ->innerJoin('s1', 'synonymPools', 'p1', 'p1.synonymId = s1.synonymId')
+      ->innerJoin('s1', 'synonymPools', 'p2', 'p2.poolId = p1.poolId')
+      ->innerJoin('s1', 'synonyms', 's2', 's2.synonymId = p2.synonymId')
+      ->where($where);
+
+    $this->setValue($dbal->fetchAll($qb->getSQL(), array(':words' => implode(',', $this->value))));
+    return $this->arrayValues();
+  }
 }
