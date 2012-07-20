@@ -275,4 +275,60 @@ class SetTest extends Test
 
     $this->assertSame($expected, $set->toSentence('{{ value }}', 'and', 3)->getValue());
   }
+
+  /**
+   * @test
+   */
+  public function getSynonyms()
+  {
+    $set = new Utility\Set(array('billy'));
+    $expected = array('bill', 'william', 'billy', 'will', 'willy', 'willie');
+
+    $this->assertSame($expected, $set->getSynonyms()->getValue());
+  }
+
+  /**
+   * @test
+   */
+  public function arrayValues()
+  {
+    $arrayOfAssoc = array(
+      array('test' => 'value'),
+      array('another array' => 'value1'),
+      'value2',
+    );
+    $expected = array('value', 'value1', 'value2');
+    $set = new Utility\Set($arrayOfAssoc);
+    $this->assertSame($expected, $set->arrayValues()->getValue());
+  }
+
+  /**
+   * @test
+   */
+  public function arrayValues2()
+  {
+    $arrayOfAssoc = array(
+      'test' => 'value',
+      array('another array' => 'value1'),
+      'value2',
+    );
+    $expected = array('value', 'value1', 'value2');
+    $set = new Utility\Set($arrayOfAssoc);
+    $this->assertSame($expected, $set->arrayValues()->getValue());
+  }
+
+  /**
+   * @test
+   */
+  public function arrayValues3()
+  {
+    $arrayOfAssoc = array(
+      'test' => 'value',
+      'another array' => 'value1',
+      'value2',
+    );
+    $expected = array('value', 'value1', 'value2');
+    $set = new Utility\Set($arrayOfAssoc);
+    $this->assertSame($expected, $set->arrayValues()->getValue());
+  }
 }

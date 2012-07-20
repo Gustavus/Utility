@@ -84,7 +84,7 @@ class DateTime extends Base
   /**
    * Figures out the class name based off of the DateInterval
    *
-   * @param mixed $now time to get relative time against
+   * @param int|string $now time to get relative time against
    * @return String
    */
   public function toRelativeClassName($now = null)
@@ -159,7 +159,7 @@ class DateTime extends Base
   /**
    * Make DateTime object
    *
-   * @param  mixed $date
+   * @param  int|string $date
    * @return DateTime
    */
   private function makeDateTime($date = null)
@@ -214,7 +214,7 @@ class DateTime extends Base
    * Outputs a sentence of how long ago this revision was made.
    * ie. 2 years ago, 3 months ago, 5 days ago, 1 day ago, 3 hours ago, 4 minutes ago, and 23 seconds ago.
    *
-   * @param mixed $now Time to get relative time against
+   * @param int|string $now Time to get relative time against
    * @param boolean $beSpecific whether to output the greatest time measurement, or to be as specific as possible
    * @return String
    */
@@ -266,8 +266,8 @@ class DateTime extends Base
   /**
    * Checks to see if $this->value is in the date range of firstDate and endDate
    *
-   * @param  string $firstDate
-   * @param  string $endDate
+   * @param  int|string $firstDate
+   * @param  int|string $endDate
    * @return boolean
    */
   public function inDateRange($firstDate, $endDate)
