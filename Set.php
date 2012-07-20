@@ -167,13 +167,13 @@ class Set extends Base implements ArrayAccess
    * @param  integer $max            Number of items to display in the sentence
    * @return String
    */
-  public function toSentence($templateString = '{{ value }}', $endWord = 'and', $max = 0)
+  public function toSentence($templateString = '{{ value }}', $endWord = 'and', $max = 0, $separator = ',')
   {
     $twig = TwigFactory::getTwigFilesystem("/cis/lib/Gustavus/Utility/Views/Set/");
 
     $templateString = "{% autoescape false %}$templateString{% endautoescape %}";
 
-    return new String($twig->render('sentence.twig', array('values' => $this->value, 'endWord' => $endWord, 'max' => $max, 'wordUnit' => $templateString)));
+    return new String($twig->render('sentence.twig', array('values' => $this->value, 'endWord' => $endWord, 'max' => $max, 'wordUnit' => $templateString, 'separator' => $separator)));
   }
 
   /**
