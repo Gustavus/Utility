@@ -184,13 +184,15 @@ class Set extends Base implements ArrayAccess
   public function arrayValues()
   {
     $newArray = array();
-    array_walk_recursive($this->value,
-        function($value, $key, $newArray) {
-          $newArray[] = $value;
-        },
+    array_walk_recursive($this->value, array($this, 'arrayValuesHelper'),
         &$newArray
     );
     return $this->setValue($newArray);
+  }
+
+  private function arrayValuesHelper($value, $key, $newArray)
+  {
+    $newArray[] = $value;
   }
 
   /**
@@ -203,14 +205,12 @@ class Set extends Base implements ArrayAccess
     $dbal = \Gustavus\Doctrine\DBAL::getDBAL('synonyms');
     $qb = $dbal->createQueryBuilder();
 
-    $where = \Doctrine\ORM\Query\Expr::in('s1.synonym', ':words');
-
     $qb->select('s2.synonym')
       ->from('synonyms', 's1')
       ->innerJoin('s1', 'synonymPools', 'p1', 'p1.synonymId = s1.synonymId')
       ->innerJoin('s1', 'synonymPools', 'p2', 'p2.poolId = p1.poolId')
       ->innerJoin('s1', 'synonyms', 's2', 's2.synonymId = p2.synonymId')
-      ->where($where);
+      ->where('s1.synonym IN (:words)');
 
     $this->setValue($dbal->fetchAll($qb->getSQL(), array(':words' => implode(',', $this->value))));
     return $this->arrayValues();
