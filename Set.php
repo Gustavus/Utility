@@ -220,4 +220,40 @@ class Set extends Base implements ArrayAccess
     $this->setValue($dbal->fetchAll($qb->getSQL(), array(':words' => implode(',', $this->value))));
     return $this->arrayValues();
   }
+
+  /**
+   * Encodes nested arrays
+   *
+   * @return Set
+   */
+  public function encodeValues()
+  {
+    array_walk($this->value,
+        function(&$value, $key)
+        {
+          if (is_array($value)) {
+            $value = json_encode($value);
+          }
+        }
+    );
+    return $this;
+  }
+
+  /**
+   * Decodes nested arrays
+   *
+   * @return Set
+   */
+  public function decodeValues()
+  {
+    array_walk($this->value,
+        function(&$value, $key)
+        {
+          if (json_decode($value) !== null) {
+            $value = json_decode($value);
+          }
+        }
+    );
+    return $this;
+  }
 }

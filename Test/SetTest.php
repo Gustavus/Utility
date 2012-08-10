@@ -340,4 +340,44 @@ class SetTest extends Test
     $set = new Utility\Set($arrayOfAssoc);
     $this->assertSame($expected, $set->arrayValues()->getValue());
   }
+
+  /**
+   * @test
+   */
+  public function encodeValues()
+  {
+    $array = ['all', 'anon', array('callbacks')];
+    $expected = ['all', 'anon', '["callbacks"]'];
+    $this->assertSame($expected, (new Utility\Set($array))->encodeValues()->getValue());
+  }
+
+  /**
+   * @test
+   */
+  public function encodeValuesTwo()
+  {
+    $array = ['all', 'anon', array('callbacks', array('test'))];
+    $expected = ['all', 'anon', '["callbacks",["test"]]'];
+    $this->assertSame($expected, (new Utility\Set($array))->encodeValues()->getValue());
+  }
+
+  /**
+   * @test
+   */
+  public function decodeValues()
+  {
+    $expected = ['all', 'anon', array('callbacks')];
+    $array = ['all', 'anon', '["callbacks"]'];
+    $this->assertSame($expected, (new Utility\Set($array))->decodeValues()->getValue());
+  }
+
+  /**
+   * @test
+   */
+  public function decodeValuesTwo()
+  {
+    $expected = ['all', 'anon', array('callbacks', array('test'))];
+    $array = ['all', 'anon', '["callbacks",["test"]]'];
+    $this->assertSame($expected, (new Utility\Set($array))->decodeValues()->getValue());
+  }
 }
