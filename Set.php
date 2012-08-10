@@ -185,19 +185,13 @@ class Set extends Base implements ArrayAccess
   {
     $oldArray = $this->value;
     $this->setValue(array());
-    array_walk_recursive($oldArray, array($this, 'arrayValuesHelper'));
+    array_walk_recursive($oldArray,
+        function($value, $key)
+        {
+          $this->value[] = $value;
+        }
+    );
     return $this;
-  }
-
-  /**
-   * Function to manipulate $this->value to be used by arrayValues
-   *
-   * @param  string $value
-   * @return void
-   */
-  private function arrayValuesHelper($value)
-  {
-    $this->value[] = $value;
   }
 
   /**
