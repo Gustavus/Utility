@@ -183,14 +183,15 @@ class Set extends Base implements ArrayAccess
    */
   public function arrayValues()
   {
-    $newArray = array();
-    array_walk_recursive($this->value,
-        function($value, $key, $newArray) {
-          $newArray[] = $value;
-        },
-        &$newArray
+    $oldArray = $this->value;
+    $this->setValue(array());
+    array_walk_recursive($oldArray,
+        function($value, $key)
+        {
+          $this->value[] = $value;
+        }
     );
-    return $this->setValue($newArray);
+    return $this;
   }
 
   /**
@@ -203,16 +204,50 @@ class Set extends Base implements ArrayAccess
     $dbal = \Gustavus\Doctrine\DBAL::getDBAL('synonyms');
     $qb = $dbal->createQueryBuilder();
 
-    $where = \Doctrine\ORM\Query\Expr::in('s1.synonym', ':words');
-
     $qb->select('s2.synonym')
       ->from('synonyms', 's1')
       ->innerJoin('s1', 'synonymPools', 'p1', 'p1.synonymId = s1.synonymId')
       ->innerJoin('s1', 'synonymPools', 'p2', 'p2.poolId = p1.poolId')
       ->innerJoin('s1', 'synonyms', 's2', 's2.synonymId = p2.synonymId')
-      ->where($where);
+      ->where('s1.synonym IN (:words)');
 
     $this->setValue($dbal->fetchAll($qb->getSQL(), array(':words' => implode(',', $this->value))));
     return $this->arrayValues();
+  }
+
+  /**
+   * Encodes nested arrays
+   *
+   * @return Set
+   */
+  public function encodeValues()
+  {
+    array_walk($this->value,
+        function(&$value, $key)
+        {
+          if (is_array($value)) {
+            $value = json_encode($value);
+          }
+        }
+    );
+    return $this;
+  }
+
+  /**
+   * Decodes nested arrays
+   *
+   * @return Set
+   */
+  public function decodeValues()
+  {
+    array_walk($this->value,
+        function(&$value, $key)
+        {
+          if (json_decode($value) !== null) {
+            $value = json_decode($value);
+          }
+        }
+    );
+    return $this;
   }
 }
