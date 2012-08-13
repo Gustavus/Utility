@@ -346,7 +346,7 @@ class SetTest extends Test
    */
   public function encodeValues()
   {
-    $array = ['all', 'anon', ['callbacks']];
+    $array = ['all', 'anon',['callbacks']];
     $expected = ['all', 'anon', '["callbacks"]'];
     $this->assertSame($expected, (new Utility\Set($array))->encodeValues()->getValue());
   }
@@ -356,7 +356,7 @@ class SetTest extends Test
    */
   public function encodeValuesTwo()
   {
-    $array = ['all', 'anon', ['callbacks', ['test']]];
+    $array = ['all', 'anon',['callbacks',['test']]];
     $expected = ['all', 'anon', '["callbacks",["test"]]'];
     $this->assertSame($expected, (new Utility\Set($array))->encodeValues()->getValue());
   }
@@ -366,7 +366,7 @@ class SetTest extends Test
    */
   public function decodeValues()
   {
-    $expected = ['all', 'anon', ['callbacks']];
+    $expected = ['all', 'anon',['callbacks']];
     $array = ['all', 'anon', '["callbacks"]'];
     $this->assertSame($expected, (new Utility\Set($array))->decodeValues()->getValue());
   }
@@ -376,7 +376,7 @@ class SetTest extends Test
    */
   public function decodeValuesTwo()
   {
-    $expected = ['all', 'anon', ['callbacks', ['test']]];
+    $expected = ['all', 'anon',['callbacks',['test']]];
     $array = ['all', 'anon', '["callbacks",["test"]]'];
     $this->assertSame($expected, (new Utility\Set($array))->decodeValues()->getValue());
   }
