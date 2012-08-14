@@ -75,6 +75,7 @@ class SetTest extends Test
    */
   public function ArrayAccess()
   {
+
     $set = new Utility\Set(array('one', 'two', 'three'));
 
     $this->assertSame('one', $set[0]);
