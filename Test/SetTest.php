@@ -75,7 +75,6 @@ class SetTest extends Test
    */
   public function ArrayAccess()
   {
-
     $set = new Utility\Set(array('one', 'two', 'three'));
 
     $this->assertSame('one', $set[0]);
@@ -380,5 +379,15 @@ class SetTest extends Test
     $expected = ['all', 'anon',['callbacks',['test']]];
     $array = ['all', 'anon', '["callbacks",["test"]]'];
     $this->assertSame($expected, (new Utility\Set($array))->decodeValues()->getValue());
+  }
+
+  /**
+   * @test
+   */
+  public function flatten()
+  {
+    $expected = [1,2,3,4];
+    $array = [['id' => 1], 2, 'id' => 3, [['id' => 4]]];
+    $this->assertSame($expected, (new Utility\Set($array))->flattenValues()->getValue());
   }
 }

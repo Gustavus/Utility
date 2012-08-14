@@ -250,4 +250,22 @@ class Set extends Base implements ArrayAccess
     );
     return $this;
   }
+
+  /**
+   * Flattens an array using only the values
+   *
+   * @return Set
+   */
+  public function flattenValues()
+  {
+    $array = $this->value;
+    $this->value = array();
+    array_walk_recursive($array,
+        function($value)
+        {
+          $this->value[] = $value;
+        }
+    );
+    return $this;
+  }
 }
