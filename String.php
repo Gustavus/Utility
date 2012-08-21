@@ -193,6 +193,23 @@ class String extends Base implements ArrayAccess
   }
 
   /**
+   * Splits a query string into an associative array
+   * @return Set
+   */
+  public function splitQueryString()
+  {
+    $split = preg_split('`\&|\?|\=`', $this->value, null, PREG_SPLIT_NO_EMPTY|PREG_SPLIT_DELIM_CAPTURE);
+    $set = new Set(array());
+    for ($i = 0; $i + 1 < count($split);) {
+      if (isset($split[$i + 1], $split[$i])) {
+        $set->offsetSet($split[$i], $split[$i + 1]);
+      }
+      $i += 2;
+    }
+    return $set;
+  }
+
+  /**
    * Fixes up sloppy e-mail addresses so they are correctly and uniformly formatted
    *
    * Usage:
