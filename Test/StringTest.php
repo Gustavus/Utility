@@ -414,6 +414,7 @@ class StringTest extends Test
       [['revisionNumber' => '1'], '?revisionNumber=1&oldestRevision='],
       [['revisionNumber' => '1'], '?revisionNumber=1&oldestRevision'],
       [['revisionNumber' => '1', 'oldestRevision' => '0'], 'revisionNumber=1&oldestRevision=0'],
+      [['revisionNumbers' => ['1', '2']], '?revisionNumbers[]=1&revisionNumbers[]=2'],
     ];
   }
 }
