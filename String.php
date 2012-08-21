@@ -200,11 +200,10 @@ class String extends Base implements ArrayAccess
   {
     $split = preg_split('`\&|\?|\=`', $this->value, null, PREG_SPLIT_NO_EMPTY|PREG_SPLIT_DELIM_CAPTURE);
     $set = new Set(array());
-    for ($i = 0; $i + 1 < count($split);) {
+    for ($i = 0; $i + 1 < count($split); $i += 2) {
       if (isset($split[$i + 1], $split[$i])) {
         $set->offsetSet($split[$i], $split[$i + 1]);
       }
-      $i += 2;
     }
     return $set;
   }
