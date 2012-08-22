@@ -8,7 +8,8 @@ namespace Gustavus\Utility\Test;
 
 use Gustavus\Utility,
   Gustavus\Test\Test,
-  Gustavus\Test\TestObject;
+  Gustavus\Test\TestObject,
+  Gustavus\Utility\Test\TestObject as SetTestObject;
 
 /**
  * @package Utility
@@ -283,6 +284,21 @@ class SetTest extends Test
   {
     $set = new Utility\Set(array('one', 'two', 'three'));
     $this->assertSame('one| two| three', $set->toSentence('{{ value }}', '', 0, '|')->getValue());
+  }
+
+  /**
+   * @test
+   */
+  public function toSentenceArrayOfObjects()
+  {
+    $array = [
+      new SetTestObject('billy'),
+      new SetTestObject('jerry'),
+      new SetTestObject('chris'),
+    ];
+    $set = new Utility\Set($array);
+
+    $this->assertSame('billy, jerry, and chris', $set->toSentence('{{ value.getName() }}')->getValue());
   }
 
   /**
