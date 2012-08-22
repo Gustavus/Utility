@@ -304,6 +304,21 @@ class SetTest extends Test
   /**
    * @test
    */
+  public function toSentenceArrayOfObject()
+  {
+    $array = [
+      new SetTestObject('billy', new \DateTime),
+      new SetTestObject('jerry', new \DateTime),
+      new SetTestObject('chris', new \DateTime),
+    ];
+    $set = new Utility\Set($array);
+
+    $this->assertSame('billy, jerry, and chris', $set->toSentence('{{ value.getName() }}')->getValue());
+  }
+
+  /**
+   * @test
+   */
   public function getSynonyms()
   {
     $set = new Utility\Set(array('billy'));
