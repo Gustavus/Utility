@@ -392,4 +392,29 @@ class StringTest extends Test
       array('ON', 'ONTARIO'),
     );
   }
+
+  /**
+   * @test
+   * @dataProvider queryStringData
+   */
+  public function splitQueryString($expected, $value)
+  {
+    $this->string->setValue($value);
+    $this->assertSame($expected, $this->string->splitQueryString()->getValue());
+  }
+
+  /**
+   * @return array
+   */
+  public static function queryStringData()
+  {
+    return [
+      [['revisionNumber' => '1', 'oldestRevision' => '0'], '&revisionNumber=1&oldestRevision=0'],
+      [['revisionNumber' => '1', 'oldestRevision' => '0'], '?revisionNumber=1&oldestRevision=0'],
+      [['revisionNumber' => '1'], '?revisionNumber=1&oldestRevision='],
+      [['revisionNumber' => '1'], '?revisionNumber=1&oldestRevision'],
+      [['revisionNumber' => '1', 'oldestRevision' => '0'], 'revisionNumber=1&oldestRevision=0'],
+      [['revisionNumbers' => ['1', '2']], '?revisionNumbers[]=1&revisionNumbers[]=2'],
+    ];
+  }
 }

@@ -8,7 +8,8 @@ namespace Gustavus\Utility\Test;
 
 use Gustavus\Utility,
   Gustavus\Test\Test,
-  Gustavus\Test\TestObject;
+  Gustavus\Test\TestObject,
+  Gustavus\Utility\Test\TestObject as SetTestObject;
 
 /**
  * @package Utility
@@ -288,6 +289,36 @@ class SetTest extends Test
   /**
    * @test
    */
+  public function toSentenceArrayOfObjects()
+  {
+    $array = [
+      new SetTestObject('billy'),
+      new SetTestObject('jerry'),
+      new SetTestObject('chris'),
+    ];
+    $set = new Utility\Set($array);
+
+    $this->assertSame('billy, jerry, and chris', $set->toSentence('{{ value.getName() }}')->getValue());
+  }
+
+  /**
+   * @test
+   */
+  public function toSentenceArrayOfObject()
+  {
+    $array = [
+      new SetTestObject('billy', new \DateTime),
+      new SetTestObject('jerry', new \DateTime),
+      new SetTestObject('chris', new \DateTime),
+    ];
+    $set = new Utility\Set($array);
+
+    $this->assertSame('billy, jerry, and chris', $set->toSentence('{{ value.getName() }}')->getValue());
+  }
+
+  /**
+   * @test
+   */
   public function getSynonyms()
   {
     $set = new Utility\Set(array('billy'));
@@ -379,5 +410,15 @@ class SetTest extends Test
     $expected = ['all', 'anon',['callbacks',['test']]];
     $array = ['all', 'anon', '["callbacks",["test"]]'];
     $this->assertSame($expected, (new Utility\Set($array))->decodeValues()->getValue());
+  }
+
+  /**
+   * @test
+   */
+  public function flatten()
+  {
+    $expected = [1,2,3,4];
+    $array = [['id' => 1], 2, 'id' => 3, [['id' => 4]]];
+    $this->assertSame($expected, (new Utility\Set($array))->flattenValues()->getValue());
   }
 }

@@ -4,7 +4,7 @@
 
     {% set valueStr = '' %}
     {% for value in values %}
-      {% set valueStr = valueStr ~ value|join(' ')|striptags %}
+      {% set valueStr = valueStr ~ eval(wordUnit)|join(' ')|striptags %}
     {% endfor %}
 
     {% if values|length > 2 %}
