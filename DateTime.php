@@ -9,6 +9,11 @@ use DateTime as PHPDateTime,
 
 /**
  * Object for working with DateTimes
+ * <p/>
+ * <i><b>WARNING:</b> This class makes use of the PHP DateInterval object. When working with
+ * negative intervals (such as 61 days into the past), months are not mapped to calendar months, but
+ * instead use a constant 31-day month. As a result, when specifying a durations, the number of
+ * actual months may not match up with the number of months in the interval.
  *
  * @package Utility
  */

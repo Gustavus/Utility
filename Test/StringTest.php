@@ -373,7 +373,7 @@ class StringTest extends Test
    * @dataProvider stateData
    */
   public function abbreviateState($expected, $value)
-  {
+  { 
     $this->string->setValue($value);
     $this->assertSame($expected, $this->string->abbreviateState()->getValue());
   }
@@ -416,5 +416,154 @@ class StringTest extends Test
       [['revisionNumber' => '1', 'oldestRevision' => '0'], 'revisionNumber=1&oldestRevision=0'],
       [['revisionNumbers' => ['1', '2']], '?revisionNumbers[]=1&revisionNumbers[]=2'],
     ];
+  }
+  
+  
+
+  /** 
+   * @test
+   * @dataProvider findNearestInstanceData
+   */
+  public function testFindNearestInstance($string, $search, $offset, $expected)
+  { 
+    $this->string->setValue($string);
+    $result = $this->string->findNearestInstance($search, $offset);
+    
+    $this->assertSame($expected, $result);
+  }
+  
+  public function findNearestInstanceData()
+  {
+    return [
+      ['_========================', '/\|/', 0,  false],
+      ['============_============', '/\|/', 12, false],
+      ['========================_', '/\|/', 25, false],
+      ['_=====|==================', '/\|/', 0,  6],
+      ['======|=====_============', '/\|/', 12, 6],
+      ['======|=================_', '/\|/', 25, 6],
+      ['_=====|=========|========', '/\|/', 0,  6],
+      ['======|=====_===|========', '/\|/', 12, 16],
+      ['======|=========|=======_', '/\|/', 25, 16],
+      ['_=====|=========|====|===', '/\|/', 0,  6],
+      ['======|=====_===|====|===', '/\|/', 12, 16],
+      ['======|=========|====|==_', '/\|/', 25, 21], 
+
+      ['_========================', '/\||\A|\z/', 0,  0],
+      ['============_============', '/\||\A|\z/', 12, 0],
+      ['========================_', '/\||\A|\z/', 25, 25],
+      ['_=====|==================', '/\||\A|\z/', 0,  0],
+      ['======|=====_============', '/\||\A|\z/', 12, 6],
+      ['======|=================_', '/\||\A|\z/', 25, 25],
+      ['_=====|=========|========', '/\||\A|\z/', 0,  0],
+      ['======|=====_===|========', '/\||\A|\z/', 12, 16],
+      ['======|=========|=======_', '/\||\A|\z/', 25, 25],
+      ['_=====|=========|====|===', '/\||\A|\z/', 0,  0],
+      ['======|=====_===|====|===', '/\||\A|\z/', 12, 16],
+      ['======|=========|====|==_', '/\||\A|\z/', 25, 25]
+    ];
+  }
+  
+  
+  /**
+   * @test
+   * @dataProvider excerptData
+   */
+  public function textExcerpt($string, $length, $offset, $expected)
+  {
+    $this->string->setValue($string);
+    $this->string->excerpt($length, $offset);
+  
+    $this->assertSame($expected, $this->string->getValue());
+  }
+  
+  public function excerptData()
+  {
+    return [
+      // Unchanging stuff (no spaces to cleanly break on)...
+      ['01234567890123456789012345678901234567890123456789', 10,  0, '01234567890123456789012345678901234567890123456789'],
+      ['01234567890123456789012345678901234567890123456789', 10, 10, '01234567890123456789012345678901234567890123456789'],
+      ['01234567890123456789012345678901234567890123456789', 20, 20, '01234567890123456789012345678901234567890123456789'],
+
+      // Truncate tail...
+      ['0123456789 012345678901234567890123456789 0123456789', 25, 0, '0123456789...'],
+      ['0123456789 012345678901234567890123456789 0123456789', 40, 0, '0123456789 012345678901234567890123456789...'],
+      ['0123456789 012345678901234567890123456789 0123456789', 45, 0, '0123456789 012345678901234567890123456789...'],
+      ['0123456789 012345678901234567890123456789 0123456789', 47, 0, '0123456789 012345678901234567890123456789 0123456789'],
+      
+      // Truncate head...
+      ['0123456789 012345678901234567890123456789 0123456789', 20, 25, '...012345678901234567890123456789...'],
+      ['0123456789 012345678901234567890123456789 0123456789', 30, 40, '...0123456789'],
+      
+      // Goofy inputs...
+      ['01234 56789', 10, 400, '...56789'],
+    ];
+  }
+  
+  
+  /**
+   * @test
+   */
+  public function testPrepend()
+  {
+    $this->string->setValue('123');
+    $this->string->prepend('abc');
+    
+    $this->assertSame('abc123', $this->string->getValue());
+    
+    try {
+      $this->string->setValue('123');
+      $this->string->prepend(array('NEIN!'));
+      $this->assertTrue(false);
+    } catch(\InvalidArgumentException $e) {
+      // Yay!
+    }
+  }
+  
+  /**
+   * @test
+   */
+  public function testAppend()
+  {
+    $this->string->setValue('abc');
+    $this->string->append('123');
+    
+    $this->assertSame('abc123', $this->string->getValue());
+    
+    try {
+      $this->string->setValue('abc');
+      $this->string->append(array('NEIN!'));
+      $this->assertTrue(false);
+    } catch(\InvalidArgumentException $e) {
+      // Yay!
+    }
+  }
+  
+  /**
+   * @test
+   */
+  public function testEncaseInTag()
+  {
+    $this->string->setValue('abc');
+    $this->string->encaseInTag('html');
+    
+    $this->assertSame('<html>abc</html>', $this->string->getValue());
+  
+    $failInputs = [
+      'uhoh-',
+      '789badjoke',
+      ':(',
+      'no spaces or',
+      'punctuation!'
+    ];
+    
+    foreach($failInputs as $input) {
+      try {
+        $this->string->setValue('abc');
+        $this->string->encaseInTag($input);
+        $this->assertTrue(false);
+      } catch(\InvalidArgumentException $e) {
+        $this->assertTrue(true);
+      }
+    }
   }
 }

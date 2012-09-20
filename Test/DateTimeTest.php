@@ -161,7 +161,7 @@ class DateTimeTest extends Test
       array('week', '-604800 seconds', 'now'),
       array('weeks', '-1209600 seconds', 'now'),
       array('month', '-1 month', 'now'),
-      array('months', '-61 days', 'now'),
+      array('months', '-62 days', 'now'),
       array('year', '-366 days', 'now'),
       array('years', '-2 years', 'now'),
     );
