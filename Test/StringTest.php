@@ -543,10 +543,11 @@ class StringTest extends Test
     foreach ($failInputs as $input) {
       try {
         $this->textExcerpt($input[0], $input[1], $input[2], $input[3]);
-        $this->assertTrue(false);
       } catch (\InvalidArgumentException $e) {
-        $this->assertTrue(true);
+        continue;
       }
+
+      $this->fail('An expected exception has not been raised.');
     }
   }
 
@@ -566,10 +567,11 @@ class StringTest extends Test
     try {
       $this->string->setValue('123');
       $this->string->prepend(array('NEIN!'));
-      $this->assertTrue(false);
     } catch (\InvalidArgumentException $e) {
-      // Yay!
+      return;
     }
+
+    $this->fail('An expected exception has not been raised.');
   }
 
   /**
@@ -587,8 +589,10 @@ class StringTest extends Test
       $this->string->append(array('iie!'));
       $this->assertTrue(false);
     } catch (\InvalidArgumentException $e) {
-      // Yay!
+      return;
     }
+
+    $this->fail('An expected exception has not been raised.');
   }
 
   /**
@@ -619,8 +623,10 @@ class StringTest extends Test
         $this->string->encaseInTag($input);
         $this->assertTrue(false);
       } catch (\InvalidArgumentException $e) {
-        $this->assertTrue(true);
+        continue;
       }
+
+      $this->fail('An expected exception has not been raised.');
     }
   }
 }
