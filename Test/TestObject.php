@@ -1,6 +1,7 @@
 <?php
 namespace Gustavus\Utility\Test;
-class TestObject{
+class TestObject
+{
   public $name;
   public $property;
 

@@ -103,13 +103,13 @@ class Number extends Base
 
     switch ($digit) {
       case 1:
-        return new String("{$cardinal}st");
+          return new String("{$cardinal}st");
       case 2:
-        return new String("{$cardinal}nd");
+          return new String("{$cardinal}nd");
       case 3:
-        return new String("{$cardinal}rd");
+          return new String("{$cardinal}rd");
       default:
-        return new String("{$cardinal}th");
+          return new String("{$cardinal}th");
     }
   }
 

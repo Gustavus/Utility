@@ -396,7 +396,7 @@ class String extends Base implements ArrayAccess
    */
   public function abbreviateState()
   {
-    if(empty(String::$states)) {
+    if (empty(String::$states)) {
       String::$states = [
         'ALABAMA'                        => 'AL',
         'ALASKA'                         => 'AK',
@@ -481,10 +481,10 @@ class String extends Base implements ArrayAccess
     if (isset(String::$states[$key])) {
       $this->setValue(String::$states[$key]);
     }
-  
+
     return $this;
   }
-  
+
   /**
    * Returns an excerpt of the string this object represents. This will strip the string of any HTML
    * tags and truncate it at the nearest whitespace character to the endpoint. Optionally, an
@@ -514,51 +514,53 @@ class String extends Base implements ArrayAccess
    * @return Gustavus\Utility\String
    *  This String instance.
    */
-  public function excerpt($length, $offset = 0, $appendEllipsis = true)
+  public function excerpt($length = 200, $offset = 0, $appendEllipsis = true)
   {
-    if (!is_int($length) || $length === 0)
+    if (!is_int($length) || $length === 0) {
       throw new \InvalidArgumentException('$length is null, not an integer or zero.');
-    
-    if (!is_int($offset))
+    }
+
+    if (!is_int($offset)) {
       throw new \InvalidArgumentException('$offset is null or not an integer.');
-    
+    }
+
     // Strip.
     $base = strip_tags($this->value);
     $baseLen = strlen($base);
-    
+
     // Correct offset...
     if ($offset < 0) {
       $offset = $baseLen + $offset;
     }
-    
+
     // Correct length...
-    if($length < 0) {
+    if ($length < 0) {
       $length = ($baseLen + $length) - $offset;
     }
-    
+
     // Check if we need to truncate...
     $target = $offset + $length;
-    
+
     if ($baseLen > $length) {
       $baseStr = new String($base);
 
-      $i = $baseStr->findNearestInstance('/\s|\A/', $offset);
-      $e = $baseStr->findNearestInstance('/\s|\z/', $target);
-      
+      $start = $baseStr->findNearestInstance('/\s|\A/', $offset);
+      $end = $baseStr->findNearestInstance('/\s|\z/', $target);
+
       // CHOP!
-      $summary = substr($base, $i, ($e - $i));
-      
-      if(strlen($summary) < $baseLen) {
+      $summary = substr($base, $start, ($end - $start));
+
+      if (strlen($summary) < $baseLen) {
         // Remove any leading or trailing punctuation and add our chop-chop calling card...
-        if($i != 0) {
+        if ($start != 0) {
           $summary = ($appendEllipsis ? '...' : '') . preg_replace('/\A\s*([;:!\?\.,\/\-]|)+\s*/', '', $summary);
         }
-        
-        if($e != $baseLen) {
+
+        if ($end != $baseLen) {
           $summary = preg_replace('/\s*([;:!\?\.,\/\-]|)+\s*\z/', '', $summary) . ($appendEllipsis ? '...' : '');
         }
       }
-      
+
       // Set!
       $this->setValue($summary);
     } else {
@@ -566,11 +568,11 @@ class String extends Base implements ArrayAccess
       // HTML and junk.
       $this->setValue($base);
     }
-    
+
     // Return!
     return $this;
   }
-  
+
   /**
    * Returns the position of the string closest to the specified offset. If the string is not found
    * at all, this method returns false.
@@ -591,37 +593,39 @@ class String extends Base implements ArrayAccess
    */
   public function findNearestInstance($regexp, $offset = 0)
   {
-    if (empty($regexp) || !is_string($regexp))
+    if (empty($regexp) || !is_string($regexp)) {
       throw new \InvalidArgumentException('$search is empty or not a string.');
+    }
 
-    if (!is_int($offset))
+    if (!is_int($offset)) {
       throw new \InvalidArgumentException('$offset is not an integer.');
+    }
 
     // Correct offset...
-    if($offset < 0) {
+    if ($offset < 0) {
       $offset = strlen($this->value) + $offset;
     }
 
-    // Find our things...
+    // Find our things... (Note: preg_match_all wraps its output in an extra array)
     if (preg_match_all($regexp, $this->value, $matches, PREG_OFFSET_CAPTURE) != false) {
       $best = false;
-      
+
       // Calculate best...
-      foreach ($matches[0] as $match) { // Note: preg_match_all wraps its output in an extra array.
+      foreach ($matches[0] as $match) {
         $dist = abs($offset - $match[1]);
-        
+
         if ($best === false || $dist < $best[0]) {
           $best = [$dist, $match[1]];
         }
       }
-      
+
       // Return!
       return $best[1];
     }
-    
+
     return false;
   }
-  
+
   /**
    * Prepends the given content to the beginning of this string.
    *
@@ -636,13 +640,14 @@ class String extends Base implements ArrayAccess
    */
   public function prepend($content)
   {
-    if (is_null($content) || !is_string($content))
+    if (is_null($content) || !is_string($content)) {
       throw new \InvalidArgumentException('$content is null or not a string.');
-      
+    }
+
     $this->setValue($content . $this->value);
     return $this;
   }
-  
+
   /**
    * Appends the given content to the end of this string.
    *
@@ -657,13 +662,14 @@ class String extends Base implements ArrayAccess
    */
   public function append($content)
   {
-    if (is_null($content) || !is_string($content))
+    if (is_null($content) || !is_string($content)) {
       throw new \InvalidArgumentException('$content is null or not a string.');
-      
+    }
+
     $this->setValue($this->value . $content);
     return $this;
   }
-  
+
   /**
    * Wraps the contents of this string with the specified XML/HTML tag.
    *
@@ -678,12 +684,14 @@ class String extends Base implements ArrayAccess
    */
   public function encaseInTag($tagName)
   {
-    if (is_null($tagName) || !is_string($tagName))
+    if (is_null($tagName) || !is_string($tagName)) {
       throw new \InvalidArgumentException('$tagName is null or not a string.');
-   
-    if(!preg_match('/\A[a-z](?:[a-z0-9]|(?:[a-z0-9\-_][a-z0-9]))*\z/i', $tagName))
+    }
+
+    if (!preg_match('/\A[a-z](?:[a-z0-9]|(?:[a-z0-9\-_][a-z0-9]))*\z/i', $tagName)) {
       throw new \InvalidArgumentException('$tagName is not a well-formed tag.');
-    
+    }
+
     $this->setValue('<' . $tagName . '>' . $this->value . '</' . $tagName . '>');
     return $this;
   }
