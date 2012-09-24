@@ -13,6 +13,9 @@ use ArrayAccess;
  */
 class String extends Base implements ArrayAccess
 {
+  /** A lazily-populated mapping of long state names to abbreviations. */
+  private static $states;
+
   /**
    * @var array Exceptions for title case
    */
@@ -371,7 +374,6 @@ class String extends Base implements ArrayAccess
     }
 
     // Restore capitalization
-
     if ($stringToPossessiveise === 'I') {
       // "I" is a special case (pardon the pun), and we don't know what
       // case "my" should have, so guess that it should be lowercase
@@ -394,87 +396,303 @@ class String extends Base implements ArrayAccess
    */
   public function abbreviateState()
   {
-    $state = array(
-      'ALABAMA'                        => 'AL',
-      'ALASKA'                         => 'AK',
-      'AMERICAN SAMOA'                 => 'AS',
-      'ARIZONA'                        => 'AZ',
-      'ARKANSAS'                       => 'AR',
-      'CALIFORNIA'                     => 'CA',
-      'COLORADO'                       => 'CO',
-      'CONNECTICUT'                    => 'CT',
-      'DELAWARE'                       => 'DE',
-      'DISTRICT OF COLUMBIA'           => 'DC',
-      'FEDERATED STATES OF MICRONESIA' => 'FM',
-      'FLORIDA'                        => 'FL',
-      'GEORGIA'                        => 'GA',
-      'GUAM'                           => 'GU',
-      'HAWAII'                         => 'HI',
-      'IDAHO'                          => 'ID',
-      'ILLINOIS'                       => 'IL',
-      'INDIANA'                        => 'IN',
-      'IOWA'                           => 'IA',
-      'KANSAS'                         => 'KS',
-      'KENTUCKY'                       => 'KY',
-      'LOUISIANA'                      => 'LA',
-      'MAINE'                          => 'ME',
-      'MARSHALL ISLANDS'               => 'MH',
-      'MARYLAND'                       => 'MD',
-      'MASSACHUSETTS'                  => 'MA',
-      'MICHIGAN'                       => 'MI',
-      'MINNESOTA'                      => 'MN',
-      'MISSISSIPPI'                    => 'MS',
-      'MISSOURI'                       => 'MO',
-      'MONTANA'                        => 'MT',
-      'NEBRASKA'                       => 'NE',
-      'NEVADA'                         => 'NV',
-      'NEW HAMPSHIRE'                  => 'NH',
-      'NEW JERSEY'                     => 'NJ',
-      'NEW MEXICO'                     => 'NM',
-      'NEW YORK'                       => 'NY',
-      'NORTH CAROLINA'                 => 'NC',
-      'NORTH DAKOTA'                   => 'ND',
-      'NORTHERN MARIANA ISLANDS'       => 'MP',
-      'OHIO'                           => 'OH',
-      'OKLAHOMA'                       => 'OK',
-      'OREGON'                         => 'OR',
-      'PALAU'                          => 'PW',
-      'PENNSYLVANIA'                   => 'PA',
-      'PUERTO RICO'                    => 'PR',
-      'RHODE ISLAND'                   => 'RI',
-      'SOUTH CAROLINA'                 => 'SC',
-      'SOUTH DAKOTA'                   => 'SD',
-      'TENNESSEE'                      => 'TN',
-      'TEXAS'                          => 'TX',
-      'UTAH'                           => 'UT',
-      'VERMONT'                        => 'VT',
-      'VIRGIN ISLANDS'                 => 'VI',
-      'VIRGINIA'                       => 'VA',
-      'WASHINGTON'                     => 'WA',
-      'WEST VIRGINIA'                  => 'WV',
-      'WISCONSIN'                      => 'WI',
-      'WYOMING'                        => 'WY',
+    if (empty(String::$states)) {
+      String::$states = [
+        'ALABAMA'                        => 'AL',
+        'ALASKA'                         => 'AK',
+        'AMERICAN SAMOA'                 => 'AS',
+        'ARIZONA'                        => 'AZ',
+        'ARKANSAS'                       => 'AR',
+        'CALIFORNIA'                     => 'CA',
+        'COLORADO'                       => 'CO',
+        'CONNECTICUT'                    => 'CT',
+        'DELAWARE'                       => 'DE',
+        'DISTRICT OF COLUMBIA'           => 'DC',
+        'FEDERATED STATES OF MICRONESIA' => 'FM',
+        'FLORIDA'                        => 'FL',
+        'GEORGIA'                        => 'GA',
+        'GUAM'                           => 'GU',
+        'HAWAII'                         => 'HI',
+        'IDAHO'                          => 'ID',
+        'ILLINOIS'                       => 'IL',
+        'INDIANA'                        => 'IN',
+        'IOWA'                           => 'IA',
+        'KANSAS'                         => 'KS',
+        'KENTUCKY'                       => 'KY',
+        'LOUISIANA'                      => 'LA',
+        'MAINE'                          => 'ME',
+        'MARSHALL ISLANDS'               => 'MH',
+        'MARYLAND'                       => 'MD',
+        'MASSACHUSETTS'                  => 'MA',
+        'MICHIGAN'                       => 'MI',
+        'MINNESOTA'                      => 'MN',
+        'MISSISSIPPI'                    => 'MS',
+        'MISSOURI'                       => 'MO',
+        'MONTANA'                        => 'MT',
+        'NEBRASKA'                       => 'NE',
+        'NEVADA'                         => 'NV',
+        'NEW HAMPSHIRE'                  => 'NH',
+        'NEW JERSEY'                     => 'NJ',
+        'NEW MEXICO'                     => 'NM',
+        'NEW YORK'                       => 'NY',
+        'NORTH CAROLINA'                 => 'NC',
+        'NORTH DAKOTA'                   => 'ND',
+        'NORTHERN MARIANA ISLANDS'       => 'MP',
+        'OHIO'                           => 'OH',
+        'OKLAHOMA'                       => 'OK',
+        'OREGON'                         => 'OR',
+        'PALAU'                          => 'PW',
+        'PENNSYLVANIA'                   => 'PA',
+        'PUERTO RICO'                    => 'PR',
+        'RHODE ISLAND'                   => 'RI',
+        'SOUTH CAROLINA'                 => 'SC',
+        'SOUTH DAKOTA'                   => 'SD',
+        'TENNESSEE'                      => 'TN',
+        'TEXAS'                          => 'TX',
+        'UTAH'                           => 'UT',
+        'VERMONT'                        => 'VT',
+        'VIRGIN ISLANDS'                 => 'VI',
+        'VIRGINIA'                       => 'VA',
+        'WASHINGTON'                     => 'WA',
+        'WEST VIRGINIA'                  => 'WV',
+        'WISCONSIN'                      => 'WI',
+        'WYOMING'                        => 'WY',
 
-      //Canadian Provinces
-      'ALBERTA'                        => 'AB',
-      'BRITISH COLUMBIA'               => 'BC',
-      'MANITOBA'                       => 'MB',
-      'NEW BRUNSWICK'                  => 'NB',
-      'LABRADOR'                       => 'NL',
-      'NEWFOUNDLAND'                   => 'NL',
-      'NORTHWEST TERRITORIES'          => 'NT',
-      'NOVA SCOTIA'                    => 'NS',
-      'NUNAVUT'                        => 'NU',
-      'ONTARIO'                        => 'ON',
-      'PRINCE EDWARD ISLAND'           => 'PE',
-      'QUEBEC'                         => 'QC',
-      'SASKATCHEWAN'                   => 'SK',
-      'YUKON'                          => 'YT',
-    );
-
-    if (isset($state[strtoupper($this->value)])) {
-      $this->setValue($state[strtoupper($this->value)]);
+        //Canadian Provinces
+        'ALBERTA'                        => 'AB',
+        'BRITISH COLUMBIA'               => 'BC',
+        'MANITOBA'                       => 'MB',
+        'NEW BRUNSWICK'                  => 'NB',
+        'LABRADOR'                       => 'NL',
+        'NEWFOUNDLAND'                   => 'NL',
+        'NORTHWEST TERRITORIES'          => 'NT',
+        'NOVA SCOTIA'                    => 'NS',
+        'NUNAVUT'                        => 'NU',
+        'ONTARIO'                        => 'ON',
+        'PRINCE EDWARD ISLAND'           => 'PE',
+        'QUEBEC'                         => 'QC',
+        'SASKATCHEWAN'                   => 'SK',
+        'YUKON'                          => 'YT',
+      ];
     }
+
+    $key = strtoupper($this->value);
+
+    if (isset(String::$states[$key])) {
+      $this->setValue(String::$states[$key]);
+    }
+
+    return $this;
+  }
+
+  /**
+   * Returns an excerpt of the string this object represents. This will strip the string of any HTML
+   * tags and truncate it at the nearest whitespace character to the endpoint. Optionally, an
+   * ellipsis will be appended when the string is truncated.
+   * <p/>
+   * <b>Note</b>: The offset and length values are calculated <i>after</i> removing HTML tags and
+   * any other extraneous formatting. Additionally, as the offset and length are used to determine
+   * the best location to begin truncating, the length of the resulting string may vary with
+   * differing initial values.
+   *
+   * @param integer $length
+   *  The maximum length of the excerpt. If the length of the string is greater than this value, the
+   *  string will be truncated. If the specified length is negative, that many characters will be
+   *  omitted from the end of the string.
+   *
+   * @param integer $offset
+   *  The offset in the string to begin the excerpt. If the offset is negative, it will begin from
+   *  the end of the string at the offset specified. If the offset is greater than the length of the
+   *  string, the length of the string will be used as the offset.
+   *
+   * @param boolean $appendEllipsis
+   *  True if we should append an ellipsis in place of any removed text.
+   *
+   * @throws InvalidArgumentException
+   *  if $offset or $length are not integers, or $length is zero.
+   *
+   * @return Gustavus\Utility\String
+   *  This String instance.
+   */
+  public function excerpt($length = 200, $offset = 0, $appendEllipsis = true)
+  {
+    if (!is_int($length) || $length === 0) {
+      throw new \InvalidArgumentException('$length is null, not an integer or zero.');
+    }
+
+    if (!is_int($offset)) {
+      throw new \InvalidArgumentException('$offset is null or not an integer.');
+    }
+
+    // Strip.
+    $base = strip_tags($this->value);
+    $baseLen = strlen($base);
+
+    // Correct offset...
+    if ($offset < 0) {
+      $offset = $baseLen + $offset;
+    }
+
+    // Correct length...
+    if ($length < 0) {
+      $length = ($baseLen + $length) - $offset;
+    }
+
+    // Check if we need to truncate...
+    $target = $offset + $length;
+
+    if ($baseLen > $length) {
+      $baseStr = new String($base);
+
+      $start = $baseStr->findNearestInstance('/\s|\A/', $offset);
+      $end = $baseStr->findNearestInstance('/\s|\z/', $target);
+
+      // CHOP!
+      $summary = substr($base, $start, ($end - $start));
+
+      if (strlen($summary) < $baseLen) {
+        // Remove any leading or trailing punctuation and add our chop-chop calling card...
+        if ($start != 0) {
+          $summary = ($appendEllipsis ? '...' : '') . preg_replace('/\A\s*([;:!\?\.,\/\-]|)+\s*/', '', $summary);
+        }
+
+        if ($end != $baseLen) {
+          $summary = preg_replace('/\s*([;:!\?\.,\/\-]|)+\s*\z/', '', $summary) . ($appendEllipsis ? '...' : '');
+        }
+      }
+
+      // Set!
+      $this->setValue($summary);
+    } else {
+      // Well... We don't need to cut anything, but we still want to show that we've removed the
+      // HTML and junk.
+      $this->setValue($base);
+    }
+
+    // Return!
+    return $this;
+  }
+
+  /**
+   * Returns the position of the string closest to the specified offset. If the string is not found
+   * at all, this method returns false.
+   *
+   * @param string $regexp
+   *  A regular expression consisting of the search contents. Cannot be empty.
+   *
+   * @param integer $offset
+   *  The offset at which to begin searching. If the offset is negative, the search will begin from
+   *  that many characters from the end of the string.
+   *
+   * @throws InvalidArgumentException
+   *  if $regexp is empty or not a string, or $offset is not an integer.
+   *
+   * @return mixed
+   *  An integer representing the position of the nearest instance of the given expression, or false
+   *  if the expression was not found.
+   */
+  public function findNearestInstance($regexp, $offset = 0)
+  {
+    if (empty($regexp) || !is_string($regexp)) {
+      throw new \InvalidArgumentException('$search is empty or not a string.');
+    }
+
+    if (!is_int($offset)) {
+      throw new \InvalidArgumentException('$offset is not an integer.');
+    }
+
+    // Correct offset...
+    if ($offset < 0) {
+      $offset = strlen($this->value) + $offset;
+    }
+
+    // Find our things... (Note: preg_match_all wraps its output in an extra array)
+    if (preg_match_all($regexp, $this->value, $matches, PREG_OFFSET_CAPTURE) != false) {
+      $best = false;
+
+      // Calculate best...
+      foreach ($matches[0] as $match) {
+        $dist = abs($offset - $match[1]);
+
+        if ($best === false || $dist < $best[0]) {
+          $best = [$dist, $match[1]];
+        }
+      }
+
+      // Return!
+      return $best[1];
+    }
+
+    return false;
+  }
+
+  /**
+   * Prepends the given content to the beginning of this string.
+   *
+   * @param string $content
+   *  The given content to prepend to this string.
+   *
+   * @throws InvalidArgumentException
+   *  if $content is null or not a string.
+   *
+   * @return Gustavus\Utility\String
+   *  This String instance.
+   */
+  public function prepend($content)
+  {
+    if (is_null($content) || !is_string($content)) {
+      throw new \InvalidArgumentException('$content is null or not a string.');
+    }
+
+    $this->setValue($content . $this->value);
+    return $this;
+  }
+
+  /**
+   * Appends the given content to the end of this string.
+   *
+   * @param string $content
+   *  The given content to append to this string.
+   *
+   * @throws InvalidArgumentException
+   *  if $content is null or not a string.
+   *
+   * @return Gustavus\Utility\String
+   *  This String instance.
+   */
+  public function append($content)
+  {
+    if (is_null($content) || !is_string($content)) {
+      throw new \InvalidArgumentException('$content is null or not a string.');
+    }
+
+    $this->setValue($this->value . $content);
+    return $this;
+  }
+
+  /**
+   * Wraps the contents of this string with the specified XML/HTML tag.
+   *
+   * @param string $tagName
+   *  The name of the tag with which to wrap this string. Must be a well-formed tag name.
+   *
+   * @throws InvalidArgumentException
+   *  if $tagName is null, not a string or not a well-formed tag name.
+   *
+   * @return Gustavus\Utility\String
+   *  This String instance.
+   */
+  public function encaseInTag($tagName)
+  {
+    if (is_null($tagName) || !is_string($tagName)) {
+      throw new \InvalidArgumentException('$tagName is null or not a string.');
+    }
+
+    if (!preg_match('/\A[a-z](?:[a-z0-9]|(?:[a-z0-9\-_][a-z0-9]))*\z/i', $tagName)) {
+      throw new \InvalidArgumentException('$tagName is not a well-formed tag.');
+    }
+
+    $this->setValue('<' . $tagName . '>' . $this->value . '</' . $tagName . '>');
     return $this;
   }
 }

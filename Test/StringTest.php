@@ -417,4 +417,216 @@ class StringTest extends Test
       [['revisionNumbers' => ['1', '2']], '?revisionNumbers[]=1&revisionNumbers[]=2'],
     ];
   }
+
+
+
+  /**
+   * @test
+   * @dataProvider findNearestInstanceData
+   */
+  public function testFindNearestInstance($string, $search, $offset, $expected)
+  {
+    $this->string->setValue($string);
+    $result = $this->string->findNearestInstance($search, $offset);
+
+    $this->assertSame($expected, $result);
+  }
+
+  public function findNearestInstanceData()
+  {
+    return [
+      ['_========================', '/\|/', 0,  false],
+      ['============_============', '/\|/', 12, false],
+      ['========================_', '/\|/', 25, false],
+      ['_=====|==================', '/\|/', 0,  6],
+      ['======|=====_============', '/\|/', 12, 6],
+      ['======|=================_', '/\|/', 25, 6],
+      ['_=====|=========|========', '/\|/', 0,  6],
+      ['======|=====_===|========', '/\|/', 12, 16],
+      ['======|=========|=======_', '/\|/', 25, 16],
+      ['_=====|=========|====|===', '/\|/', 0,  6],
+      ['======|=====_===|====|===', '/\|/', 12, 16],
+      ['======|=========|====|==_', '/\|/', 25, 21],
+
+      ['_========================', '/\||\A|\z/', -25,  0],
+      ['============_============', '/\||\A|\z/', -13, 0],
+      ['========================_', '/\||\A|\z/', 25, 25],
+      ['_=====|==================', '/\||\A|\z/', -25,  0],
+      ['======|=====_============', '/\||\A|\z/', -13, 6],
+      ['======|=================_', '/\||\A|\z/', 25, 25],
+      ['_=====|=========|========', '/\||\A|\z/', -25,  0],
+      ['======|=====_===|========', '/\||\A|\z/', -13, 16],
+      ['======|=========|=======_', '/\||\A|\z/', 25, 25],
+      ['_=====|=========|====|===', '/\||\A|\z/', -25,  0],
+      ['======|=====_===|====|===', '/\||\A|\z/', -13, 16],
+      ['======|=========|====|==_', '/\||\A|\z/', 25, 25]
+    ];
+  }
+
+  /**
+   * @test
+   */
+  public function testFindNearestInputFailures()
+  {
+    $failInputs = [
+      ['_========================', '', 0,  false],
+      ['_========================', null, 0,  false],
+      ['_========================', 123432, 0,  false],
+      ['_========================', ['multi-input', 'not supported. :('], 0,  false],
+      ['_========================', '/\|/', 45.5,  false],
+      ['_========================', '/\|/', '50',  false],
+      ['_========================', '/\|/', null,  false],
+      ['_========================', '/\|/', true,  false],
+    ];
+
+    foreach ($failInputs as $input) {
+      try {
+        $this->testFindNearestInstance($input[0], $input[1], $input[2], $input[3]);
+        $this->assertTrue(false);
+      } catch (\InvalidArgumentException $e) {
+        $this->assertTrue(true);
+      }
+    }
+
+  }
+
+
+  /**
+   * @test
+   * @dataProvider excerptData
+   */
+  public function textExcerpt($string, $length, $offset, $expected)
+  {
+    $this->string->setValue($string);
+    $this->string->excerpt($length, $offset);
+
+    $this->assertSame($expected, $this->string->getValue());
+  }
+
+  public function excerptData()
+  {
+    return [
+      // Unchanging stuff (no spaces to cleanly break on)...
+      ['01234567890123456789012345678901234567890123456789', 10,  0, '01234567890123456789012345678901234567890123456789'],
+      ['01234567890123456789012345678901234567890123456789', 10, 10, '01234567890123456789012345678901234567890123456789'],
+      ['01234567890123456789012345678901234567890123456789', 20, 20, '01234567890123456789012345678901234567890123456789'],
+
+      // Truncate tail...
+      ['0123456789 012345678901234567890123456789 0123456789', 25, 0, '0123456789...'],
+      ['0123456789 012345678901234567890123456789 0123456789', 40, 0, '0123456789 012345678901234567890123456789...'],
+      ['0123456789 012345678901234567890123456789 0123456789', 47, 0, '0123456789 012345678901234567890123456789 0123456789'],
+      ['0123456789 012345678901234567890123456789 0123456789', -10, 0, '0123456789 012345678901234567890123456789...'],
+
+      // Truncate head...
+      ['0123456789 012345678901234567890123456789 0123456789', 20, 25, '...012345678901234567890123456789...'],
+      ['0123456789 012345678901234567890123456789 0123456789', 30, 40, '...0123456789'],
+      ['0123456789 012345678901234567890123456789 0123456789', 25, -35, '...012345678901234567890123456789...'],
+      ['0123456789 012345678901234567890123456789 0123456789', -20, -35, '...012345678901234567890123456789...'],
+
+      // Goofy inputs...
+      ['01234 56789', 10, 400, '...56789'],
+      ['0123456789 012345678901234567890123456789 0123456789', 600, 400, '0123456789 012345678901234567890123456789 0123456789'],
+    ];
+  }
+
+  /**
+   * @test
+   */
+  public function testExcerptInputFailures()
+  {
+    $failInputs = [
+      ['867-5309', 'twelve', 0, 'not expecting anything because this should fail. Horribly.'],
+      ['spaghettios', 0, 0, 'uh oh.'],
+      ['asdf', 42, 'this isn\'t an offset at all!', 'fdsa'],
+    ];
+
+    foreach ($failInputs as $input) {
+      try {
+        $this->textExcerpt($input[0], $input[1], $input[2], $input[3]);
+      } catch (\InvalidArgumentException $e) {
+        continue;
+      }
+
+      $this->fail('An expected exception has not been raised.');
+    }
+  }
+
+
+
+
+  /**
+   * @test
+   */
+  public function testPrepend()
+  {
+    $this->string->setValue('123');
+    $this->string->prepend('abc');
+
+    $this->assertSame('abc123', $this->string->getValue());
+
+    try {
+      $this->string->setValue('123');
+      $this->string->prepend(array('NEIN!'));
+    } catch (\InvalidArgumentException $e) {
+      return;
+    }
+
+    $this->fail('An expected exception has not been raised.');
+  }
+
+  /**
+   * @test
+   */
+  public function testAppend()
+  {
+    $this->string->setValue('abc');
+    $this->string->append('123');
+
+    $this->assertSame('abc123', $this->string->getValue());
+
+    try {
+      $this->string->setValue('abc');
+      $this->string->append(array('iie!'));
+      $this->assertTrue(false);
+    } catch (\InvalidArgumentException $e) {
+      return;
+    }
+
+    $this->fail('An expected exception has not been raised.');
+  }
+
+  /**
+   * @test
+   */
+  public function testEncaseInTag()
+  {
+    $this->string->setValue('abc');
+    $this->string->encaseInTag('html');
+
+    $this->assertSame('<html>abc</html>', $this->string->getValue());
+
+    $failInputs = [
+      null,
+      747,
+      true,
+      ['a', 'b', 'c'],
+      'uhoh-',
+      '789badjoke',
+      ':(',
+      'no spaces or',
+      'punctuation!'
+    ];
+
+    foreach ($failInputs as $input) {
+      try {
+        $this->string->setValue('abc');
+        $this->string->encaseInTag($input);
+        $this->assertTrue(false);
+      } catch (\InvalidArgumentException $e) {
+        continue;
+      }
+
+      $this->fail('An expected exception has not been raised.');
+    }
+  }
 }
