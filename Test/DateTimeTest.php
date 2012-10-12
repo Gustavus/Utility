@@ -2,6 +2,8 @@
 /**
  * @package Utility
  * @subpackage Test
+ * @author  Billy Visto
+ * @author  Joe Lencioni
  */
 
 namespace Gustavus\Utility\Test;
@@ -12,6 +14,8 @@ use Gustavus\Utility,
 /**
  * @package Utility
  * @subpackage Test
+ * @author  Billy Visto
+ * @author  Joe Lencioni
  */
 class DateTimeTest extends Test
 {
@@ -161,7 +165,7 @@ class DateTimeTest extends Test
       array('week', '-604800 seconds', 'now'),
       array('weeks', '-1209600 seconds', 'now'),
       array('month', '-1 month', 'now'),
-      array('months', '-62 days', 'now'),
+      array('months', '-65 days', 'now'),
       array('year', '-366 days', 'now'),
       array('years', '-2 years', 'now'),
     );
@@ -333,8 +337,46 @@ class DateTimeTest extends Test
       array(true, 'June 1', 'August 15', 'June 1'),
       array(true, 'June 1', 'August 15', 'July 29'),
       array(true, 'June 1', 'August 15', 'August 15'),
-      array(true, 'August 15', 'June 15', 'August 14'),
-      array(false, 'August 15', 'June 15', 'August 16'),
+      array(false, 'August 15', 'June 15', 'August 14'),
+      array(true, 'August 15', 'June 15', 'August 16'),
+      array(false, 'October 22', 'February 1', 'September 22'),
+      array(false, 'October 22 2012', 'February 1 2013', 'September 22 2012'),
+      array(true, 'September 1', 'February 1', 'September 16'),
+      array(false, 'October 22', 'February 1', 'September 22'),
+      array(false, 'January 1', 'February 1', 'September 22'),
+      array(true, 'February 4', 'February 1', 'September 22'),
+    );
+  }
+
+  /**
+   * @test
+   * @dataProvider adjustYearsIfNeededData
+   */
+  public function adjustYearsIfNeeded($expectedStart, $expectedEnd, $start, $end)
+  {
+    $date = new Utility\DateTime('now');
+    $expectedStart  = new \DateTime($expectedStart);
+    $expectedEnd    = new \DateTime($expectedEnd);
+    $start          = new \DateTime($start);
+    $end            = new \DateTime($end);
+
+    $date->adjustYearsIfNeeded($start, $end);
+
+    $this->assertEquals($expectedStart, $start);
+    $this->assertEquals($expectedEnd, $end);
+  }
+
+  /**
+   * @return array
+   */
+  public function adjustYearsIfNeededData()
+  {
+    return array(
+      array('September 1', 'February 1 +1 year', 'September 1', 'February 1'),
+      array('September 1', 'February 1 +1 year', 'September 1', 'February 1'),
+      array('September 1', 'February 1 +1 year', 'September 1', 'February 1'),
+      array('September 1 2012', 'February 1 +1 year', 'September 1 2012', 'February 1'),
+      array('December 1 -1 year', 'October 20', 'December 1', 'October 20'),
     );
   }
 }
