@@ -1,6 +1,8 @@
 <?php
 /**
  * @package Utility
+ * @author  Billy Visto
+ * @author  Joe Lencioni
  */
 namespace Gustavus\Utility;
 
@@ -16,6 +18,8 @@ use DateTime as PHPDateTime,
  * actual months may not match up with the number of months in the interval.
  *
  * @package Utility
+ * @author  Billy Visto
+ * @author  Joe Lencioni
  */
 class DateTime extends Base
 {
@@ -31,6 +35,12 @@ class DateTime extends Base
     return true;
   }
 
+  /**
+   * Calls parent setValue with value converted to a DateTime object
+   *
+   * @param string|integer $value
+   * @return  void
+   */
   public function setValue($value)
   {
     parent::setValue($this->makeDateTime($value));
@@ -89,7 +99,7 @@ class DateTime extends Base
   /**
    * Figures out the class name based off of the DateInterval
    *
-   * @param int|string $now time to get relative time against
+   * @param integer|string $now time to get relative time against
    * @return String
    */
   public function toRelativeClassName($now = null)
@@ -164,7 +174,7 @@ class DateTime extends Base
   /**
    * Make DateTime object
    *
-   * @param  int|string $date
+   * @param  integer|string $date
    * @return DateTime
    */
   private function makeDateTime($date = null)
@@ -219,7 +229,7 @@ class DateTime extends Base
    * Outputs a sentence of how long ago this revision was made.
    * ie. 2 years ago, 3 months ago, 5 days ago, 1 day ago, 3 hours ago, 4 minutes ago, and 23 seconds ago.
    *
-   * @param int|string $now Time to get relative time against
+   * @param integer|string $now Time to get relative time against
    * @param boolean $beSpecific whether to output the greatest time measurement, or to be as specific as possible
    * @return String
    */
@@ -269,21 +279,50 @@ class DateTime extends Base
   }
 
   /**
-   * Checks to see if $this->value is in the date range of firstDate and endDate
+   * Adjust years if endDate is before the firstDate.
+   * We either need to add a year to the endDate, or subtract a year from the firstDate.
    *
-   * @param  int|string $firstDate
-   * @param  int|string $endDate
+   * @param  \DateTime &$firstDate
+   * @param  \DateTime &$endDate
+   * @return void
+   */
+  public function adjustYearsIfNeeded(&$firstDate, &$endDate)
+  {
+    $firstDateTime = $firstDate->format('U');
+    $endDateTime   = $endDate->format('U');
+    if ($firstDateTime > $endDateTime) {
+      // endDateTime should be after first date time
+      // we need to adjust years
+      $now  = $this->makeDateTime('now')->format('U');
+
+      if ($now > $endDateTime) {
+        // add a year to the endDate
+        $endDate->modify('+1 year');
+      } else {
+        // subtract a year from the firstDate
+        $firstDate->modify('-1 year');
+      }
+    }
+  }
+
+  /**
+   * Checks to see if $this->value is in the date range of firstDate and endDate
+   * Requires firstDate to be before endDate
+   *
+   * @param  integer|string $firstDate
+   * @param  integer|string $endDate
    * @return boolean
    */
   public function inDateRange($firstDate, $endDate)
   {
-    $firstDate = $this->makeDateTime($firstDate)->format('U');
-    $endDate   = $this->makeDateTime($endDate)->format('U');
+    $firstDate = $this->makeDateTime($firstDate);
+    $endDate   = $this->makeDateTime($endDate);
+
+    // make sure firstDate is before endDate. If not, we may need to adjust years
+    $this->adjustYearsIfNeeded($firstDate, $endDate);
+    $firstDate = $firstDate->format('U');
+    $endDate   = $endDate->format('U');
     $date      = $this->value->format('U');
-    if ($firstDate > $endDate) {
-      return ($endDate <= $date && $date <= $firstDate);
-    } else {
-      return ($firstDate <= $date && $date <= $endDate);
-    }
+    return ($firstDate <= $date && $date <= $endDate);
   }
 }
