@@ -368,6 +368,7 @@ class DateTimeTest extends Test
 
   /**
    * @return array
+   * @todo  Figure out a way to better test this since it rely's on the current time to figure out what do to.
    */
   public function adjustYearsIfNeededData()
   {
@@ -376,7 +377,7 @@ class DateTimeTest extends Test
       array('September 1', 'February 1 +1 year', 'September 1', 'February 1'),
       array('September 1', 'February 1 +1 year', 'September 1', 'February 1'),
       array('September 1 2012', 'February 1 +1 year', 'September 1 2012', 'February 1'),
-      array('December 1 -1 year', 'October 20', 'December 1', 'October 20'),
+      array('December 1 -1 year', 'November 1', 'December 1', 'November 1'),
     );
   }
 }
