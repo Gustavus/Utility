@@ -164,11 +164,20 @@ class DateTimeTest extends Test
       array('days', '-172800 seconds', 'now'),
       array('week', '-604800 seconds', 'now'),
       array('weeks', '-1209600 seconds', 'now'),
-      array('month', '-1 month', 'now'),
+      //array('month', '-1 month', 'now'), // See note below.
+      array('month', '-32 days', 'now'),
       array('months', '-65 days', 'now'),
       array('year', '-366 days', 'now'),
       array('years', '-2 years', 'now'),
     );
+
+    // Relative months in PHP's date interval stuff only works properly when the previous month
+    // has at least as many days as the current month (July, August, September).
+    // However, when the previous month has fewer days, subtracting one month is not a full month
+    // from the current month. For instance, September only has 30 days, while October has 31, which
+    // causes a bug on October 31: Subtracting 1 month from October 31 only subtracts 30 days!
+    // As a result, a test using negative months may fail on certain days of the year, but not
+    // others. To avoid this, use -32 days instead of -1 month.
   }
 
   /**
@@ -228,7 +237,7 @@ class DateTimeTest extends Test
       array('2 days ago', '-172800 seconds', 'now'),
       array('Last week', '-604800 seconds', 'now'),
       array('2 weeks ago', '-1209600 seconds', 'now'),
-      array('Last month', '-1 months', 'now'),
+      array('Last month', '-32 days', 'now'),
       array('2 months ago', '-2 months', 'now'),
       array('Last year', '-12 months', 'now'),
       array('Around 2 years ago', '-2 years', 'now'),
