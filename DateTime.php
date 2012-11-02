@@ -274,7 +274,7 @@ class DateTime extends Base
         '%s%s %s',
         $startText,
         $setUtil->toSentence(),
-        ($interval->format('%r') === "-") ? 'ago' : 'from now'
+        ($interval->format('%r') === '-') ? 'ago' : 'from now'
     ));
   }
 
