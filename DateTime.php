@@ -177,9 +177,9 @@ class DateTime extends Base
    * @param  integer|string $date
    * @return DateTime
    */
-  private function makeDateTime($date = null)
+  protected function makeDateTime($date = null)
   {
-    if (is_int($date)) {
+    if (is_numeric($date)) {
       // $date is a timestamp. We want it as a DateTime object
       $date = new PHPDateTime('@'.$date);
     } else if ($date === null) {
