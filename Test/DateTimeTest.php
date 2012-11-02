@@ -263,6 +263,8 @@ class DateTimeTest extends Test
     $this->assertInstanceOf('\DateTime', $this->dateTime->makeDateTime($date));
     $this->assertInstanceOf('\DateTime', $this->dateTime->makeDateTime(time() - 120));
     $this->assertInstanceOf('\DateTime', $this->dateTime->makeDateTime());
+    $this->assertInstanceOf('\DateTime', $this->dateTime->makeDateTime('1301213595'));
+    $this->assertInstanceOf('\DateTime', $this->dateTime->makeDateTime(time()));
   }
 
   /**
@@ -361,15 +363,21 @@ class DateTimeTest extends Test
    * @test
    * @dataProvider adjustYearsIfNeededData
    */
-  public function adjustYearsIfNeeded($expectedStart, $expectedEnd, $start, $end)
+  public function adjustYearsIfNeeded($expectedStart, $expectedEnd, $start, $end, $dateToTestAround)
   {
-    $date = new Utility\DateTime('now');
+    // set up mock so whenever DateTime calls makeDateTime, we return the date we want to test around, instead of using the current date
+    $dateMock = $this->getMock('\Gustavus\Utility\DateTime', array('makeDateTime'), [$dateToTestAround]);
+
+    $dateMock->expects($this->any())
+      ->method('makeDateTime')
+      ->will($this->returnValue(new \DateTime($dateToTestAround)));
+
     $expectedStart  = new \DateTime($expectedStart);
     $expectedEnd    = new \DateTime($expectedEnd);
     $start          = new \DateTime($start);
     $end            = new \DateTime($end);
 
-    $date->adjustYearsIfNeeded($start, $end);
+    $dateMock->adjustYearsIfNeeded($start, $end);
 
     $this->assertEquals($expectedStart, $start);
     $this->assertEquals($expectedEnd, $end);
@@ -377,16 +385,15 @@ class DateTimeTest extends Test
 
   /**
    * @return array
-   * @todo  Figure out a way to better test this since it rely's on the current time to figure out what do to.
    */
   public function adjustYearsIfNeededData()
   {
     return array(
-      array('September 1', 'February 1 +1 year', 'September 1', 'February 1'),
-      array('September 1', 'February 1 +1 year', 'September 1', 'February 1'),
-      array('September 1', 'February 1 +1 year', 'September 1', 'February 1'),
-      array('September 1 2012', 'February 1 +1 year', 'September 1 2012', 'February 1'),
-      array('December 1 -1 year', 'November 1', 'December 1', 'November 1'),
+      array('September 1', 'February 1 +1 year', 'September 1', 'February 1', 'November 1'),
+      array('September 1', 'February 1 +1 year', 'September 1', 'February 1', 'November 1'),
+      array('September 1', 'February 1 +1 year', 'September 1', 'February 1', 'November 1'),
+      array('September 1 2012', 'February 1 +1 year', 'September 1 2012', 'February 1', 'November 1'),
+      array('December 1 -1 year', 'November 1', 'December 1', 'November 1', 'October 22'),
     );
   }
 }
