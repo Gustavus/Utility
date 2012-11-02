@@ -26,7 +26,7 @@ class Abbreviations
   const US_STREET         = 0x03;
   const US_BUILDING       = 0x04;
 
-  const CA_PROVINCES      = 0x05;
+  const CA_PROVINCE       = 0x05;
 
   /**
    * Contains our abbreviations (eventually).
@@ -91,7 +91,6 @@ class Abbreviations
           'TEXAS'           => 'TX',    'UTAH'            => 'UT',    'VERMONT'         => 'VT',
           'VIRGINIA'        => 'VA',    'WASHINGTON'      => 'WA',    'WEST VIRGINIA'   => 'WV',
           'WISCONSIN'       => 'WI',    'WYOMING'         => 'WY',
-
 
           'AMERICAN SAMOA'                  => 'AS',
           'DISTRICT OF COLUMBIA'            => 'DC',
@@ -197,7 +196,7 @@ class Abbreviations
         ];
           return true;
 
-      case Abbreviations::CA_PROVINCES:
+      case Abbreviations::CA_PROVINCE:
         Abbreviations::$data[$class] = [
           'ALBERTA'                  => 'AB',
           'BRITISH COLUMBIA'         => 'BC',
@@ -241,8 +240,6 @@ class Abbreviations
   public static function getAbbreviationTable(array $classes)
   {
     $table = [];
-
-
 
     foreach ($classes as $class) {
       if (isset(Abbreviations::$data[$class])) {

@@ -19,6 +19,38 @@ use Gustavus\Utility,
  */
 class AbbreviationsTest extends Test
 {
+  private static $testClasses = [
+    'meals' => ['breakfast' => 'b', 'lunch' => 'l', 'dinner' => 'd'],
+    'fruit' => ['apple' => 'a', 'banana' => 'b', 'cantaloupe' => 'c'],
+    'veggies' => ['artichoke' => 'a', 'broccoli' => 'b', 'cauliflower' => 'c'],
+    'things' => ['apple' => '1', 'broccoli' => '2', 'dinner' => '3']
+  ];
+
+  public static function setUpBeforeClass()
+  {
+    $rc = new \ReflectionClass('\Gustavus\Utility\Abbreviations');
+
+    $rp = $rc->getProperty('data');
+    $rp->setAccessible(true);
+
+    $val = $rp->getValue();
+
+    // $val should be an array here...
+    assert('is_array($val)');
+
+    foreach (AbbreviationsTest::$testClasses as $class => $abbr) {
+      $val[$class] = $abbr;
+    }
+
+    $rp->setValue(null, $val);
+  }
+
+
+
+
+
+
+
   /**
    * @test
    * @dataProvider abbreviateTestData
@@ -140,6 +172,28 @@ class AbbreviationsTest extends Test
       [123.45, [Abbreviations::US_STATE], true, false],
       [['a'], [Abbreviations::US_STATE], true, false],
       ['string', [], true, false]
+    ];
+  }
+
+
+  /**
+   * @test
+   * @dataProvider complexAbbreviationTableData
+   */
+  public function testBuildComplexAbbreviationTable($classes, $expected)
+  {
+    // Check what we actually get...
+    $actual = Abbreviations::getAbbreviationTable($classes);
+
+    $this->assertEquals($expected, $actual);
+  }
+
+  public function complexAbbreviationTableData()
+  {
+    return [
+      [['meals'], AbbreviationsTest::$testClasses['meals']],
+      [['meals', 'fruit'], array_merge(AbbreviationsTest::$testClasses['meals'], AbbreviationsTest::$testClasses['fruit'])],
+      [['meals', 'things'], ['breakfast' => 'b', 'lunch' => 'l', 'apple' => '1', 'broccoli' => '2', 'dinner' => '3']]
     ];
   }
 }

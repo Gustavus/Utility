@@ -394,7 +394,7 @@ class String extends Base implements ArrayAccess
    */
   public function abbreviateState()
   {
-    $this->setValue(Abbreviations::abbreviate($this->value, [Abbreviations::US_STATE, Abbreviations::CA_PROVINCES]));
+    $this->setValue(Abbreviations::abbreviate($this->value, [Abbreviations::US_STATE, Abbreviations::CA_PROVINCE]));
     return $this;
   }
 
