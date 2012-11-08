@@ -1,6 +1,10 @@
 <?php
 /**
  * @package Utility
+ *
+ * @author Joe Lencioni
+ * @author Billy Visto
+ * @author Chris Rog
  */
 namespace Gustavus\Utility;
 
@@ -11,6 +15,10 @@ use ArrayAccess,
  * Object for working with Strings
  *
  * @package Utility
+ *
+ * @author Joe Lencioni
+ * @author Billy Visto
+ * @author Chris Rog
  */
 class String extends Base implements ArrayAccess
 {
@@ -107,7 +115,15 @@ class String extends Base implements ArrayAccess
   }
 
   /**
-   * @return $this
+   * Converts the casing of this string to that of a well-formed title. That is, this method
+   * capitalizes the first letter of every word in the string.
+   *
+   * @param array $exceptions
+   *  A collection of words to not capitalize while converting. If omitted, a default set of
+   *  exceptions will be used.
+   *
+   * @return \Gustavus\Utility\String
+   *  This String instance.
    */
   public function titleCase(array $exceptions = null)
   {
@@ -306,7 +322,8 @@ class String extends Base implements ArrayAccess
    * Note: In the case of 'I', we return 'my', so the caller should modify
    *       the result manually if it ought to be 'My' or 'MY'
    *
-   * @return $this
+   * @return \Gustavus\Utility\String
+   *  This String instance.
    *
    * @todo Add proteins to the method by optionally returning possessive pronouns ('mine', 'yours', 'ours', 'theirs')
    * @todo Allow string to be HTML and possessivise its contents
@@ -358,6 +375,8 @@ class String extends Base implements ArrayAccess
 
       // Non-pronouns
       default:
+        // @todo: Remove repeated calls to substr -- it's really really slow.
+
         if (substr($stringToPossessiveise, -2) === "'s" || substr($stringToPossessiveise, -2) === "s'") {
           // Already possessive
           $this->setValue($stringToPossessiveise);
@@ -394,7 +413,10 @@ class String extends Base implements ArrayAccess
    */
   public function abbreviateState()
   {
-    $this->setValue(Abbreviations::abbreviate($this->value, [Abbreviations::US_STATE, Abbreviations::CA_PROVINCE]));
+    if (!empty($this->value) && is_string($this->value)) {
+      $this->setValue(Abbreviations::abbreviate($this->value, [Abbreviations::US_STATE, Abbreviations::CA_PROVINCE]));
+    }
+
     return $this;
   }
 
