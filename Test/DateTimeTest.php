@@ -356,6 +356,7 @@ class DateTimeTest extends Test
       array(false, 'October 22', 'February 1', 'September 22'),
       array(false, 'January 1', 'February 1', 'September 22'),
       array(true, 'February 4', 'February 1', 'September 22'),
+      array(true, 'November 14 00:00:00', 'November 14 23:59:59', 'November 14'),
     );
   }
 
