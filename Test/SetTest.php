@@ -169,6 +169,15 @@ class SetTest extends Test
   /**
    * @test
    */
+  public function toSentenceEmptyArray()
+  {
+    $set = new Utility\Set(array());
+    $this->assertSame('', $set->toSentence()->getValue());
+  }
+
+  /**
+   * @test
+   */
   public function toSentenceToUpper()
   {
     $set = new Utility\Set(array('one', 'two', 'three'));
