@@ -308,8 +308,8 @@ class DateTime extends Base
    * Checks to see if $this->value is in the date range of firstDate and endDate
    * Requires firstDate to be before endDate
    *
-   * @param  integer|string|\DateTime $firstDate
-   * @param  integer|string|\DateTime $endDate
+   * @param  integer|string|\DateTime &$firstDate
+   * @param  integer|string|\DateTime &$endDate
    * @return boolean
    */
   public function inDateRange(&$firstDate, &$endDate)
