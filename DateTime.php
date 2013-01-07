@@ -312,7 +312,7 @@ class DateTime extends Base
    * @param  integer|string|\DateTime $endDate
    * @return boolean
    */
-  public function inDateRange($firstDate, $endDate)
+  public function inDateRange(&$firstDate, &$endDate)
   {
     if (!($firstDate instanceOf \DateTime)) {
       $firstDate = $this->makeDateTime($firstDate);
