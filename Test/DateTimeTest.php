@@ -349,13 +349,13 @@ class DateTimeTest extends Test
       array(true, 'June 1', 'August 15', 'July 29'),
       array(true, 'June 1', 'August 15', 'August 15'),
       array(false, 'August 15', 'June 15', 'August 14'),
-      array(true, 'August 15', 'June 15', 'August 16'),
+      array(true, 'August 15', 'June 15', 'August 16 -1 year'),
       array(false, 'October 22', 'February 1', 'September 22'),
       array(false, 'October 22 2012', 'February 1 2013', 'September 22 2012'),
-      array(true, 'September 1', 'February 1', 'September 16'),
+      array(true, 'September 1 2012', 'February 1 2013', 'September 16 2012'),
       array(false, 'October 22', 'February 1', 'September 22'),
       array(false, 'January 1', 'February 1', 'September 22'),
-      array(true, 'February 4', 'February 1', 'September 22'),
+      array(true, 'February 4 2012', 'February 1 2013', 'September 22 2012'),
       array(true, 'November 14 00:00:00', 'November 14 23:59:59', 'November 14'),
     );
   }
@@ -391,9 +391,9 @@ class DateTimeTest extends Test
   {
     return array(
       array('September 1', 'February 1 +1 year', 'September 1', 'February 1', 'November 1'),
-      array('September 1', 'February 1 +1 year', 'September 1', 'February 1', 'November 1'),
-      array('September 1', 'February 1 +1 year', 'September 1', 'February 1', 'November 1'),
-      array('September 1 2012', 'February 1 +1 year', 'September 1 2012', 'February 1', 'November 1'),
+      array('August 15', 'June 15 +1 year', 'August 15', 'June 15', 'August 16'),
+      //array('September 1', 'February 1 +1 year', 'September 1', 'February 1', 'November 1'),
+      array('September 1 2012', 'February 1 2013', 'September 1 2012', 'February 1 2013', 'November 1 2012'),
       array('December 1 -1 year', 'November 1', 'December 1', 'November 1', 'October 22'),
     );
   }

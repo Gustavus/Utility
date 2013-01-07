@@ -288,9 +288,8 @@ class DateTime extends Base
    */
   public function adjustYearsIfNeeded(&$firstDate, &$endDate)
   {
-    $firstDateTime = $firstDate->format('U');
     $endDateTime   = $endDate->format('U');
-    if ($firstDateTime > $endDateTime) {
+    if ($firstDate->format('U') > $endDateTime) {
       // endDateTime should be after first date time
       // we need to adjust years
       $now  = $this->makeDateTime('now')->format('U');
