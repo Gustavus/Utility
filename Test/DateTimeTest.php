@@ -398,4 +398,19 @@ class DateTimeTest extends Test
       array('December 1 -1 year', 'November 1', 'December 1', 'November 1', 'October 22'),
     );
   }
+
+  /**
+   * @test
+   */
+  public function inDateRangeReference()
+  {
+
+    $firstDate = new \DateTime('September 1 2023');
+    $expectedFirstDate = (new \DateTime('September 1 2022'))->format('U');
+    $endDate = new \DateTime('February 1 2023');
+
+    (new Utility\DateTime('January 1 2023'))->inDateRange($firstDate, $endDate);
+
+    $this->assertSame($expectedFirstDate, $firstDate->format('U'));
+  }
 }
