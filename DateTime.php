@@ -308,14 +308,18 @@ class DateTime extends Base
    * Checks to see if $this->value is in the date range of firstDate and endDate
    * Requires firstDate to be before endDate
    *
-   * @param  integer|string $firstDate
-   * @param  integer|string $endDate
+   * @param  integer|string|\DateTime $firstDate
+   * @param  integer|string|\DateTime $endDate
    * @return boolean
    */
   public function inDateRange($firstDate, $endDate)
   {
-    $firstDate = $this->makeDateTime($firstDate);
-    $endDate   = $this->makeDateTime($endDate);
+    if (!($firstDate instanceOf \DateTime)) {
+      $firstDate = $this->makeDateTime($firstDate);
+    }
+    if (!($endDate instanceOf \DateTime)) {
+      $endDate   = $this->makeDateTime($endDate);
+    }
 
     // make sure firstDate is before endDate. If not, we may need to adjust years
     $this->adjustYearsIfNeeded($firstDate, $endDate);

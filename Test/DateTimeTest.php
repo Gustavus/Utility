@@ -357,6 +357,7 @@ class DateTimeTest extends Test
       array(false, 'January 1', 'February 1', 'September 22'),
       array(true, 'February 4 2012', 'February 1 2013', 'September 22 2012'),
       array(true, 'November 14 00:00:00', 'November 14 23:59:59', 'November 14'),
+      array(true, new \DateTime('September 1 2012'), new \DateTime('February 1 2013'), 'November 14 2012'),
     );
   }
 
