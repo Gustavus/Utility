@@ -358,6 +358,8 @@ class DateTimeTest extends Test
       array(true, 'February 4 2012', 'February 1 2013', 'September 22 2012'),
       array(true, 'November 14 00:00:00', 'November 14 23:59:59', 'November 14'),
       array(true, new \DateTime('September 1 2012'), new \DateTime('February 1 2013'), 'November 14 2012'),
+      array(false, new \DateTime('September 1 2012'), new \DateTime('February 1 2013'), 'February 2 2013'),
+      array(false,'September 1', 'February 1', 'February 2'),
     );
   }
 
@@ -392,6 +394,8 @@ class DateTimeTest extends Test
   {
     return array(
       array('September 1', 'February 1 +1 year', 'September 1', 'February 1', 'November 1'),
+      array('September 1 -1 year', 'February 1', 'September 1', 'February 1', 'January 29'),
+      array('September 1', 'February 1 +1 year', 'September 1', 'February 1', 'February 2'),
       array('August 15', 'June 15 +1 year', 'August 15', 'June 15', 'August 16'),
       //array('September 1', 'February 1 +1 year', 'September 1', 'February 1', 'November 1'),
       array('September 1 2012', 'February 1 2013', 'September 1 2012', 'February 1 2013', 'November 1 2012'),
