@@ -33,7 +33,7 @@ class Abbreviations
    *
    * @var array
    */
-  private static $data = [];
+  protected static $data = [];
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -57,7 +57,7 @@ class Abbreviations
     assert('!empty($class) && is_scalar($class)');
 
     // Check that we haven't already set this value...
-    if (isset(Abbreviations::$data[$class])) {
+    if (isset(static::$data[$class])) {
       return true;
     }
 
@@ -65,15 +65,15 @@ class Abbreviations
     // Maybe make these a bit more friendly/not uppercase so we can use them in grammatically/
     // syntactically correct sentences?
     switch ($class) {
-      case Abbreviations::DIRECTIONALS:
-        Abbreviations::$data[$class] = [
+      case self::DIRECTIONALS:
+        static::$data[$class] = [
           'NORTH'     => 'N',   'EAST'      => 'E',   'SOUTH'     => 'S',   'WEST'      => 'W',
           'NORTHEAST' => 'NE',  'SOUTHEAST' => 'SE',  'NORTHWEST' => 'NW',  'SOUTHWEST' => 'SW'
         ];
           return true;
 
-      case Abbreviations::US_STATE:
-        Abbreviations::$data[$class] = [
+      case self::US_STATE:
+        static::$data[$class] = [
           'ALABAMA'         => 'AL',    'ALASKA'          => 'AK',    'ARIZONA'         => 'AZ',
           'ARKANSAS'        => 'AR',    'CALIFORNIA'      => 'CA',    'COLORADO'        => 'CO',
           'CONNECTICUT'     => 'CT',    'DELAWARE'        => 'DE',    'FLORIDA'         => 'FL',
@@ -110,8 +110,8 @@ class Abbreviations
         ];
           return true;
 
-      case Abbreviations::US_STREET:
-        Abbreviations::$data[$class] = [
+      case self::US_STREET:
+        static::$data[$class] = [
           'ALLEY'       => 'ALY',        'ANNEX'       => 'ANX',        'ARCADE'      => 'ARC',
           'AVENUE'      => 'AVE',        'BAYOO'       => 'BYU',        'BEACH'       => 'BCH',
           'BEND'        => 'BND',        'BLUFF'       => 'BLF',        'BLUFFS'      => 'BLFS',
@@ -183,8 +183,8 @@ class Abbreviations
         ];
           return true;
 
-      case Abbreviations::US_BUILDING:
-        Abbreviations::$data[$class] = [
+      case self::US_BUILDING:
+        static::$data[$class] = [
           'APARTMENT'   => 'APT',        'BASEMENT'    => 'BSMT',       'BUILDING'    => 'BLDG',
           'DEPARTMENT'  => 'DEPT',       'FLOOR'       => 'FL',         'FRONT'       => 'FRNT',
           'HANGAR'      => 'HNGR',       'LOBBY'       => 'LBBY',       'LOT'         => 'LOT',
@@ -196,8 +196,8 @@ class Abbreviations
         ];
           return true;
 
-      case Abbreviations::CA_PROVINCE:
-        Abbreviations::$data[$class] = [
+      case self::CA_PROVINCE:
+        static::$data[$class] = [
           'ALBERTA'                  => 'AB',
           'BRITISH COLUMBIA'         => 'BC',
           'MANITOBA'                 => 'MB',
@@ -242,7 +242,7 @@ class Abbreviations
     $table = [];
 
     foreach ($classes as $class) {
-      if (isset(Abbreviations::$data[$class])) {
+      if (isset(static::$data[$class])) {
         $table = array_merge($table, Abbreviations::$data[$class]);
       }
     }
@@ -292,8 +292,8 @@ class Abbreviations
 
       $search = $ignoreCase ? strtoupper($string) : $string;
 
-      if (Abbreviations::populateAbbreviationTable($class) && isset(Abbreviations::$data[$class][$search])) {
-        $string = Abbreviations::$data[$class][$search];
+      if (static::populateAbbreviationTable($class) && isset(static::$data[$class][$search])) {
+        $string = static::$data[$class][$search];
       }
     }
 
@@ -339,9 +339,9 @@ class Abbreviations
         throw new \InvalidArgumentException('$classes contains non-scalar values');
       }
 
-      if (Abbreviations::populateAbbreviationTable($class)) {
-        $search = array_keys(Abbreviations::$data[$class]);
-        $values = array_values(Abbreviations::$data[$class]);
+      if (static::populateAbbreviationTable($class)) {
+        $search = array_keys(static::$data[$class]);
+        $values = array_values(static::$data[$class]);
 
         $string = $ignoreCase ? str_ireplace($search, $values, $string) : str_replace($search, $values, $string);
       }
