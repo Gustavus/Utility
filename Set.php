@@ -22,7 +22,7 @@ class Set extends Base implements ArrayAccess
    */
   final protected function valueIsValid($value)
   {
-    return is_array($value);
+    return is_array($value) || $value instanceof ArrayAccess;
   }
 
   /**
