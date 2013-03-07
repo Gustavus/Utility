@@ -1,6 +1,7 @@
 <?php
 /**
  * @package Utility
+ * @author  Billy Visto
  */
 namespace Gustavus\Utility;
 
@@ -11,6 +12,7 @@ use Gustavus\TwigFactory\TwigFactory,
  * Object for working with Arrays
  *
  * @package Utility
+ * @author  Billy Visto
  */
 class Set extends Base implements ArrayAccess
 {
@@ -165,11 +167,12 @@ class Set extends Base implements ArrayAccess
    * @param  string  $templateString twig code for how you want each word parsed.
    * @param  string  $endWord        e.g. 'and' or 'or'
    * @param  integer $max            Number of items to display in the sentence
+   * @param  string  $separator      How values should be separated
    * @return String
    */
   public function toSentence($templateString = '{{ value }}', $endWord = 'and', $max = 0, $separator = ',')
   {
-    $twig = TwigFactory::getTwigFilesystem("/cis/lib/Gustavus/Utility/Views/Set/");
+    $twig = TwigFactory::getTwigFilesystem('/cis/lib/Gustavus/Utility/Views/Set/');
 
     $templateString = "{% autoescape false %}$templateString{% endautoescape %}";
 
