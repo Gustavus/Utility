@@ -8,7 +8,8 @@ namespace Gustavus\Utility\Test;
 
 use Gustavus\Utility,
   Gustavus\Test\Test,
-  Gustavus\Test\TestObject;
+  Gustavus\Test\TestObject,
+  Gustavus\Utility\String;
 
 /**
  * @package Utility
@@ -629,4 +630,213 @@ class StringTest extends Test
       $this->fail('An expected exception has not been raised.');
     }
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  /**
+   * @test
+   */
+  public function PhoneWithNumbersThatAreTooShort()
+  {
+    $this->assertSame('1', (new String('1'))->phone()->getValue());
+    $this->assertSame('12', (new String('12'))->phone()->getValue());
+    $this->assertSame('123', (new String('123'))->phone()->getValue());
+  }
+
+  /**
+   * @test
+   */
+  public function PhoneWithNumbersThatAreTooLong()
+  {
+    $this->assertSame('11111111112222222222', (new String('11111111112222222222'))->phone()->getValue());
+  }
+
+  /**
+   * @test
+   */
+  public function PhoneWithOnCampusNumbers()
+  {
+    // $this->assertSame('507-933-1234', (new String('1234'))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new String(' 1234'))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new String('1234 '))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new String(' 1234 '))->phone()->getValue());
+
+    // $this->assertSame('507-933-1234', (new String('x1234'))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new String(' x1234'))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new String('x1234 '))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new String(' x1234 '))->phone()->getValue());
+
+    // $this->assertSame('507-933-1234', (new String('9331234'))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new String(' 9331234'))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new String('9331234 '))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new String(' 9331234 '))->phone()->getValue());
+
+    // $this->assertSame('507-933-1234', (new String('933-1234'))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new String(' 933-1234'))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new String('933-1234 '))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new String(' 933-1234 '))->phone()->getValue());
+
+    // $this->assertSame('507-933-1234', (new String('5079331234'))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new String(' 5079331234'))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new String('5079331234 '))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new String(' 5079331234 '))->phone()->getValue());
+
+    // $this->assertSame('507-933-1234', (new String('507-933-1234'))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new String(' 507-933-1234'))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new String('507-933-1234 '))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new String(' 507-933-1234 '))->phone()->getValue());
+
+    // $this->assertSame('507-933-1234', (new String('1234'))->phone('short')->getValue());
+    $this->assertSame('<span class="nodisplay">507-</span>933-1234', (new String('1234'))->phone('medium')->getValue());
+    $this->assertSame('507-933-1234', (new String('1234'))->phone('long')->getValue());
+
+    $this->assertSame('<a href="tel:1-507-933-1234">507-933-1234</a>', (new String('1234'))->phone('mobile')->getValue());
+    $this->assertSame('<a href="tel:1-507-933-1234">507-933-1234</a>', (new String(' 1234'))->phone('mobile')->getValue());
+    $this->assertSame('<a href="tel:1-507-933-1234">507-933-1234</a>', (new String('1234 '))->phone('mobile')->getValue());
+    $this->assertSame('<a href="tel:1-507-933-1234">507-933-1234</a>', (new String(' 1234 '))->phone('mobile')->getValue());
+
+    $this->assertSame('507-933-1234', (new String('1234'))->phone('short', true)->getValue());
+    $this->assertSame('507-933-1234', (new String(' 1234'))->phone('short', true)->getValue());
+    $this->assertSame('507-933-1234', (new String('1234 '))->phone('short', true)->getValue());
+    $this->assertSame('507-933-1234', (new String(' 1234 '))->phone('short', true)->getValue());
+
+    $this->assertSame('933-1234', (new String('1234'))->phone('medium', true)->getValue());
+    $this->assertSame('507-933-1234', (new String('1234'))->phone('long', true)->getValue());
+
+    $this->assertSame('507-933-1234', (new String('9331234'))->phone('short', true)->getValue());
+    $this->assertSame('933-1234', (new String('9331234'))->phone('medium', true)->getValue());
+    $this->assertSame('507-933-1234', (new String('9331234'))->phone('long', true)->getValue());
+
+    $this->assertSame('507-933-1234', (new String('5079331234'))->phone('short', true)->getValue());
+    $this->assertSame('933-1234', (new String('5079331234'))->phone('medium', true)->getValue());
+    $this->assertSame('507-933-1234', (new String('5079331234'))->phone('long', true)->getValue());
+  }
+
+  /**
+   * @test
+   */
+  public function PhoneWithOffCampusNumbers()
+  {
+    $this->assertSame('<span class="nodisplay">507-</span>931-1234', (new String('9311234'))->phone()->getValue());
+    $this->assertSame('<span class="nodisplay">507-</span>931-1234', (new String(' 9311234'))->phone()->getValue());
+    $this->assertSame('<span class="nodisplay">507-</span>931-1234', (new String('9311234 '))->phone()->getValue());
+    $this->assertSame('<span class="nodisplay">507-</span>931-1234', (new String(' 9311234 '))->phone()->getValue());
+
+    $this->assertSame('<span class="nodisplay">507-</span>931-1234', (new String('931-1234'))->phone()->getValue());
+    $this->assertSame('<span class="nodisplay">507-</span>931-1234', (new String(' 931-1234'))->phone()->getValue());
+    $this->assertSame('<span class="nodisplay">507-</span>931-1234', (new String('931-1234 '))->phone()->getValue());
+    $this->assertSame('<span class="nodisplay">507-</span>931-1234', (new String(' 931-1234 '))->phone()->getValue());
+
+    $this->assertSame('555-555-1234', (new String('5555551234'))->phone()->getValue());
+    $this->assertSame('555-555-1234', (new String(' 5555551234'))->phone()->getValue());
+    $this->assertSame('555-555-1234', (new String('5555551234 '))->phone()->getValue());
+    $this->assertSame('555-555-1234', (new String(' 5555551234 '))->phone()->getValue());
+
+    $this->assertSame('555-555-1234', (new String('5555551234'))->phone('short')->getValue());
+    $this->assertSame('555-555-1234', (new String('5555551234'))->phone('medium')->getValue());
+    $this->assertSame('555-555-1234', (new String('5555551234'))->phone('long')->getValue());
+
+    $this->assertSame('<span class="nodisplay">507-</span>555-1234', (new String('5551234'))->phone('short')->getValue());
+    $this->assertSame('<span class="nodisplay">507-</span>555-1234', (new String('5551234'))->phone('medium')->getValue());
+    $this->assertSame('507-555-1234', (new String('5551234'))->phone('long')->getValue());
+
+    $this->assertSame('931-1234', (new String('9311234'))->phone('short', true)->getValue());
+    $this->assertSame('931-1234', (new String(' 9311234'))->phone('short', true)->getValue());
+    $this->assertSame('931-1234', (new String('9311234 '))->phone('short', true)->getValue());
+    $this->assertSame('931-1234', (new String(' 9311234 '))->phone('short', true)->getValue());
+
+    $this->assertSame('931-1234', (new String('9311234'))->phone('medium', true)->getValue());
+    $this->assertSame('507-931-1234', (new String('9311234'))->phone('long', true)->getValue());
+
+    $this->assertSame('931-1234', (new String('9311234'))->phone('short', true)->getValue());
+    $this->assertSame('931-1234', (new String('9311234'))->phone('medium', true)->getValue());
+    $this->assertSame('507-931-1234', (new String('9311234'))->phone('long', true)->getValue());
+
+    $this->assertSame('555-931-1234', (new String('5559311234'))->phone('short', true)->getValue());
+    $this->assertSame('555-931-1234', (new String('5559311234'))->phone('medium', true)->getValue());
+    $this->assertSame('555-931-1234', (new String('5559311234'))->phone('long', true)->getValue());
+  }
+
+  /**
+   * @test
+   */
+  public function PhoneWithDifferentDefaults()
+  {
+    $this->assertSame('555-931-1234', (new String('1234'))->phone('short', false, '555', '931')->getValue());
+    $this->assertSame('555-931-1234', (new String('9311234'))->phone('short', false, '555', '931')->getValue());
+    $this->assertSame('555-931-1234', (new String('5559311234'))->phone('short', false, '555', '931')->getValue());
+
+    $this->assertSame('<span class="nodisplay">555-</span>931-1234', (new String('1234'))->phone('medium', false, '555', '931')->getValue());
+    $this->assertSame('<span class="nodisplay">555-</span>931-1234', (new String('9311234'))->phone('medium', false, '555', '931')->getValue());
+    $this->assertSame('<span class="nodisplay">555-</span>931-1234', (new String('5559311234'))->phone('medium', false, '555', '931')->getValue());
+
+    $this->assertSame('555-931-1234', (new String('1234'))->phone('long', false, '555', '931')->getValue());
+    $this->assertSame('555-931-1234', (new String('9311234'))->phone('long', false, '555', '931')->getValue());
+    $this->assertSame('555-931-1234', (new String('5559311234'))->phone('long', false, '555', '931')->getValue());
+
+    $this->assertSame('555-931-1234', (new String('1234'))->phone('short', true, '555', '931')->getValue());
+    $this->assertSame('555-931-1234', (new String('9311234'))->phone('short', true, '555', '931')->getValue());
+    $this->assertSame('555-931-1234', (new String('5559311234'))->phone('short', true, '555', '931')->getValue());
+
+    $this->assertSame('931-1234', (new String('1234'))->phone('medium', true, '555', '931')->getValue());
+    $this->assertSame('931-1234', (new String('9311234'))->phone('medium', true, '555', '931')->getValue());
+    $this->assertSame('931-1234', (new String('5559311234'))->phone('medium', true, '555', '931')->getValue());
+
+    $this->assertSame('555-931-1234', (new String('1234'))->phone('long', true, '555', '931')->getValue());
+    $this->assertSame('555-931-1234', (new String('9311234'))->phone('long', true, '555', '931')->getValue());
+    $this->assertSame('555-931-1234', (new String('5559311234'))->phone('long', true, '555', '931')->getValue());
+  }
+
+  /**
+   * @test
+   */
+  public function PhoneWithWeirdFormat()
+  {
+    $this->assertSame('507-933-1234', (new String('1234'))->phone('arstieanrstien')->getValue());
+  }
+
+  /**
+   * @test
+   */
+  public function PhoneWithZero()
+  {
+    $this->assertSame('', (new String('0'))->phone()->getValue());
+  }
+
+  /**
+   * @test
+   */
+  public function PhoneTooLongFromTickeTrak()
+  {
+    $this->assertSame('', (new String('123456789123456789'))->phone('tickeTrak')->getValue());
+  }
+
+  /**
+   * @test
+   */
+  public function IsOncampusPhoneNumber()
+  {
+    $this->assertTrue($this->call(new String('7072'), 'isOncampusPhoneNumber'));
+    $this->assertTrue($this->call(new String('8888'), 'isOncampusPhoneNumber'));
+    $this->assertTrue($this->call(new String('9337072'), 'isOncampusPhoneNumber'));
+    $this->assertTrue($this->call(new String('5079337072'), 'isOncampusPhoneNumber'));
+    $this->assertTrue($this->call(new String('507-933-7072'), 'isOncampusPhoneNumber'));
+
+    $this->assertFalse($this->call(new String('763-389-1787'), 'isOncampusPhoneNumber'));
+    $this->assertFalse($this->call(new String('389-1787'), 'isOncampusPhoneNumber'));
+    $this->assertFalse($this->call(new String('787'), 'isOncampusPhoneNumber'));
+  }
+
 }
