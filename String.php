@@ -443,7 +443,7 @@ class String extends Base implements ArrayAccess
    * @param boolean $appendEllipsis
    *  True if we should append an ellipsis in place of any removed text.
    *
-   * @throws InvalidArgumentException
+   * @throws \InvalidArgumentException
    *  if $offset or $length are not integers, or $length is zero.
    *
    * @return Gustavus\Utility\String
@@ -519,7 +519,7 @@ class String extends Base implements ArrayAccess
    *  The offset at which to begin searching. If the offset is negative, the search will begin from
    *  that many characters from the end of the string.
    *
-   * @throws InvalidArgumentException
+   * @throws \InvalidArgumentException
    *  if $regexp is empty or not a string, or $offset is not an integer.
    *
    * @return mixed
@@ -567,7 +567,7 @@ class String extends Base implements ArrayAccess
    * @param string $content
    *  The given content to prepend to this string.
    *
-   * @throws InvalidArgumentException
+   * @throws \InvalidArgumentException
    *  if $content is null or not a string.
    *
    * @return Gustavus\Utility\String
@@ -589,7 +589,7 @@ class String extends Base implements ArrayAccess
    * @param string $content
    *  The given content to append to this string.
    *
-   * @throws InvalidArgumentException
+   * @throws \InvalidArgumentException
    *  if $content is null or not a string.
    *
    * @return Gustavus\Utility\String
@@ -611,7 +611,7 @@ class String extends Base implements ArrayAccess
    * @param string $tagName
    *  The name of the tag with which to wrap this string. Must be a well-formed tag name.
    *
-   * @throws InvalidArgumentException
+   * @throws \InvalidArgumentException
    *  if $tagName is null, not a string or not a well-formed tag name.
    *
    * @return Gustavus\Utility\String
@@ -629,5 +629,123 @@ class String extends Base implements ArrayAccess
 
     $this->setValue('<' . $tagName . '>' . $this->value . '</' . $tagName . '>');
     return $this;
+  }
+
+
+  /**
+   * Format a phone number
+   *
+   * @param string $format Format type
+   * @param bool $plainText true if returned string should be plain text false if HTML is okay
+   * @param string $defaultAreaCode
+   * @param string $defaultExchangeCode
+   * @return string Formatted phone number
+   *
+   * @todo  Look into if this can be updated
+   */
+  public function phone($format = 'short', $plainText = false, $defaultAreaCode = '507', $defaultExchangeCode = '933')
+  {
+    assert('is_string($format)');
+    assert('is_bool($plainText)');
+    assert('is_string($defaultAreaCode)');
+    assert('is_string($defaultExchangeCode)');
+
+    $this->stripNonDigits();
+
+    if ($this->value === '0') {
+      $this->setValue('');
+      return $this;
+    }
+
+    if (!$plainText) {
+      $formats  = array(
+        'long'      => '%d%d%d-%d%d%d-%d%d%d%d',
+        'medium'    => '<span class="nodisplay">%1$d%2$d%3$d-</span>%4$d%5$d%6$d-%7$d%8$d%9$d%10$d',
+        'short'     => '<span class="nodisplay">%1$d%2$d%3$d-%4$d%5$d%6$d-</span><span class="noprint">x</span>%7$d%8$d%9$d%10$d',
+        'tickeTrak' => '(%d%d%d)%d%d%d-%d%d%d%d',
+        'mobile'    => '<a href="tel:1-%1$d%2$d%3$d-%4$d%5$d%6$d-%7$d%8$d%9$d%10$d">%1$d%2$d%3$d-%4$d%5$d%6$d-%7$d%8$d%9$d%10$d</a>',
+      );
+    } else {
+      $formats  = array(
+        'long'      => '%d%d%d-%d%d%d-%d%d%d%d',
+        'medium'    => '%4$d%5$d%6$d-%7$d%8$d%9$d%10$d',
+        'short'     => 'x%7$d%8$d%9$d%10$d',
+        'tickeTrak' => '(%d%d%d)%d%d%d-%d%d%d%d',
+      );
+    } // if
+
+    // determine the format for the phone number
+    $length = strlen($this->value);
+
+    if ($length < 4) {
+      $this->setValue($this->value);
+      return $this;
+    }
+
+    // I don't think this section does what it is supposed to do -Joe
+    // I agree -Rudi
+    // That's what she said -Jerry
+    if ($length > 10 || $format === 'international') {
+      if ($format === 'tickeTrak') {
+        $this->setValue('');
+        return $this;
+      }
+      $this->setValue($this->value);
+      return $this;
+    }
+
+    $this->setValue(substr("{$defaultAreaCode}{$defaultExchangeCode}", 0, 10 - $length) . $this->value);
+
+    if ((PHP_SAPI !== 'cli' && !\Config::isUserOnCampus()) || !isset($formats[$format])) {
+      $format = 'long';
+    } else if ($format === 'short' && substr($this->value, 0, 3) === $defaultAreaCode && substr($this->value, 3, 3) !== $defaultExchangeCode) {
+      $format = 'medium';
+    } else if ($format === 'short' && substr($this->value, 0, 6) !== "{$defaultAreaCode}{$defaultExchangeCode}") {
+      $format = 'long';
+    } else if ($format === 'medium' && substr($this->value, 0, 3) !== $defaultAreaCode) {
+      $format = 'long';
+    } else if ($format === 'short' && !$this->isOncampusPhoneNumber()) {
+      $format = 'long';
+    }
+
+    $this->setValue(vsprintf($formats[$format], str_split($this->value)));
+    return $this;
+  }
+
+  /**
+   * Identifies oncampus phone numbers
+   *
+   * @return boolean
+   */
+  private function isOncampusPhoneNumber()
+  {
+    $this->stripNonDigits();
+    if (strlen($this->value) === 4) {
+      $this->setValue('507933' . $this->value);
+    } else if (strlen($this->value) === 7) {
+      $this->setValue('507' . $this->value);
+    }
+
+    if (strlen($this->value) !== 10) {
+      return false;
+    }
+
+    // not 100% correct, but identifies most of the cases
+    if ($this->value > 5079336000 and $this->value < 5079339999) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * Removes characters that are not digits from $this->value
+   *
+   * @return string
+   */
+  private function stripNonDigits()
+  {
+    $this->value = preg_replace('/[\D]/', '', $this->value);
+    return $this->value;
   }
 }
