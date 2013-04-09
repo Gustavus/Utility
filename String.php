@@ -748,4 +748,43 @@ class String extends Base implements ArrayAccess
     $this->value = preg_replace('/[\D]/', '', $this->value);
     return $this->value;
   }
+
+  /**
+   * Converts a byte string to number of bytes
+   *
+   * Format:
+   *
+   * number and 'g', 'm', 'k', or none
+   *
+   * Example strings:
+   *
+   * - 20G  (20  Gigabytes)
+   * - 532m (532 Megabytes)
+   * - 71K  (71  Kilobytes)
+   * - 54   (54  Bytes, This needs to be a string)
+   *
+   * @return Number
+   * @throws \DomainException If isn't a valid byte string
+   */
+  public function toBytes()
+  {
+
+    if (preg_match('/\A\d+[g|m|k]?\z/i', $this->value) == 0) {
+      throw new \DomainException('Must be a byte string. Check documentation for expected format.');
+    }
+
+    $val  = trim($this->value);
+    $last = strtolower($val[strlen($val)-1]);
+    $val  = intval($val);
+    switch($last) {
+      case 'g':
+        $val *= 1024;
+      case 'm':
+        $val *= 1024;
+      case 'k':
+        $val *= 1024;
+    }
+
+    return new Number($val);
+  }
 }
