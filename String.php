@@ -769,22 +769,18 @@ class String extends Base implements ArrayAccess
   public function toBytes()
   {
 
-    if (preg_match('/\A\d+[g|m|k]?\z/i', $this->value) == 0) {
+    $val = strtolower($this->value);
+
+    if (preg_match('/\A(\d+)(g|m|k)?\z/i', $val, $matches) == 0) {
       throw new \DomainException('Must be a byte string. Check documentation for expected format.');
     }
 
-    $val  = trim($this->value);
-    $last = strtolower($val[strlen($val)-1]);
-    $val  = intval($val);
-    switch($last) {
-      case 'g':
-        $val *= 1024;
-      case 'm':
-        $val *= 1024;
-      case 'k':
-        $val *= 1024;
-    }
+    $multipliers = [
+      'g' => 1073741824,
+      'm' => 1048576,
+      'k' => 1024
+    ];
 
-    return new Number($val);
+    return new Number(((int) $matches[1]) * (isset($matches[2]) ? $multipliers[$matches[2]] : 1));
   }
 }

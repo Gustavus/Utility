@@ -867,10 +867,23 @@ class StringTest extends Test
    * @test
    * @expectedException        \DomainException
    * @expectedExceptionMessage Must be a byte string.
+   * @dataProvider ByteStringExceptionOnInvalidFormatProvider
    */
-  public function ByteStringExceptionOnInvalidFormat()
+  public function ByteStringExceptionOnInvalidFormat($string)
   {
-    (new String('bad string'))->toBytes();
+    (new String($string))->toBytes();
+  }
+
+  /**
+   * Data provider for ByteStringExceptionOnInvalidFormat
+   */
+  public function ByteStringExceptionOnInvalidFormatProvider()
+  {
+    return [
+      ['bad string'],
+      ['-32m'],
+      ['43q']
+    ];
   }
 
 
