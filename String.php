@@ -771,11 +771,13 @@ class String extends Base implements ArrayAccess
 
     $val = strtolower($this->value);
 
+    // Checks that only a Positive Number and G, M, or K are in the string.
     if (preg_match('/\A(\d+)(g|m|k)?\z/i', $val, $matches) == 0) {
       throw new \DomainException('Must be a byte string. Check documentation for expected format.');
+      return;
     }
 
-    $multipliers = [
+    static $multipliers = [
       'g' => 1073741824,
       'm' => 1048576,
       'k' => 1024
