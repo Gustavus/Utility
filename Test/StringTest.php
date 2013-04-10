@@ -857,7 +857,9 @@ class StringTest extends Test
   {
     return [
       ['32G',  34359738368],
+      ['32gb', 34359738368],
       ['20m',  20971520],
+      ['2Mb',  2097152],
       ['546k', 559104],
       ['54',   54]
     ];
@@ -882,7 +884,9 @@ class StringTest extends Test
     return [
       ['bad string'],
       ['-32m'],
-      ['43q']
+      ['43q'],
+      ['43qb'],
+      ['2 Mb', 2097152]
     ];
   }
 

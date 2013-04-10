@@ -754,7 +754,7 @@ class String extends Base implements ArrayAccess
    *
    * Format:
    *
-   * number and 'g', 'm', 'k', or none
+   * number, optional G or M or K, optional B
    *
    * Example strings:
    *
@@ -771,10 +771,9 @@ class String extends Base implements ArrayAccess
 
     $val = strtolower($this->value);
 
-    // Checks that only a Positive Number and G, M, or K are in the string.
-    if (preg_match('/\A(\d+)(g|m|k)?\z/i', $val, $matches) == 0) {
+    // Checks that only a Positive Number and G(b), M(b), or K(b) are in the string.
+    if (preg_match('/\A(\d+)(g|m|k)?b?\z/i', $val, $matches) == 0) {
       throw new \DomainException('Must be a byte string. Check documentation for expected format.');
-      return;
     }
 
     static $multipliers = [
