@@ -100,7 +100,8 @@ class CURLRequest
   }
 
   /**
-   * Retrieves the specified information about the previous request. If
+   * Retrieves the specified information about the previous request. If the information is not
+   * currently available, or the parameter is invalid, this method returns null.
    *
    * @param integer $parameter
    *  Optional. The parameter to retrieve. The parameter should be specified using one of the
@@ -113,8 +114,8 @@ class CURLRequest
    *  if this CURLRequest instance has been closed.
    *
    * @return mixed
-   *  An associative array containing information about the previous request, or the value
-   *  associated with the specified parameter.
+   *  An associative array containing information about the previous request, the value
+   *  associated with the specified parameter, or null if the parameter is invalid.
    */
   public function getInfo($parameter = null)
   {
