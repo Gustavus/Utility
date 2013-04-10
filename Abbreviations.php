@@ -242,8 +242,8 @@ class Abbreviations
     $table = [];
 
     foreach ($classes as $class) {
-      if (isset(static::$data[$class])) {
-        $table = array_merge($table, Abbreviations::$data[$class]);
+      if (self::populateAbbreviationTable($class)) {
+        $table = array_merge($table, static::$data[$class]);
       }
     }
 
@@ -292,7 +292,7 @@ class Abbreviations
 
       $search = $ignoreCase ? strtoupper($string) : $string;
 
-      if (static::populateAbbreviationTable($class) && isset(static::$data[$class][$search])) {
+      if (self::populateAbbreviationTable($class) && isset(static::$data[$class][$search])) {
         $string = static::$data[$class][$search];
       }
     }
@@ -339,7 +339,7 @@ class Abbreviations
         throw new \InvalidArgumentException('$classes contains non-scalar values');
       }
 
-      if (static::populateAbbreviationTable($class)) {
+      if (self::populateAbbreviationTable($class)) {
         $search = array_keys(static::$data[$class]);
         $values = array_values(static::$data[$class]);
 
