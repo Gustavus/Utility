@@ -839,4 +839,56 @@ class StringTest extends Test
     $this->assertFalse($this->call(new String('787'), 'isOncampusPhoneNumber'));
   }
 
+  /**
+   * @test
+   * @dataProvider ByteStringToBytesProvider
+   */
+  public function ByteStringToBytes($stringVal, $expected)
+  {
+    $string = new String($stringVal);
+    $this->assertInstanceOf('Gustavus\Utility\Number', $string->toBytes());
+    $this->assertEquals($expected, $string->toBytes()->getValue());
+  }
+
+  /**
+   * Data provider for ByteStringToBytes
+   */
+  public function ByteStringToBytesProvider()
+  {
+    return [
+      ['32G',  34359738368],
+      ['32gb', 34359738368],
+      ['20m',  20971520],
+      ['2Mb',  2097152],
+      ['546k', 559104],
+      ['54',   54]
+    ];
+  }
+
+  /**
+   * @test
+   * @expectedException        \DomainException
+   * @expectedExceptionMessage Must be a byte string.
+   * @dataProvider ByteStringExceptionOnInvalidFormatProvider
+   */
+  public function ByteStringExceptionOnInvalidFormat($string)
+  {
+    (new String($string))->toBytes();
+  }
+
+  /**
+   * Data provider for ByteStringExceptionOnInvalidFormat
+   */
+  public function ByteStringExceptionOnInvalidFormatProvider()
+  {
+    return [
+      ['bad string'],
+      ['-32m'],
+      ['43q'],
+      ['43qb'],
+      ['2 Mb', 2097152]
+    ];
+  }
+
+
 }
