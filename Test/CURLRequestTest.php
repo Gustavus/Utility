@@ -288,10 +288,44 @@ class CURLRequestTest extends \Gustavus\Test\Test
     $ccurl = new CURLRequest();
     $ccurl->close();
 
-    return [
-      [$ocurl, CURLINFO_EFFECTIVE_URL, '', true],
+    $defaults = [
+      'url'                       => '',
+      'content_type'              => null,
+      'http_code'                 => 0,
+      'header_size'               => 0,
+      'request_size'              => 0,
+      'filetime'                  => 0,
+      'ssl_verify_result'         => 0,
+      'redirect_count'            => 0,
+      'total_time'                => 0.0,
+      'namelookup_time'           => 0.0,
+      'connect_time'              => 0.0,
+      'pretransfer_time'          => 0.0,
+      'size_upload'               => 0.0,
+      'size_download'             => 0.0,
+      'speed_download'            => 0.0,
+      'speed_upload'              => 0.0,
+      'download_content_length'   => -1.0,
+      'upload_content_length'     => -1.0,
+      'starttransfer_time'        => 0.0,
+      'redirect_time'             => 0.0,
+      'certinfo'                  => [],
+      'primary_ip'                => '',
+      'redirect_url'              => ''
+    ];
 
-      [$ccurl, 0, false, false]
+    return [
+      [$ocurl, CURLINFO_EFFECTIVE_URL, null, true],
+      [$ocurl, 8675309, null, true],
+      [$ocurl, null, $defaults, true],
+
+      [$ocurl, new \StdClass(), null, false],
+      [$ocurl, ['arrays no good'], null, false],
+      [$ocurl, 'neither are strings', null, false],
+
+      [$ccurl, CURLINFO_EFFECTIVE_URL, false, false],
+      [$ccurl, 8675309, false, false],
+      [$ccurl, null, null, false],
     ];
   }
 

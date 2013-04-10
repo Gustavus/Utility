@@ -40,7 +40,7 @@ class CURLRequest
    *
    * @var array
    */
-  protected $curl_defaults = [
+  protected $curlDefaults = [
     CURLOPT_HTTPGET         => true,
     CURLOPT_RETURNTRANSFER  => true
   ];
@@ -65,7 +65,7 @@ class CURLRequest
     assert('extension_loaded(\'curl\')');
 
     $this->handle = curl_init($url);
-    $this->setOptions($this->curl_defaults + $options, true);
+    $this->setOptions($this->curlDefaults + $options, true);
   }
 
   /**
@@ -100,11 +100,14 @@ class CURLRequest
   }
 
   /**
-   * Retrieves the specified information about the previous request.
+   * Retrieves the specified information about the previous request. If
    *
    * @param integer $parameter
    *  Optional. The parameter to retrieve. The parameter should be specified using one of the
    *  CURLINFO_* constants, or its integer equivalent.
+   *
+   * @throws InvalidArgumentException
+   *  if $parameter is not a numeric value.
    *
    * @throws RuntimeException
    *  if this CURLRequest instance has been closed.
@@ -113,18 +116,25 @@ class CURLRequest
    *  An associative array containing information about the previous request, or the value
    *  associated with the specified parameter.
    */
-  public function getInfo($parameter = 0)
+  public function getInfo($parameter = null)
   {
     if ($this->isClosed()) {
       throw new RuntimeException('Illegal State: CURLRequest is closed.');
     }
 
-    // @todo:
-    // Check (and handle) what happens when we pass invalid input, no data is associated with the
-    // parameter, or the handle is closed (or otherwise invalid).
-    //
-    // PHP's docs don't define this behavior. :/
-    return curl_getinfo($this->handle, $parameter);
+    // Impl note:
+    // If parameter is specified at all, curl_getinfo will assume it is an option and parse it as
+    // such. Even using null and 0 will result in a return value of null. The only way to get the
+    // entire associative array is by not providing the parameter.
+    if (isset($parameter)) {
+      if (!is_numeric($parameter)) {
+        throw new InvalidArgumentException('$parameter is not a valid option parameter.');
+      }
+
+      return curl_getinfo($this->handle, (int) $parameter);
+    } else {
+      return curl_getinfo($this->handle);
+    }
   }
 
   /**
