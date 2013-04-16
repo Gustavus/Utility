@@ -174,12 +174,14 @@ class DateTime extends Base
   /**
    * Make DateTime object
    *
-   * @param  integer|string $date
+   * @param  integer|string|DateTime $date
    * @return DateTime
    */
   protected function makeDateTime($date = null)
   {
-    if (is_numeric($date)) {
+    if ($date instanceof PHPDateTime) {
+      return $date;
+    } else if (is_numeric($date)) {
       // $date is a timestamp. We want it as a DateTime object
       $date = new PHPDateTime('@'.$date);
     } else if ($date === null) {
@@ -258,8 +260,9 @@ class DateTime extends Base
       }
     } else {
       // make specific date array
+      $numberUtil = new Number(0);
       foreach ($intervalArr as $key => $value) {
-        $numberUtil = new Number($value);
+        $numberUtil->setValue($value);
         $relative[] = $numberUtil->toQuantity("%s $key", "%s {$key}s")->getValue();
       }
     }
