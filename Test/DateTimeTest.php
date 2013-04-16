@@ -209,6 +209,9 @@ class DateTimeTest extends Test
    */
   public function relativeDatesFromArray($expected, $date, $now = null, $beSpecific = false)
   {
+    if (strpos($date, 'time()') !== false) {
+      $date = eval('return ' . $date . ';');
+    }
     $date = new Utility\DateTime($date);
     $this->assertSame($expected, $date->toRelative($now, $beSpecific)->getValue());
   }
@@ -242,9 +245,9 @@ class DateTimeTest extends Test
       array('Last year', '-12 months', 'now'),
       array('Around 2 years ago', '-2 years', 'now'),
 
-      array('1 minute ago', time()-60, 'now'),
-      array('Around 2 years ago', time()-(62899200 + 86400 * 3), 'now'),
-      array('Next year', time()+62899200, 'now'),
+      array('1 minute ago', 'time()-60', 'now'),
+      array('Around 2 years ago', 'time()-(62899200 + 86400 * 3)', 'now'),
+      array('Next year', 'time()+62899200', 'now'),
 
       array('Last week', '-1 months -1 weeks', '-1 months'),
 
