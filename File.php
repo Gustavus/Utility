@@ -108,4 +108,36 @@ class File extends Base
       return false;
     }
   }
+
+  /**
+   * Format a filename to be web-safe. If a location exists, check to see if it exists and modify appropriately.
+   *
+   * @param string $location Location on server (e.g. "/cis/www/campus/files/")
+   * @return  File
+   */
+  public function filename($location = null)
+  {
+    assert('is_string($location) || is_null($location)');
+
+    if (preg_match('`^(.*)(\..*)$`', $this->value, $matches)) {
+      $origFilename    = $matches[1];
+      $origExtension   = $matches[2];
+    } else {
+      $origFilename    = $this->value;
+      $origExtension   = '';
+    }
+
+    $this->value            = preg_replace('`\s+|\+`', '-', strtolower($this->value));
+    $origFilename        = preg_replace('`\s+|\+`', '-', strtolower($origFilename));
+
+    if (!empty($location)) {
+      $i = 1;
+      while (file_exists("$location/$this->value")) {
+        $this->value    = strtolower("$origFilename-$i$origExtension");
+        ++$i;
+      }
+    }
+
+    return $this;
+  }
 }
