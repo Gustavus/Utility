@@ -120,20 +120,20 @@ class File extends Base
     assert('is_string($location) || is_null($location)');
 
     if (preg_match('`^(.*)(\..*)$`', $this->value, $matches)) {
-      $origFilename    = $matches[1];
-      $origExtension   = $matches[2];
+      $origFilename  = $matches[1];
+      $origExtension = $matches[2];
     } else {
-      $origFilename    = $this->value;
-      $origExtension   = '';
+      $origFilename  = $this->value;
+      $origExtension = '';
     }
 
-    $this->value            = preg_replace('`\s+|\+`', '-', strtolower($this->value));
-    $origFilename        = preg_replace('`\s+|\+`', '-', strtolower($origFilename));
+    $this->value  = preg_replace('`\s+|\+`', '-', strtolower($this->value));
+    $origFilename = preg_replace('`\s+|\+`', '-', strtolower($origFilename));
 
     if (!empty($location)) {
       $i = 1;
       while (file_exists("$location/$this->value")) {
-        $this->value    = strtolower("$origFilename-$i$origExtension");
+        $this->value = strtolower("{$origFilename}-{$i}{$origExtension}");
         ++$i;
       }
     }
