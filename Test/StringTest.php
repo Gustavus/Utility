@@ -227,6 +227,33 @@ class StringTest extends Test
 
   /**
    * @test
+   * @dataProvider addQueryStringData
+   */
+  public function addQueryString($expected, $url, $queryParams = [])
+  {
+    $this->string->setValue($url);
+    $this->assertSame($expected, $this->string->addQueryString($queryParams)->getValue());
+  }
+
+  /**
+   * Data for addQueryString
+   * @return array
+   */
+  public function addQueryStringData()
+  {
+    return [
+      ['/arst/','/arst/'],
+      ['/arst/?barebones=1', '/arst/', ['barebones' => true]],
+      ['/arst/?barebones=1', '/arst/?barebones=1'],
+      ['/arst/?barebones=1', '/arst/?barebones=1', ['barebones' => true]],
+      ['/arst/?barebones=1&action=test', '/arst/?barebones=1', ['action' => 'test']],
+      ['/arst/?barebones=1&action=test', '/arst/?barebones=1&action=test', ['action' => 'test']],
+      ['/arst/?barebones=1&action=test&more=1', '/arst/?barebones=1&action=test', ['action' => 'test', 'more' => true]],
+    ];
+  }
+
+  /**
+   * @test
    * @dataProvider emailData
    */
   public function email($expected, $email)

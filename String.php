@@ -237,6 +237,28 @@ class String extends Base implements ArrayAccess
   }
 
   /**
+   * Makes a url adding the queryParams specified to the end
+   *
+   * @param  array  $queryParams Associative array of parameters
+   * @return String
+   */
+  public function addQueryString(array $queryParams = array())
+  {
+    if (!empty($queryParams)) {
+      $urlParts = parse_url($this->value);
+
+      if (isset($urlParts['query'])) {
+        // we need to add the query parts with our queryParams
+        $this->value = $urlParts['query'];
+        $queryParts  = $this->splitQueryString()->getValue();
+        $queryParams = array_merge($queryParts, $queryParams);
+      }
+      $this->value = sprintf('%s?%s', $urlParts['path'], http_build_query($queryParams));
+    }
+    return $this;
+  }
+
+  /**
    * Fixes up sloppy e-mail addresses so they are correctly and uniformly formatted
    *
    * Usage:
