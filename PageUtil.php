@@ -1,6 +1,7 @@
 <?php
 /**
  * @package Utility
+ * @author  Billy Visto
  */
 namespace Gustavus\Utility;
 
@@ -8,6 +9,7 @@ namespace Gustavus\Utility;
  * Class for page utility functions
  *
  * @package Utility
+ * @author  Billy Visto
  */
 class PageUtil
 {
@@ -16,7 +18,6 @@ class PageUtil
    *
    * @param  string $path path to redirect to.
    * @return void
-   * @todo  Move this into a Utility class
    */
   public static function redirect($path = '/')
   {
@@ -68,6 +69,7 @@ class PageUtil
    *
    * @param string  $message message to display
    * @param boolean $isError whether this is an error message or not
+   * @param string $location Location of the page the message is to be displayed on
    * @return  void
    */
   public static function setSessionMessage($message = '', $isError = false, $location = null)
