@@ -241,7 +241,7 @@ class DateTimeTest extends Test
       array('Last week', '-604800 seconds', 'now'),
       array('2 weeks ago', '-1209600 seconds', 'now'),
       array('Last month', '-32 days', 'now'),
-      array('2 months ago', '-2 months', 'now'),
+      array('2 months ago', '-2 months -1 days', 'now'),
       array('Last year', '-12 months', 'now'),
       array('Around 2 years ago', '-2 years', 'now'),
 

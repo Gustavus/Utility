@@ -120,4 +120,43 @@ class FileTest extends Test
     $this->assertNULL($this->file->loadAndEvaluate());
   }
 
+  /**
+   * @test
+   */
+  public function FilenameNewFile()
+  {
+    $this->path = 'newfile.php';
+    $this->setUp();
+    $this->assertSame('newfile.php', $this->file->filename('/new/path/')->getValue());
+  }
+
+  /**
+   * @test
+   */
+  public function FilenameNewFileNoExtension()
+  {
+    $this->path = 'newfile';
+    $this->setUp();
+    $this->assertSame('newfile', $this->file->filename('/new/path/')->getValue());
+  }
+
+  /**
+   * @test
+   */
+  public function FilenameExistingFileWithDots()
+  {
+    $this->path = 'sentence.twig';
+    $this->setUp();
+    $this->assertSame('sentence-1.twig', $this->file->filename('/cis/lib/Gustavus/Utility/Views/Set/')->getValue());
+  }
+
+  /**
+   * @test
+   */
+  public function FilenameNoLocation()
+  {
+    $this->path = 'format.class.php';
+    $this->setUp();
+    $this->assertSame('format.class.php', $this->file->filename()->getValue());
+  }
 }

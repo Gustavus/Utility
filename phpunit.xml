@@ -1,4 +1,4 @@
-<phpunit>
+<phpunit bootstrap="/cis/lib/Gustavus/Utility/bootstrap.php">
   <testsuites>
     <testsuite name="Gustavus Utility">
       <directory suffix="Test.php">/cis/lib/Gustavus/Utility/Test</directory>
