@@ -17,12 +17,13 @@ class PageUtil
    * Redirects to the specified path
    *
    * @param  string $path path to redirect to.
+   * @param  integer $statusCode Redirection status code
    * @return void
    */
-  public static function redirect($path = '/')
+  public static function redirect($path = '/', $statusCode = 303)
   {
     $_POST = null;
-    header('Location: ' . $path, true, 303);
+    header('Location: ' . $path, true, $statusCode);
     exit;
   }
 
@@ -31,12 +32,13 @@ class PageUtil
    *
    * @param  string $path    path to redirect to.
    * @param  string $message message to display on redirect
+   * @param  integer $statusCode Redirection status code
    * @return void
    */
-  public static function redirectWithMessage($path = '/', $message = '')
+  public static function redirectWithMessage($path = '/', $message = '', $statusCode = 303)
   {
     self::setSessionMessage($message, false, $path);
-    static::redirect($path);
+    static::redirect($path, $statusCode);
   }
 
   /**
@@ -44,12 +46,13 @@ class PageUtil
    *
    * @param  string $path    path to redirect to.
    * @param  string $message message to display on redirect
+   * @param  integer $statusCode Redirection status code
    * @return void
    */
-  public static function redirectWithError($path = '/', $message = '')
+  public static function redirectWithError($path = '/', $message = '', $statusCode = 303)
   {
     self::setSessionMessage($message, true, $path);
-    static::redirect($path);
+    static::redirect($path, $statusCode);
   }
 
   /**

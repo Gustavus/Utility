@@ -17,7 +17,7 @@ class PageUtilRedirectOveride extends PageUtil
    * @param  string $path path to redirect to
    * @return  string
    */
-  public static function redirect($path = '/')
+  public static function redirect($path = '/', $statusCode = 303)
   {
     echo $path;
   }
