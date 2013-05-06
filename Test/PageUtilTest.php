@@ -136,6 +136,28 @@ class PageUtilTest extends Test
   /**
    * @test
    */
+  public function getSessionMessageSingleAccessPoint()
+  {
+    $_SERVER['SCRIPT_NAME'] = '/arst/arst.php';
+    PageUtil::setSessionMessage('TestMessage', false, '/arst/test/test');
+    $this->assertSame('TestMessage', PageUtil::getSessionMessage('/arst/test/test'));
+    $this->assertFalse(isset($_SESSION['messages'][hash('md4', '/arst/test/test/index.php')]));
+  }
+
+  /**
+   * @test
+   */
+  public function getSessionErrorMessageSingleAccessPoint()
+  {
+    $_SERVER['SCRIPT_NAME'] = '/arst/arst.php';
+    PageUtil::setSessionMessage('TestErrorMessage', true, '/arst/test/test');
+    $this->assertSame('TestErrorMessage', PageUtil::getSessionErrorMessage('/arst/test/test'));
+    $this->assertFalse(isset($_SESSION['messages'][hash('md4', '/arst/test/test/index.php')]));
+  }
+
+  /**
+   * @test
+   */
   public function redirectWithMessage()
   {
     ob_clean();
