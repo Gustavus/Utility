@@ -90,7 +90,7 @@ class PageUtil
    * Builds the key to use in the session messages for the requested page
    *   Uses then current page if no location is specified
    *
-   * @param  string $location Location of the requested page
+   * @param  string $location Location of the requested page. Uses $_SERVER['SCRIPT_NAME'] if nothing set.
    * @return string
    */
   private static function buildMessageKey($location = null)
@@ -110,12 +110,14 @@ class PageUtil
   /**
    * Gets the session error message out of the session for the current page if it has one
    *
+   * @param  string $location Location of the current page. Uses $_SERVER['SCRIPT_NAME'] if nothing set.
    * @return string|null null if nothing exists
    */
-  public static function getSessionErrorMessage()
+  public static function getSessionErrorMessage($location = null)
   {
     self::startSessionIfNeeded();
-    $key = hash('md4', $_SERVER['SCRIPT_NAME']);
+    $key = self::buildMessageKey($location);
+
     if (isset($_SESSION['errorMessages'][$key])) {
       $message = $_SESSION['errorMessages'][$key];
       unset($_SESSION['errorMessages'][$key]);
@@ -127,12 +129,14 @@ class PageUtil
   /**
    * Gets the session message out of the session for the current page if it has one
    *
+   * @param  string $location Location of the current page. Uses $_SERVER['SCRIPT_NAME'] if nothing set.
    * @return string|null null if nothing exists
    */
-  public static function getSessionMessage()
+  public static function getSessionMessage($location = null)
   {
     self::startSessionIfNeeded();
-    $key = hash('md4', $_SERVER['SCRIPT_NAME']);
+    $key = self::buildMessageKey($location);
+
     if (isset($_SESSION['messages'][$key])) {
       $message = $_SESSION['messages'][$key];
       unset($_SESSION['messages'][$key]);
