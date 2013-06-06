@@ -167,6 +167,28 @@ class StringTest extends Test
     $this->assertSame($upper, $this->string->upperCase()->getValue());
   }
 
+  /**
+   * @test
+   * @dataProvider unCamelCaseData
+   */
+  public function unCamelCase($expected, $value)
+  {
+    $this->string->setValue($value);
+    $this->assertSame($expected, $this->string->unCamelCase()->getValue());
+  }
+
+  /**
+   * Data for unCamelCase
+   * @return array
+   */
+  public function unCamelCaseData()
+  {
+    return [
+      ['some un camel case string', 'someUnCamelCaseString'],
+      ['randomstring', 'randomstring'],
+      ['title string', 'TitleString'],
+    ];
+  }
 
   /**
    * @test

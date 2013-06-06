@@ -168,6 +168,17 @@ class String extends Base implements ArrayAccess
   }
 
   /**
+   * Converts a camel-cased string into a space separated lowercase string
+   *
+   * @return $this
+   */
+  public function unCamelCase()
+  {
+    $newString = preg_replace('`([A-Z])`', ' $1', $this->value);
+    return $this->setValue(strtolower(trim($newString)));
+  }
+
+  /**
    * Fixes up sloppy URLs so they are correctly and uniformly formatted
    *
    * Usage:
