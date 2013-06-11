@@ -152,7 +152,15 @@ class PageUtil
    */
   public static function allowCrossDomainRequests()
   {
-    if (isset($_SERVER['HTTP_ORIGIN']) && (strpos($_SERVER['HTTP_ORIGIN'], 'gustavus.edu') !== false || strpos($_SERVER['HTTP_ORIGIN'], 'gac.edu') !== false)) {
+    if (isset($_SERVER['HTTP_ORIGIN'])) {
+      $serverVar = $_SERVER['HTTP_ORIGIN'];
+    } else if (isset($_SERVER['HTTP_REFERER'])) {
+      $serverVar = $_SERVER['HTTP_REFERER'];
+    } else {
+      $serverVar = null;
+    }
+
+    if (!empty($serverVar) && (strpos($serverVar, 'gustavus.edu') !== false || strpos($serverVar, 'gac.edu') !== false)) {
       // allow cross domain requests if they originate from on campus
       header('Access-Control-Allow-Origin: *');
       return true;
