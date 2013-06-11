@@ -194,5 +194,9 @@ class PageUtilTest extends Test
 
     $_SERVER['HTTP_ORIGIN'] = 'gts.gac.edu';
     $this->assertTrue(PageUtil::allowCrossDomainRequests());
+
+    unset($_SERVER['HTTP_ORIGIN']);
+    $_SERVER['HTTP_REFERER'] = 'gts.gac.edu';
+    $this->assertTrue(PageUtil::allowCrossDomainRequests());
   }
 }
