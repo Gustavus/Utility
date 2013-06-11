@@ -180,4 +180,19 @@ class PageUtilTest extends Test
     $this->assertSame('/arst/arst.php', $location);
     $this->assertSame('Error Message', $_SESSION['errorMessages'][hash('md4', '/arst/arst.php')]);
   }
+
+  /**
+   * @test
+   */
+  public function allowCrossDomainRequests()
+  {
+    $this->addOverride('PageUtilOverrides');
+    $this->assertFalse(PageUtil::allowCrossDomainRequests());
+
+    $_SERVER['HTTP_ORIGIN'] = 'blog.gustavus.edu';
+    $this->assertTrue(PageUtil::allowCrossDomainRequests());
+
+    $_SERVER['HTTP_ORIGIN'] = 'gts.gac.edu';
+    $this->assertTrue(PageUtil::allowCrossDomainRequests());
+  }
 }
