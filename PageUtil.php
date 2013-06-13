@@ -60,7 +60,7 @@ class PageUtil
    *
    * @return void
    */
-  private static function startSessionIfNeeded()
+  public static function startSessionIfNeeded()
   {
     if (session_id() === '') {
       session_start();
