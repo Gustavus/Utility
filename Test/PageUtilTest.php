@@ -184,19 +184,24 @@ class PageUtilTest extends Test
   /**
    * @test
    */
-  public function allowCrossDomainRequests()
+  public function hasInternalOrigin()
   {
-    $this->addOverride('PageUtilOverrides');
-    $this->assertFalse(PageUtil::allowCrossDomainRequests());
+
+    $_SERVER['HTTP_ORIGIN'] = null;
+    $_SERVER['HTTP_REFERER'] = null;
+    $this->assertTrue(PageUtil::hasInternalOrigin());
 
     $_SERVER['HTTP_ORIGIN'] = 'blog.gustavus.edu';
-    $this->assertTrue(PageUtil::allowCrossDomainRequests());
+    $this->assertTrue(PageUtil::hasInternalOrigin());
+
+    $_SERVER['HTTP_ORIGIN'] = 'google.com';
+    $this->assertFalse(PageUtil::hasInternalOrigin());
 
     $_SERVER['HTTP_ORIGIN'] = 'gts.gac.edu';
-    $this->assertTrue(PageUtil::allowCrossDomainRequests());
+    $this->assertTrue(PageUtil::hasInternalOrigin());
 
     unset($_SERVER['HTTP_ORIGIN']);
     $_SERVER['HTTP_REFERER'] = 'gts.gac.edu';
-    $this->assertTrue(PageUtil::allowCrossDomainRequests());
+    $this->assertTrue(PageUtil::hasInternalOrigin());
   }
 }
