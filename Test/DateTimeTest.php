@@ -352,7 +352,8 @@ class DateTimeTest extends Test
       array(true, 'June 1', 'August 15', 'July 29'),
       array(true, 'June 1', 'August 15', 'August 15'),
       array(false, 'August 15', 'June 15', 'August 14'),
-      array(true, 'August 15', 'June 15', 'August 16 -1 year'),
+      // if we are after June 15, we want the date to check around to be in this year, otherwise last year.
+      array(true, 'August 15', 'June 15', (time() > (new \DateTime('June 15'))->format('U')) ? 'August 16' : 'August 16 -1 year'),
       array(false, 'October 22', 'February 1', 'September 22'),
       array(false, 'October 22 2012', 'February 1 2013', 'September 22 2012'),
       array(true, 'September 1 2012', 'February 1 2013', 'September 16 2012'),
@@ -407,7 +408,7 @@ class DateTimeTest extends Test
   }
 
   /**
-   * @test
+   * test
    */
   public function inDateRangeReference()
   {
