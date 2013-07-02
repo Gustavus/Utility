@@ -146,11 +146,14 @@ class PageUtil
   }
 
   /**
-   * Allows cross domain requests if the requested page originated from a gustavus server.
+   * Checks if the JSON or JSON-P request originates from Gustavus domain
+   * to prevent 3rd party cross-site calls. This function will assume browsers
+   * that don't set ORIGIN or REFERER are from Gustavus, so that older browsers
+   * don't have any issues and directly visiting the URL works.
    *
-   * @return boolean Whether it is allowed or not.
+   * @return boolean Returns true if request originates from a Gustavus domain
    */
-  public static function allowCrossDomainRequests()
+  public static function hasInternalOrigin()
   {
     if (isset($_SERVER['HTTP_ORIGIN'])) {
       $serverVar = $_SERVER['HTTP_ORIGIN'];
@@ -160,11 +163,7 @@ class PageUtil
       $serverVar = null;
     }
 
-    if (!empty($serverVar) && (strpos($serverVar, 'gustavus.edu') !== false || strpos($serverVar, 'gac.edu') !== false)) {
-      // allow cross domain requests if they originate from on campus
-      header('Access-Control-Allow-Origin: *');
-      return true;
-    }
-    return false;
+    return empty($serverVar) || strpos($serverVar, 'gustavus.edu') !== false || strpos($serverVar, 'gac.edu') !== false;
   }
+
 }
