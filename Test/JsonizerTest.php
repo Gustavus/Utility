@@ -41,6 +41,11 @@ class JsonizerTest extends Test
     $this->headerSent = true;
   }
 
+  function tearDown()
+  {
+    unset($this->overrides);
+  }
+
   /**
    * @test
    */
