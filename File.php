@@ -157,19 +157,18 @@ class File extends Base
     }
     $currentDirArr = explode('/', trim($startDir, '/'));
 
-    for ($i = 0; $i < $levels; ++$i) {
+    $i = 0;
+    while ($i < $levels && count($currentDirArr) !== 0) {
       $check = sprintf('/%s/%s', implode('/', $currentDirArr), $this->value);
       array_pop($currentDirArr);
+
       if (file_exists($check)) {
         $this->value = $check;
         return $this;
       }
-      if (count($currentDirArr) === 0) {
-        // file not found
-        $this->value = $defaultValue;
-        return $this;
-      }
+      ++$i;
     }
+    // file not found
     $this->value = $defaultValue;
     return $this;
   }
