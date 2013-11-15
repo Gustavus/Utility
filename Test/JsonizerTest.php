@@ -22,10 +22,28 @@ class JsonizerTest extends Test
 
   private $namespace = '\Gustavus\Utility\Jsonizer';
 
+  private $overrides;
+
+  public $headerSent;
+  public $lastHeader = null;
+
   function setUp()
   {
-    $this->addOverride('JsonizerOverride');
-    \Gustavus\Utility\setHeadersSent(true);
+
+    $this->overrides = [];
+
+    $test = $this;
+
+    $this->overrides[] = override_function('headers_sent', function () use (&$test) { return $test->headerSent; });
+
+    $this->overrides[] = override_function('header', function ($header) use (&$test) {$test->lastHeader = $header; });
+
+    $this->headerSent = true;
+  }
+
+  function tearDown()
+  {
+    unset($this->overrides);
   }
 
   /**
@@ -153,7 +171,7 @@ class JsonizerTest extends Test
 
     $this->call($this->namespace, 'setHeaders');
 
-    $this->assertNull(\Gustavus\Utility\getLastHeader());
+    $this->assertNull($this->lastHeader);
   }
 
   /**
@@ -162,13 +180,13 @@ class JsonizerTest extends Test
   function setJsonpHeaders()
   {
 
-    \Gustavus\Utility\setHeadersSent(false);
+    $this->headerSent = false;
 
     $_GET['callback'] = 'jQuery';
 
     $this->call($this->namespace, 'setHeaders');
 
-    $this->assertEquals('Content-Type: application/javascript; charset=utf-8', \Gustavus\Utility\getLastHeader());
+    $this->assertEquals('Content-Type: application/javascript; charset=utf-8', $this->lastHeader);
   }
 
   /**
@@ -177,12 +195,12 @@ class JsonizerTest extends Test
   function setJsonHeaders()
   {
 
-    \Gustavus\Utility\setHeadersSent(false);
+    $this->headerSent = false;
 
 
     $this->call($this->namespace, 'setHeaders');
 
-    $this->assertEquals('Content-Type: application/json; charset=utf-8', \Gustavus\Utility\getLastHeader());
+    $this->assertEquals('Content-Type: application/json; charset=utf-8', $this->lastHeader);
   }
 
 }

@@ -140,4 +140,36 @@ class File extends Base
 
     return $this;
   }
+
+  /**
+   * Looks for the specified filename up the directory tree from the server's requested file
+   *
+   * @param mixed  $startDir     Directory to start looking in for the file
+   * @param mixed  $defaultValue Default return value if nothing is found
+   * @param integer $levels      Maximum number of levels higher to check
+   * @return mixed Path of file if it is found. Defaults to false if a file isn't found.
+   */
+  public function find($startDir = null, $defaultValue = false, $levels = 5)
+  {
+    assert('is_int($levels)');
+    if ($startDir === null) {
+      $startDir    = dirname($_SERVER['SCRIPT_FILENAME']);
+    }
+    $currentDirArr = explode('/', trim($startDir, '/'));
+
+    $i = 0;
+    while ($i < $levels && count($currentDirArr) !== 0) {
+      $check = sprintf('/%s/%s', implode('/', $currentDirArr), $this->value);
+      array_pop($currentDirArr);
+
+      if (file_exists($check)) {
+        $this->value = $check;
+        return $this;
+      }
+      ++$i;
+    }
+    // file not found
+    $this->value = $defaultValue;
+    return $this;
+  }
 }
