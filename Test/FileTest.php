@@ -35,7 +35,6 @@ class FileTest extends Test
    */
   public function setUp()
   {
-    $this->file = new TestObject(new File($this->path));
   }
 
   /**
@@ -48,12 +47,21 @@ class FileTest extends Test
   }
 
   /**
+   * Sets up the File object based off of $this->path
+   * @return void
+   */
+  private function init()
+  {
+    $this->file = new TestObject(new File($this->path));
+  }
+
+  /**
    * @test
    */
   public function existsWithIncludePathExistent()
   {
     $this->path = 'Gustavus/Utility/File.php';
-    $this->setUp();
+    $this->init();
     $this->assertTrue($this->file->exists());
   }
 
@@ -63,7 +71,7 @@ class FileTest extends Test
   public function existsWithIncludePathNonexistent()
   {
     $this->path = 'Gustavus/Utility/nonexistent_file.php';
-    $this->setUp();
+    $this->init();
     $this->assertFalse($this->file->exists());
   }
 
@@ -73,7 +81,7 @@ class FileTest extends Test
   public function existsWithAbsoluteExistentPath()
   {
     $this->path = __FILE__;
-    $this->setUp();
+    $this->init();
     $this->assertTrue($this->file->exists());
     $this->assertSame(__FILE__, $this->file->exists(true));
   }
@@ -84,7 +92,7 @@ class FileTest extends Test
   public function existsWithAbsoluteNonExistentPath()
   {
     $this->path = '/path/to/a/nonexistent_file.php';
-    $this->setUp();
+    $this->init();
     $this->assertFalse($this->file->exists());
     $this->assertFalse($this->file->exists(true));
   }
@@ -95,7 +103,7 @@ class FileTest extends Test
   public function existsWithReturningFullPath()
   {
     $this->path = 'Gustavus/Utility/Test/FileTest.php';
-    $this->setUp();
+    $this->init();
     $this->assertSame(__FILE__, $this->file->exists(true));
   }
 
@@ -105,7 +113,7 @@ class FileTest extends Test
   public function loadAndEvaluate()
   {
     $this->path = 'Gustavus/Utility/Test/views/vnsprintf.view.php';
-    $this->setUp();
+    $this->init();
     $test = $this->file->loadAndEvaluate();
     $this->assertSame($this->vnsFormat, $test);
   }
@@ -116,7 +124,7 @@ class FileTest extends Test
   public function loadAndEvaluateNonExistentFile()
   {
     $this->path = 'nonexistent/file.php';
-    $this->setUp();
+    $this->init();
     $this->assertNULL($this->file->loadAndEvaluate());
   }
 
@@ -126,7 +134,7 @@ class FileTest extends Test
   public function FilenameNewFile()
   {
     $this->path = 'newfile.php';
-    $this->setUp();
+    $this->init();
     $this->assertSame('newfile.php', $this->file->filename('/new/path/')->getValue());
   }
 
@@ -136,7 +144,7 @@ class FileTest extends Test
   public function FilenameNewFileNoExtension()
   {
     $this->path = 'newfile';
-    $this->setUp();
+    $this->init();
     $this->assertSame('newfile', $this->file->filename('/new/path/')->getValue());
   }
 
@@ -146,7 +154,7 @@ class FileTest extends Test
   public function FilenameExistingFileWithDots()
   {
     $this->path = 'sentence.twig';
-    $this->setUp();
+    $this->init();
     $this->assertSame('sentence-1.twig', $this->file->filename('/cis/lib/Gustavus/Utility/Views/Set/')->getValue());
   }
 
@@ -156,7 +164,112 @@ class FileTest extends Test
   public function FilenameNoLocation()
   {
     $this->path = 'format.class.php';
-    $this->setUp();
+    $this->init();
     $this->assertSame('format.class.php', $this->file->filename()->getValue());
+  }
+
+  /**
+   * @test
+   */
+  public function find()
+  {
+    $this->path = 'site_nav.php';
+    $this->init();
+    $this->assertSame(false, $this->file->find()->getValue());
+  }
+
+  /**
+   * @test
+   */
+  public function findFound()
+  {
+    $this->path = 'site_nav_test.php';
+    $this->init();
+    // simulate looking for a site nav file from a web directory
+    $_SERVER['SCRIPT_FILENAME'] = __FILE__;
+    $this->assertSame('/cis/lib/Gustavus/Utility/Test/site_nav_test.php', $this->file->find()->getValue());
+  }
+
+  /**
+   * @test
+   */
+  public function findFromScriptName()
+  {
+    $this->path = 'site_nav.php';
+    $this->init();
+    // simulate looking for a site nav file from a web directory
+    $_SERVER['SCRIPT_FILENAME'] = '/cis/www/alumni/class/index.php';
+    $expected = '/cis/www/alumni/site_nav.php';
+    $this->assertSame($expected, $this->file->find()->getValue());
+  }
+
+  /**
+   * @test
+   */
+  public function findFromScriptNameCurrentDir()
+  {
+    $this->path = 'site_nav_test.php';
+    $this->init();
+    // simulate looking for a site nav file from a web directory
+    $_SERVER['SCRIPT_FILENAME'] = __FILE__;
+    $expected = __DIR__ . '/site_nav_test.php';
+    $this->assertSame($expected, $this->file->find()->getValue());
+  }
+
+  /**
+   * @test
+   */
+  public function findFromStartDir()
+  {
+    $this->path = 'site_nav.php';
+    $this->init();
+    $expected = '/cis/www/alumni/site_nav.php';
+    $this->assertSame($expected, $this->file->find('/cis/www/alumni/class/')->getValue());
+  }
+
+  /**
+   * @test
+   */
+  public function findFromStartDirWithDefaultValue()
+  {
+    $this->path = 'site_nav.php';
+    $this->init();
+    $expected = 'arst';
+    $this->assertSame($expected, $this->file->find('/cis/lib/Gustavus/Utility/Test/', 'arst')->getValue());
+  }
+
+  /**
+   * @test
+   */
+  public function findFromStartDirExistingInStartDir()
+  {
+    $this->path = 'site_nav_test.php';
+    $this->init();
+    $expected = '/cis/lib/Gustavus/Utility/Test/site_nav_test.php';
+    $this->assertSame($expected, $this->file->find('/cis/lib/Gustavus/Utility/Test/', 'arst')->getValue());
+  }
+
+  /**
+   * @test
+   */
+  public function findFromStartDirMoreThan5Levels()
+  {
+    $this->path = 'site_nav_test.php';
+    $this->init();
+    $this->assertFalse($this->file->find('/cis/lib/Gustavus/Utility/Test/some/random/directory/that/is/above/five/levels/deep/')->getValue());
+  }
+
+  /**
+   * @test
+   */
+  public function findFromStartDirSettingLevels()
+  {
+    $this->path = 'site_nav_test.php';
+    $this->init();
+    $this->assertFalse($this->file->find('/cis/lib/Gustavus/Utility/Test/some/random/directory/that/is/above/five/levels/deep/', false, 9)->getValue());
+    $this->path = 'site_nav_test.php';
+    $this->init();
+    $expected = '/cis/lib/Gustavus/Utility/Test/site_nav_test.php';
+    $this->assertSame($expected, $this->file->find('/cis/lib/Gustavus/Utility/Test/some/random/directory/that/is/above/five/levels/deep/', false, 10)->getValue());
   }
 }
