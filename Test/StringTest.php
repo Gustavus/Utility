@@ -18,6 +18,21 @@ use Gustavus\Utility,
 class StringTest extends Test
 {
   /**
+   * @var string
+   */
+  private $longText   = 'Phasellus aliquam imperdiet leo. Suspendisse accumsan enim et ipsum. Nullam vitae augue non ipsum aliquam sagittis. Nullam sed velit. Nunc magna est, lacinia eget, tristique sit amet, pretium sed, turpis. Nulla faucibus aliquet libero. Mauris metus risus, auctor ut, gravida hendrerit, pharetra amet.';
+
+  /**
+   * @var string
+   */
+  private $textShortened  = 'Phasellus aliquam imperdiet leo. Suspendisse accumsan';
+
+  /**
+   * @var string
+   */
+  private $shortText      = 'Phasellus aliquam imperdiet leo.';
+
+  /**
    * @var Utility\String
    */
   private $string;
@@ -939,5 +954,34 @@ class StringTest extends Test
     ];
   }
 
+  /**
+   * @test
+   * @dataProvider summaryData
+   */
+  public function summary($expected, $value, $baselength = 200, $wrapperElement = '', $append = '', $plainText = false, $newline = ' ')
+  {
+    $this->string->setValue($value);
+    $actual = $this->string->summary($baselength, $wrapperElement, $append, $plainText, $newline)->getValue();
+    $this->assertSame($expected, $actual);
+  }
+
+  /**
+   * Summary dataProvider
+   * @return  array
+   */
+  public function summaryData()
+  {
+    return [
+      ['arst arst arst arst', ' arst arst  arst    arst '],
+      [$this->textShortened . '&#8230;', $this->longText, 50],
+      ['<p>' . $this->textShortened . '&#8230;</p>', $this->longText, 50, 'p'],
+      [$this->shortText, $this->shortText, 50],
+      ['<p>' . $this->shortText . '</p>', $this->shortText, 50, 'p'],
+      ['', $this->shortText, 0],
+      ['', $this->shortText, -10],
+      ['', '', 100],
+      ['Test string', 'Test string', 6],
+    ];
+  }
 
 }

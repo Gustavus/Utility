@@ -408,7 +408,7 @@ class DateTimeTest extends Test
   }
 
   /**
-   * test
+   * @test
    */
   public function inDateRangeReference()
   {
@@ -421,4 +421,61 @@ class DateTimeTest extends Test
 
     $this->assertSame($expectedFirstDate, $firstDate->format('U'));
   }
+
+  /**
+   * @test
+   * @dataProvider isMultipleDaysData
+   */
+  public function isMultipleDays($startTime, $endTime, $expected)
+  {
+    $this->assertSame($expected, $this->dateTime->setValue($startTime)->isMultipleDays($endTime));
+  }
+  /**
+   * DataProvider for isMultipleDays
+   * @return  array
+   */
+  public function isMultipleDaysData()
+  {
+    // hour, minute, second, month, day, year
+    $timea  = '1-1-2000 12:00:00';
+    return [
+      [$timea, '1-1-2000 13:00:00', false],
+      [$timea, '1-1-2000 23:59:59', false],
+      [$timea, '1-1-2000 00:00:00', false],
+      [$timea, '1-1-2000 24:00:00', true],
+      [$timea, '1-2-2000 12:00:00', true],
+      [$timea, 'December 29 1999 12:00:00', true],
+    ];
+  }
+
+  /**
+   * @test
+   * @dataProvider isAllDayData
+   */
+  public function isAllDay($startTime, $endTime, $expected)
+  {
+    $this->assertSame($expected, $this->dateTime->setValue($startTime)->isAllDay($endTime));
+  }
+
+  /**
+   * Data provider for isAllDay
+   * @return array
+   */
+  public function isAllDayData()
+  {
+    $timea  = '1-1-2000 00:00:00';
+
+    return [
+      [$timea, '1-1-2000 00:00:00', true],
+      [$timea, '1-1-2000 24:00:00', true],
+      [$timea, '1-2-2000 00:00:00', true],
+      [$timea, '2-1-2000 00:00:00', true],
+      [$timea, '1-1-2001 00:00:00', true],
+      [$timea, '1-1-2000 00:00:01', true],
+      [$timea, '1-1-2000 00:00:60', false],
+      [$timea, '1-1-2000 00:01:00', false],
+      [$timea, '1-1-2000 01:00:00', false],
+    ];
+  }
+
 }
