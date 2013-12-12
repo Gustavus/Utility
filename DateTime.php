@@ -43,7 +43,7 @@ class DateTime extends Base
    */
   public function setValue($value)
   {
-    parent::setValue($this->makeDateTime($value));
+    return parent::setValue($this->makeDateTime($value));
   }
 
   /**
@@ -54,6 +54,28 @@ class DateTime extends Base
   public function __toString()
   {
     return $this->value->format('c');
+  }
+
+  /**
+   * Make DateTime object
+   *
+   * @param  integer|string|DateTime $date
+   * @return DateTime
+   */
+  protected function makeDateTime($date = null)
+  {
+    if ($date instanceof PHPDateTime) {
+      return $date;
+    } else if (is_numeric($date)) {
+      // $date is a timestamp. We want it as a DateTime object
+      $date = new PHPDateTime('@'.$date);
+    } else if ($date === null) {
+      // set date to be now
+      $date = new PHPDateTime('now');
+    } else {
+      $date = new PHPDateTime($date);
+    }
+    return $date;
   }
 
   /**
@@ -94,6 +116,28 @@ class DateTime extends Base
     $hour = (integer) $this->value->format('G');
     // 10 pm to 3 am
     return $hour >= 22 || $hour <= 3;
+  }
+
+  /**
+   * Determines if $this->value and $endTime are intended to represent the notion of "all day"
+   *
+   * @param mixed $endTime End time
+   * @return bool
+   */
+  public function isAllDay($endTime)
+  {
+    return ($this->value->format('H:i') == '00:00' && $this->makeDateTime($endTime)->format('H:i') == '00:00');
+  }
+
+  /**
+   * Determines if $this->value and the $endTime spans multiple days
+   *
+   * @param mixed $endTime End time
+   * @return bool
+   */
+  public function isMultipleDays($endTime)
+  {
+    return ($this->value->format('F j, Y') != $this->makeDateTime($endTime)->format('F j, Y'));
   }
 
   /**
@@ -169,28 +213,6 @@ class DateTime extends Base
       $return['relative'] = $numberUtil->toQuantity("%s $firstKey ", "%s {$firstKey}s ")->getValue();
     }
     return $return;
-  }
-
-  /**
-   * Make DateTime object
-   *
-   * @param  integer|string|DateTime $date
-   * @return DateTime
-   */
-  protected function makeDateTime($date = null)
-  {
-    if ($date instanceof PHPDateTime) {
-      return $date;
-    } else if (is_numeric($date)) {
-      // $date is a timestamp. We want it as a DateTime object
-      $date = new PHPDateTime('@'.$date);
-    } else if ($date === null) {
-      // set date to be now
-      $date = new PHPDateTime('now');
-    } else {
-      $date = new PHPDateTime($date);
-    }
-    return $date;
   }
 
   /**

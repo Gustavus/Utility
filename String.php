@@ -817,4 +817,77 @@ class String extends Base implements ArrayAccess
 
     return new Number(((int) $matches[1]) * (isset($matches[2]) ? $multipliers[$matches[2]] : 1));
   }
+
+
+  /**
+   * Create a summary from a chunk of text
+   *
+   * Example:
+   * <code>
+   * $content = 'Phasellus aliquam imperdiet leo. Suspendisse accumsan enim et ipsum.
+   *   Nullam vitae augue non ipsum aliquam sagittis. Nullam sed velit. Nunc magna est,
+   *   lacinia eget, tristique sit amet, pretium sed, turpis. Nulla faucibus aliquet
+   *   libero. Mauris metus risus, auctor ut, gravida hendrerit, pharetra amet.';
+   * echo (new String($content))->summary(50)->getValue();
+   * // Will output "Phasellus aliquam imperdiet leo. Suspendisse accumsan…"
+   * </code>
+   *
+   * @param int $baselength Number of characters to aim for in the summary
+   * @param string $wrapperElement (X)HTML element name to wrap around summary (e.g. "div")
+   * @param string $append Content to append to summary
+   * @param boolean $plainText
+   * @param string $newline Character used to signify a new line
+   * @return String
+   *
+   * @todo add a switch that enables removing words from the middle or beginning of the text instead of the end
+   */
+  public function summary($baselength = 200, $wrapperElement = '', $append = '', $plainText = false, $newline = ' ')
+  {
+    assert('is_int($baselength) || is_null($baselength)');
+    assert('is_string($wrapperElement)');
+    assert('is_string($append)');
+    assert('is_bool($plainText)');
+    assert('is_string($newline)');
+
+    $text = trim(preg_replace('`[\s]+`', ' ', strip_tags($this->value)));
+
+    if (!empty($text)) {
+      // replace newlines
+      $text = preg_replace('`[\s]*[\r\n]+[\s]+`', $newline, $text);
+
+      if ($baselength < 1) {
+        $r = '';
+      } else if (strlen($text) <= $baselength) {
+        $r = $text;
+      } else {
+        // find the first space following the desired length
+        $nextSpace = strpos($text, ' ', $baselength);
+
+        if ($nextSpace !== false) {
+          // if there is a space
+          // truncate the text at the given space
+          $r = substr($text, 0, $nextSpace);
+
+          // strip punctuation from the end of the text
+          $r = preg_replace('/[\s]*([;:!\?\.,\/\-]|' . trim($newline) . ')*$/', '', $r);
+
+          // add the XML-safe ellipsis and anything we should append
+          $r .= ($plainText) ? '...' : '&#8230;';
+          $r .= $append;
+        } else {
+          // there are no more spaces so we will return the entire text
+          $r = $text;
+        }
+      }
+
+      if (!$plainText && !empty($wrapperElement)) {
+        $r = sprintf('<%1$s>%2$s</%1$s>', $wrapperElement, $r);
+      }
+
+      $this->setValue($r);
+    } else {
+      $this->setValue('');
+    }
+    return $this;
+  }
 }

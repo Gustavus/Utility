@@ -271,4 +271,70 @@ class Set extends Base implements ArrayAccess
     );
     return $this;
   }
+
+  /**
+   * Format an array
+   *
+   * Usage:
+   * <code>
+   * $test = array(
+   *  array('one', 'two', 'three'),
+   *  array('four', 'five', 'six'),
+   *  array('seven', 'eight', 'nine'),
+   * );
+   *
+   * echo (new Set($test))->format('%s %s and %s ', array(0, 1, 2))->getValue();
+   * // Outputs "one two and three four five and six seven eight and nine "
+   * </code>
+   *
+   * @param string $pattern Pattern to format each value of the array in sprintf() pattern format
+   * @param array $keyArray Array of keys to use from sub-arrays in order of usage in $pattern. Use '[key]' for the key of the array
+   * @param array $callbacks Functions to perform on each value
+   * @return String
+   */
+  public function format($pattern = '%s', array $keyArray = array(0), array $callbacks = array())
+  {
+    assert('is_string($pattern)');
+
+    $r  = '';
+
+    if (count($this->value) > 0) {
+      if (!is_array($callbacks)) {
+        $callbacks = array($callbacks);
+      }
+
+      foreach ($this->value as $rowkey => $row) {
+        $argsArray = array();
+        if (is_string($row)) {
+          foreach ($keyArray as $position => $key) {
+            if ($key === '[key]') {
+              $argsArray[] = $rowkey;
+            } else {
+              $argsArray[] = $row;
+            }
+          } // foreach
+        } else {
+          foreach ($keyArray as $position => $key) {
+            if ($key === '[key]') {
+              $argsArray[] = $rowkey;
+            } else if (isset($row[$key])) {
+              $argsArray[] = $row[$key];
+            } else {
+              $argsArray[] = self::array_at($row, $position);
+            }
+          } // foreach
+        } // if
+
+        if ($callbacks) {
+          foreach ($callbacks as $callback) {
+            $argsArray = array_map($callback, $argsArray);
+          }
+        } // if
+
+        $r .= vsprintf($pattern, $argsArray);
+      } // foreach
+    } // if
+
+    return new String($r);
+  }
 }
