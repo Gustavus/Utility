@@ -7,7 +7,8 @@
 namespace Gustavus\Utility;
 
 use DateTime as PHPDateTime,
-  DateInterval;
+  DateInterval,
+  DateTimeZone;
 
 /**
  * Object for working with DateTimes
@@ -69,6 +70,8 @@ class DateTime extends Base
     } else if (is_numeric($date)) {
       // $date is a timestamp. We want it as a DateTime object
       $date = new PHPDateTime('@'.$date);
+      // timestamps are in the UTC timezone. We want them to be converted to our timezone.
+      $date->setTimezone(new DateTimeZone(ini_get('date.timezone')));
     } else if ($date === null) {
       // set date to be now
       $date = new PHPDateTime('now');
