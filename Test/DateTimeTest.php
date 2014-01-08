@@ -61,6 +61,7 @@ class DateTimeTest extends Test
     $dateTime = new Utility\DateTime($now);
 
     $date = new \DateTime('@'.$now);
+    $date->setTimezone(new \DateTimeZone(ini_get('date.timezone')));
     $this->expectOutputString($date->format('c'));
     echo $dateTime;
   }
