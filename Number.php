@@ -352,12 +352,14 @@ class Number extends Base
   }
 
   /**
-   * Abbreviates a year to its two digit version (e.g. "’05")
+   * Abbreviates a year to its two digit version (’18) unless it is more than 90 years ago.
    *
    * Example:
    * <code>
-   * echo (new Number(2005))->shortYear()->getValue();
-   * // Outputs: ’05
+   * echo (new Number(2018))->shortYear()->getValue();
+   * // Outputs: ’18
+   * echo (new Number(1913))->shortYear()->getValue();
+   * // Outputs: 1813
    * </code>
    *
    * @return String
@@ -367,7 +369,11 @@ class Number extends Base
     assert('is_int($this->value)');
 
     if ($this->value < 10) {
-      return null;
+      return new String('');
+    }
+
+    if ($this->value >= 1000 && $this->value <= ((int) (new \DateTime())->format('Y')) - 90) {
+      return new String((string) $this->value);
     }
 
     return new String('’' . substr((string) $this->value, -2, 2));
