@@ -984,4 +984,52 @@ class StringTest extends Test
     ];
   }
 
+  /**
+   * @test
+   * @dataProvider nameData
+   */
+  public function name($expected, $first, $middle, $last, $preferred = '', $method = 'short', $lastNameFirst = false, $lastNameInitialOnly = false, $graduationYear = null, $maiden = '', $beforeMaiden = '(', $afterMaiden = ')')
+  {
+    $this->string->setValue($first);
+    $this->assertSame($expected, $this->string->name($middle, $last, $preferred, $method, $lastNameFirst, $lastNameInitialOnly, $graduationYear, $maiden, $beforeMaiden, $afterMaiden)->getValue());
+  }
+
+  /**
+   * name dataProvider
+   * @return array
+   */
+  public function nameData()
+  {
+    return [
+      ['Joseph', 'Joseph', null, null],
+      ['Joseph Lencioni', 'Joseph', null, 'Lencioni'],
+      ['Joseph Lencioni', 'Joseph', 'Daniel', 'Lencioni'],
+      ['Joe Lencioni', 'Joseph', 'Daniel', 'Lencioni', 'Joe'],
+      ['Lencioni, Joseph', 'Joseph', 'Daniel', 'Lencioni', null, null, true],
+      ['Lencioni, Joe', 'Joseph', 'Daniel', 'Lencioni', 'Joe', null, true],
+      ['Joseph L', 'Joseph', 'Daniel', 'Lencioni', null, null, null, true],
+      ['Joe L', 'Joseph', 'Daniel', 'Lencioni', 'Joe', null, null, true],
+      ['L, Joseph', 'Joseph', 'Daniel', 'Lencioni', null, null, true, true],
+      ['L, Joe', 'Joseph', 'Daniel', 'Lencioni', 'Joe', null, true, true],
+      ['Joe Lencioni ’05', 'Joseph', 'Daniel', 'Lencioni', 'Joe', null, null, null, '2005'],
+
+      ['Joe Lencioni', 'Joseph', 'Daniel', 'Lencioni', 'Joe', null, null, null, '0'],
+      ['Joe Lencioni', 'Joseph', 'Daniel', 'Lencioni', 'Joe', null, null, null, '1'],
+      ['Joe Lencioni', 'Joseph', 'Daniel', 'Lencioni', 'Joe', null, null, null, '2'],
+      ['Joe Lencioni 1913', 'Joseph', 'Daniel', 'Lencioni', 'Joe', null, null, null, 1913],
+
+      ['Joseph', 'Joseph', null, null, null, 'full'],
+      ['Joseph Lencioni', 'Joseph', null, 'Lencioni', null, 'full'],
+      ['Joseph Daniel Lencioni', 'Joseph', 'Daniel', 'Lencioni', null, 'full'],
+      ['Joseph Daniel Lencioni', 'Joseph', 'Daniel', 'Lencioni', 'Joe', 'full'],
+
+      ['Joseph', 'Joseph', null, null, null, 'verbose'],
+      ['Joseph Lencioni', 'Joseph', null, 'Lencioni', null, 'verbose'],
+      ['Joseph Daniel Lencioni', 'Joseph', 'Daniel', 'Lencioni', null, 'verbose'],
+      ['Joseph (Joe) Daniel Lencioni', 'Joseph', 'Daniel', 'Lencioni', 'Joe', 'verbose'],
+      ['Joe Daniel Lencioni', '', 'Daniel', 'Lencioni', 'Joe', 'verbose'],
+
+      ['Samantha (Sam) Arlene Lencioni ’07 (Samantha (Sam) Arlene Matthes)', 'Samantha', 'Arlene', 'Lencioni', 'Sam', 'verbose', false, false, 2007, 'Matthes'],
+    ];
+  }
 }
