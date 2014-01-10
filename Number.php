@@ -1,6 +1,9 @@
 <?php
 /**
  * @package Utility
+ *
+ * @author Joe Lencioni
+ * @author Billy Visto
  */
 namespace Gustavus\Utility;
 
@@ -8,6 +11,9 @@ namespace Gustavus\Utility;
  * Object for working with Numbers
  *
  * @package Utility
+ *
+ * @author Joe Lencioni
+ * @author Billy Visto
  */
 class Number extends Base
 {
