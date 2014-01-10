@@ -261,4 +261,28 @@ class NumberTest extends Test
       array('1<abbr title="weeks">w</abbr> 1<abbr title="seconds">s</abbr>', 604801),
     );
   }
+
+  /**
+   * @test
+   * @dataProvider shortYearData
+   */
+  public function shortYear($year, $expected)
+  {
+    $this->number->setValue($year);
+    $this->assertSame($expected, $this->number->shortYear()->getValue());
+  }
+
+  /**
+   * Data provider for shortYear
+   *
+   * @return array
+   */
+  public function shortYearData()
+  {
+    return [
+      [1999, '’99'],
+      [2000, '’00'],
+      [2015, '’15'],
+    ];
+  }
 }

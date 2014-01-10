@@ -344,4 +344,26 @@ class Number extends Base
 
     return new String(join(' ', $ret));
   }
+
+  /**
+   * Abbreviates a year to its two digit version (e.g. "’05")
+   *
+   * Example:
+   * <code>
+   * echo (new Number(2005))->shortYear()->getValue();
+   * // Outputs: ’05
+   * </code>
+   *
+   * @return String
+   */
+  public function shortYear()
+  {
+    assert('is_int($this->value)');
+
+    if ($this->value < 10) {
+      return null;
+    }
+
+    return new String('’' . substr((string) $this->value, -2, 2));
+  }
 }
