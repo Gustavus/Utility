@@ -890,4 +890,99 @@ class String extends Base implements ArrayAccess
     }
     return $this;
   }
+
+  /**
+   * Formats a name.
+   * First name comes from the string used to construct this class
+   *
+   * @param string $middle Middle name
+   * @param string $last Last name
+   * @param string $preferred Preferred name
+   * @param string $method 'short', 'full', or 'verbose'
+   * @param bool $lastNameFirst
+   * @param bool $lastNameInitialOnly
+   * @param integer $graduationYear
+   * @param string $maiden Maiden name
+   * @param string $beforeMaiden
+   * @param string $afterMaiden
+   * @return string
+   */
+  public function name($middle, $last, $preferred = '', $method = 'short', $lastNameFirst = false, $lastNameInitialOnly = false, $graduationYear = null, $maiden = '', $beforeMaiden = '(', $afterMaiden = ')')
+  {
+    assert('is_string($this->value)');
+    assert('is_string($middle) || is_null($middle)');
+    assert('is_string($last) || is_null($last)');
+    assert('is_string($preferred) || is_null($preferred)');
+    assert('is_string($method) || is_null($method)');
+    assert('is_bool($lastNameFirst) || is_null($lastNameFirst)');
+    assert('is_bool($lastNameInitialOnly) || is_null($lastNameInitialOnly)');
+    assert('is_int($graduationYear) || is_string($graduationYear) || is_null($graduationYear)');
+    assert('is_string($maiden)');
+    assert('is_string($beforeMaiden)');
+    assert('is_string($afterMaiden)');
+
+    if (!in_array($method, array('short', 'full', 'verbose'))) {
+      $method = 'short';
+    }
+
+    $first          = trim($this->value);
+    $middle         = trim($middle);
+    $last           = trim($last);
+    $preferred      = trim($preferred);
+    $maiden         = trim($maiden);
+    $graduationYear = (integer) $graduationYear;
+
+    $f  = '';
+
+    switch ($method) {
+      case 'full':
+        $f  = ($first != '') ? $first : $preferred;
+        if ($middle != '') {
+          $f  .= " $middle";
+        }
+          break;
+
+      case 'verbose':
+        if ($first != '' && $preferred != '') {
+          $f  = "$first ($preferred)";
+        } else if ($first != '') {
+          $f  = $first;
+        } else {
+          $f  = $preferred;
+        }
+
+        if ($middle != '') {
+          $f  .= " $middle";
+        }
+          break;
+
+      case 'short':
+      default:
+        $f  = ($preferred != '') ? $preferred : $first;
+    }
+
+    if ($lastNameInitialOnly === true) {
+      $last = $last[0];
+    }
+
+    if ($maiden === $last) {
+      $maiden = '';
+    }
+
+    $name = $f;
+    $name = ($lastNameFirst) ? "$last, $name" : "$name $last";
+
+    $year = (new Number($graduationYear))->shortYear()->getValue();
+
+    if (!empty($year)) {
+      $name .= " $year";
+    }
+
+    if (!empty($maiden)) {
+      $name .= " $beforeMaiden$f $maiden$afterMaiden";
+    }
+
+    $this->setValue(trim($name));
+    return $this;
+  }
 }

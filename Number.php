@@ -1,6 +1,9 @@
 <?php
 /**
  * @package Utility
+ *
+ * @author Joe Lencioni
+ * @author Billy Visto
  */
 namespace Gustavus\Utility;
 
@@ -8,6 +11,9 @@ namespace Gustavus\Utility;
  * Object for working with Numbers
  *
  * @package Utility
+ *
+ * @author Joe Lencioni
+ * @author Billy Visto
  */
 class Number extends Base
 {
@@ -343,5 +349,33 @@ class Number extends Base
     }
 
     return new String(join(' ', $ret));
+  }
+
+  /**
+   * Abbreviates a year to its two digit version (’18) unless it is more than 90 years ago.
+   *
+   * Example:
+   * <code>
+   * echo (new Number(2018))->shortYear()->getValue();
+   * // Outputs: ’18
+   * echo (new Number(1913))->shortYear()->getValue();
+   * // Outputs: 1813
+   * </code>
+   *
+   * @return String
+   */
+  public function shortYear()
+  {
+    assert('is_int($this->value)');
+
+    if ($this->value < 10) {
+      return new String('');
+    }
+
+    if ($this->value >= 1000 && $this->value <= ((int) (new \DateTime())->format('Y')) - 90) {
+      return new String((string) $this->value);
+    }
+
+    return new String('’' . substr((string) $this->value, -2, 2));
   }
 }
