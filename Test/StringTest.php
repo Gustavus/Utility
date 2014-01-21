@@ -1032,4 +1032,106 @@ class StringTest extends Test
       ['Samantha (Sam) Arlene Lencioni ’07 (Samantha (Sam) Arlene Matthes)', 'Samantha', 'Arlene', 'Lencioni', 'Sam', 'verbose', false, false, 2007, 'Matthes'],
     ];
   }
+
+  /**
+   * @test
+   * @dataProvider linkifyProvider
+   */
+  public function linkify($raw, $expected, $attribs)
+  {
+    $this->string->setValue($raw);
+
+    $this->string->linkify($attribs, true, true, true);
+
+    $this->assertSame($expected, $this->string->getValue());
+  }
+
+  /**
+   * Provides data for linkify
+   */
+  public static function linkifyProvider()
+  {
+    return array(
+      [
+        'This is a http://gac.edu',
+        'This is a <a href="http://gac.edu">http://gac.edu</a>',
+        array()
+      ],
+      [
+        'This is a http://gac.edu/test and twitter.com/5492',
+        'This is a <a href="http://gac.edu/test">http://gac.edu/test</a> and <a href="http://twitter.com/5492">twitter.com/5492</a>',
+        array()
+      ],
+      [
+        'This is a https://gac.edu/test and twitter.com/5492',
+        'This is a <a href="https://gac.edu/test">https://gac.edu/test</a> and <a href="http://twitter.com/5492">twitter.com/5492</a>',
+        array()
+      ],
+      [
+        'https://gac.edu/test and twitter.com/5492',
+        '<a href="https://gac.edu/test">https://gac.edu/test</a> and <a href="http://twitter.com/5492">twitter.com/5492</a>',
+        array()
+      ],
+      [
+        'This is a test@gac.edu',
+        'This is a <a href="mailto:test@gac.edu">test@gac.edu</a>',
+        array()
+      ],
+      [
+        'This is a test of a phone number 933-7072 the program will find valid phone numbers 3432543 but not invalid ones 345642. It supports international numbers as well, +31 42 123 4567, cool huh? Also add extensions 543-302-2935 x23',
+        'This is a test of a phone number <a href="tel:9337072p">933-7072</a> the program will find valid phone numbers <a href="tel:3432543p">3432543</a> but not invalid ones 345642. It supports international numbers as well, <a href="tel:31421234567p">+31 42 123 4567</a>, cool huh? Also add extensions <a href="tel:5433022935p23">543-302-2935 x23</a>',
+        array()
+      ],
+      [
+        'This one.co/ has some@attributes.com so 555-3210',
+        'This <a href="http://one.co/" class="vanilla" rel="something">one.co/</a> has <a href="mailto:some@attributes.com" class="vanilla" rel="something">some@attributes.com</a> so <a href="tel:5553210p" class="vanilla" rel="something">555-3210</a>',
+        [
+          'class' => 'vanilla',
+          'rel' => 'something'
+        ]
+      ]
+    );
+  }
+
+  /**
+   * @test
+   * @dataProvider linkifyDisableProvider
+   */
+  public function linkifyDisable($raw, $expected, $url, $email, $phone)
+  {
+    $this->string->setValue($raw);
+
+    $this->string->linkify(array(), $url, $email, $phone);
+
+    $this->assertSame($expected, $this->string->getValue());
+  }
+
+  /**
+   * Provides data for linkifyDisable
+   */
+  public static function linkifyDisableProvider()
+  {
+    return array(
+      [
+        'This one.co/ has some@attributes.com so 555-3210',
+        'This one.co/ has some@attributes.com so 555-3210',
+        false, false, false
+      ],
+      [
+        'This one.co/ has some@attributes.com so 555-3210',
+        'This one.co/ has <a href="mailto:some@attributes.com">some@attributes.com</a> so <a href="tel:5553210p">555-3210</a>',
+        false, true, true
+      ],
+      [
+        'This one.co/ has some@attributes.com so 555-3210',
+        'This <a href="http://one.co/">one.co/</a> has some@attributes.com so <a href="tel:5553210p">555-3210</a>',
+        true, false, true
+      ],
+      [
+        'This one.co/ has some@attributes.com so 555-3210',
+        'This <a href="http://one.co/">one.co/</a> has <a href="mailto:some@attributes.com">some@attributes.com</a> so 555-3210',
+        true, true, false
+      ]
+    );
+  }
 }
