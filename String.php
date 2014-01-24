@@ -1002,8 +1002,6 @@ class String extends Base implements ArrayAccess
   public function linkify(array $attributes = array(), $url = true, $email = true, $phone = true)
   {
 
-    $value = $this->value;
-
     $attributesString = '';
 
     foreach ($attributes as $attr => $attrValue) {
@@ -1011,31 +1009,30 @@ class String extends Base implements ArrayAccess
     }
 
     if ($url) {
-      $value = preg_replace_callback(
+      $this->value = preg_replace_callback(
         Regex::url('(?<=\s|\A)', '(?=[\s\,\.]|\z)'),
         function ($matches) use ($attributesString) {
           $prefix = empty($matches[2]) ? 'http://' : '';
           return "<a href=\"{$prefix}{$matches[0]}\"{$attributesString}>{$matches[0]}</a>";
         },
-        $value);
+        $this->value);
     }
 
     if ($email) {
-      $value = preg_replace(
+      $this->value = preg_replace(
         Regex::emailAddress('(?<=\s|\A)', '(?=[\s\,\.]|\z)'),
         "<a href=\"mailto:$0\"{$attributesString}>$0</a>",
-        $value);
+        $this->value);
     }
 
     if ($phone) {
-      $value = preg_replace(
+      $this->value = preg_replace(
         Regex::phoneNumber('(?<=\s|\A)', '(?=[\s\,\.]|\z)'),
         "<a href=\"tel:$1$3$2$4$5$6p$7\"{$attributesString}>$0</a>",
-        $value
+        $this->value
       );
     }
 
-    $this->setValue($value);
     return $this;
 
   }
