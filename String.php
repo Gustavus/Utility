@@ -267,7 +267,12 @@ class String extends Base implements ArrayAccess
         $queryParts  = $this->splitQueryString()->getValue();
         $queryParams = array_merge($queryParts, $queryParams);
       }
-      $this->value = sprintf('%s?%s', $urlParts['path'], http_build_query($queryParams));
+      $path = '';
+      if (isset($urlParts['host'])) {
+        $path = $urlParts['host'];
+      }
+      $path .= $urlParts['path'];
+      $this->value = sprintf('%s?%s', $path, http_build_query($queryParams));
     }
     return $this;
   }
