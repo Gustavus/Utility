@@ -5,11 +5,13 @@
  * @author Joe Lencioni
  * @author Billy Visto
  * @author Chris Rog
+ * @author Nicholas Dobie <ndobie@gustavus.edu>
  */
 namespace Gustavus\Utility;
 
 use ArrayAccess,
-    Gustavus\Utility\Abbreviations;
+    Gustavus\Utility\Abbreviations,
+    Gustavus\Regex\Regex;
 
 /**
  * Object for working with Strings
@@ -19,6 +21,7 @@ use ArrayAccess,
  * @author Joe Lencioni
  * @author Billy Visto
  * @author Chris Rog
+ * @author Nicholas Dobie <ndobie@gustavus.edu>
  */
 class String extends Base implements ArrayAccess
 {
@@ -264,7 +267,12 @@ class String extends Base implements ArrayAccess
         $queryParts  = $this->splitQueryString()->getValue();
         $queryParams = array_merge($queryParts, $queryParams);
       }
-      $this->value = sprintf('%s?%s', $urlParts['path'], http_build_query($queryParams));
+      $path = '';
+      if (isset($urlParts['host'])) {
+        $path = $urlParts['host'];
+      }
+      $path .= $urlParts['path'];
+      $this->value = sprintf('%s?%s', $path, http_build_query($queryParams));
     }
     return $this;
   }
@@ -984,5 +992,53 @@ class String extends Base implements ArrayAccess
 
     $this->setValue(trim($name));
     return $this;
+  }
+
+  /**
+   * Links to URLs, E-Mail addresses, and phones items in strings.
+   *
+   * @param  array   $attributes HTML attributes to add to links, uses an associated array with
+   *                             the key as the attribute and the value as the attribute's value.
+   * @param  boolean $url        Link URLs.
+   * @param  boolean $email      Link E-Mail addresses.
+   * @param  boolean $phone      Link phone numbers.
+   * @return String              Returns $this.
+   */
+  public function linkify(array $attributes = array(), $url = true, $email = true, $phone = true)
+  {
+
+    $attributesString = '';
+
+    foreach ($attributes as $attr => $attrValue) {
+      $attributesString .= " {$attr}=\"{$attrValue}\"";
+    }
+
+    if ($url) {
+      $this->value = preg_replace_callback(
+        Regex::url('(?<=\s|\A)', '(?=[\s\,\.]|\z)'),
+        function ($matches) use ($attributesString) {
+          $prefix = empty($matches[2]) ? 'http://' : '';
+          return "<a href=\"{$prefix}{$matches[0]}\"{$attributesString}>{$matches[0]}</a>";
+        },
+        $this->value);
+    }
+
+    if ($email) {
+      $this->value = preg_replace(
+        Regex::emailAddress('(?<=\s|\A)', '(?=[\s\,\.]|\z)'),
+        "<a href=\"mailto:$0\"{$attributesString}>$0</a>",
+        $this->value);
+    }
+
+    if ($phone) {
+      $this->value = preg_replace(
+        Regex::phoneNumber('(?<=\s|\A)', '(?=[\s\,\.]|\z)'),
+        "<a href=\"tel:$1$3$2$4$5$6p$7\"{$attributesString}>$0</a>",
+        $this->value
+      );
+    }
+
+    return $this;
+
   }
 }
