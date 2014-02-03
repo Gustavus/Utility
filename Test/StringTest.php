@@ -237,6 +237,10 @@ class StringTest extends Test
       array('', 'ab'),
 
       // Gustavus URLs
+      array('ftp://gustavus.edu', 'ftp:\\gustavus.edu'),
+      array('ftp://gustavus.edu:1058', 'ftp://gustavus.edu:1058'),
+      array('http://bvisto@gustavus.edu', 'http://bvisto@gustavus.edu'),
+      array('http://bvisto:pass@gustavus.edu', 'http://bvisto:pass@gustavus.edu'),
       array('http://gustavus.edu', 'gac.edu'),
       array('http://gustavus.edu', ' gac.edu '),
       array('http://gustavus.edu', 'http://gac.edu'),
@@ -259,6 +263,34 @@ class StringTest extends Test
 
       // Homepages
       array('http://homepages.gac.edu/~user/', 'http://homepages.gac.edu/~user/'),
+    );
+  }
+
+  /**
+   * @test
+   * @dataProvider buildUrlData
+   */
+  public function buildUrl($expected, $url, $host, $scriptName = '/test/test.php')
+  {
+    $_SERVER['HTTP_HOST']   = $host;
+    $_SERVER['SCRIPT_NAME'] = $scriptName;
+    $this->string->setValue($url);
+    $this->assertSame($expected, $this->string->buildUrl()->getValue());
+  }
+
+  /**
+   * @return array
+   */
+  public static function buildUrlData()
+  {
+    return array(
+      array('https://gustavus.edu/', '/', 'gustavus.edu'),
+      array('https://gustavus.edu/admission', '/admission', 'gustavus.edu'),
+      array('https://gustavus.edu/admission?arst=arst', '/admission?arst=arst', 'gustavus.edu'),
+      array('https://gustavus.edu/admission?arst=arst#fragment', '/admission?arst=arst#fragment', 'gustavus.edu'),
+      array('https://beta.gac.edu/profiles/arst/', '/profiles/arst/', 'beta.gac.edu'),
+      array('https://gustavus.edu/admission/apply/', 'apply/', 'gustavus.edu', '/admission/index.php'),
+      array('https://gustavus.edu/admission/apply/?arst=arst', 'apply/?arst=arst', 'gustavus.edu', '/admission/index.php'),
     );
   }
 

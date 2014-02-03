@@ -187,15 +187,15 @@ class String extends Base implements ArrayAccess
    * Usage:
    * <code>
    * $string = new String('gac.edu/test/');
-   * echo $string->url();
+   * echo $string->url()->getValue();
    * // Outputs: http://gustavus.edu/test/
    *
    * $string = new String('google.com/testing/');
-   * echo $string->url();
+   * echo $string->url()->getValue();
    * // Outputs: http://google.com/testing/
    *
    * $string = new String('www.gustavus.edu');
-   * echo $string->url();
+   * echo $string->url()->getValue();
    * // Outputs: http://gustavus.edu
    * </code>
    *
@@ -221,6 +221,40 @@ class String extends Base implements ArrayAccess
     $url  = preg_replace('`(?<!homepages\.)(?:www\.)?g(?>ustavus|ac)\.edu`', 'gustavus.edu', $url);
 
     return $this->setValue($url);
+  }
+
+  /**
+   * Builds a url that points to the current server
+   * <strong>Note:</strong> $this->value must be either an absolute or relative url from the doc_root
+   *
+   * Usage:
+   * <code>
+   * $string = new String('/admission/');
+   * echo $string->buildUrl()->getValue();
+   * // Outputs: https://gustavus.edu/admission/ on Live or https://beta.gac.edu/admission on Beta.
+   *
+   * // called from /admission/index.php
+   * $string = new String('apply');
+   * echo $string->buildUrl()->getValue();
+   * // Outputs: https://gustavus.edu/admission/apply
+   * </code>
+   *
+   * @return $this
+   */
+  public function buildUrl()
+  {
+    $this->value = trim($this->value);
+
+    if (substr($this->value, 0, 1) !== '/') {
+      // we are requesting a relative path.
+      $baseDir = dirname($_SERVER['SCRIPT_NAME']) . '/';
+    } else {
+      $baseDir = '';
+    }
+
+    $this->value = sprintf('https://%s%s%s', $_SERVER['HTTP_HOST'], $baseDir, $this->value);
+
+    return $this;
   }
 
   /**
