@@ -130,42 +130,30 @@ class FileTest extends Test
 
   /**
    * @test
+   * @dataProvider filenameData
    */
-  public function FilenameNewFile()
+  public function filename($expected, $filename, $location = null, $extension = null)
   {
-    $this->path = 'newfile.php';
+    $this->path = $filename;
     $this->init();
-    $this->assertSame('newfile.php', $this->file->filename('/new/path/')->getValue());
+    $this->assertSame($expected, $this->file->filename($location, $extension)->getValue());
   }
 
   /**
-   * @test
+   * Filename data provider
+   * @return  array
    */
-  public function FilenameNewFileNoExtension()
+  public function filenameData()
   {
-    $this->path = 'newfile';
-    $this->init();
-    $this->assertSame('newfile', $this->file->filename('/new/path/')->getValue());
-  }
-
-  /**
-   * @test
-   */
-  public function FilenameExistingFileWithDots()
-  {
-    $this->path = 'sentence.twig';
-    $this->init();
-    $this->assertSame('sentence-1.twig', $this->file->filename('/cis/lib/Gustavus/Utility/Views/Set/')->getValue());
-  }
-
-  /**
-   * @test
-   */
-  public function FilenameNoLocation()
-  {
-    $this->path = 'format.class.php';
-    $this->init();
-    $this->assertSame('format.class.php', $this->file->filename()->getValue());
+    return [
+      ['newfile.php', 'newfile.php', '/new/path/'],
+      ['newfile', 'newfile', '/new/path/'],
+      ['sentence-1.twig', 'sentence.twig', '/cis/lib/Gustavus/Utility/Views/Set/'],
+      ['format.class.php', 'format.class.php'],
+      ['fetch>uid>.gac>10046.gac>10046', 'fetch>UID>.GAC>10046.GAC%3E10046', '/cis/lib/Gustavus/Utility/Test/Files'],
+      ['fetch>uid>.gac>10046.gac>10046.jpg', 'fetch>UID>.GAC>10046.GAC%3E10046', '/cis/lib/Gustavus/Utility/Test/Files', 'jpg'],
+      ['fetch>uid>.gac>10046.gac>10046.jpg', 'fetch>UID>.GAC>10046.GAC%3E10046', '/cis/lib/Gustavus/Utility/Test/Files', '.jpg'],
+    ];
   }
 
   /**

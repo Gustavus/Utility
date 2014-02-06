@@ -115,25 +115,41 @@ class File extends Base
    * @param string $location Location on server (e.g. "/cis/www/campus/files/")
    * @return  File
    */
-  public function filename($location = null)
+  public function filename($location = null, $extension = null)
   {
     assert('is_string($location) || is_null($location)');
 
     if (preg_match('`^(.*)(\..*)$`', $this->value, $matches)) {
-      $origFilename  = $matches[1];
-      $origExtension = $matches[2];
+      $filename  = $matches[1];
+      $fileExtension = $matches[2];
     } else {
-      $origFilename  = $this->value;
-      $origExtension = '';
+      $filename  = $this->value;
+      $fileExtension = '';
     }
 
-    $this->value  = preg_replace('`\s+|\+`', '-', strtolower($this->value));
-    $origFilename = preg_replace('`\s+|\+`', '-', strtolower($origFilename));
+    // make sure there aren't any encoded html entities in the filename
+    $filename = urldecode($filename);
+    $fileExtension = urldecode($fileExtension);
+
+    if (!empty($extension)) {
+      if (strpos($extension, '.') !== 0) {
+        // make sure the extension includes the "."
+        $extension = '.' . $extension;
+      }
+      // we want to make sure the fileExtension matches the wanted extension
+      if ($fileExtension !== $extension) {
+        $filename .= $fileExtension;
+        $fileExtension = $extension;
+      }
+    }
+
+    $this->value  = preg_replace('`\s+|\+`', '-', strtolower($filename . $fileExtension));
 
     if (!empty($location)) {
+      $filename = preg_replace('`\s+|\+`', '-', strtolower($filename));
       $i = 1;
       while (file_exists("$location/$this->value")) {
-        $this->value = strtolower("{$origFilename}-{$i}{$origExtension}");
+        $this->value = strtolower("{$filename}-{$i}{$fileExtension}");
         ++$i;
       }
     }
