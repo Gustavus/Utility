@@ -1168,4 +1168,28 @@ class StringTest extends Test
       ]
     );
   }
+
+  /**
+   * @test
+   */
+  public function extractImagesAndExtractFirstImage()
+  {
+
+    $html = '<p><img src="http://blog.gustavus.edu/files/image_1342-200x200.jpg">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fuga, sit libero. Maiores, dolores, sint sed fuga eum est delectus odio similique incidunt consectetur impedit voluptatem tempore eligendi minus hic natus! <img src="https://beta.gac.edu/gimli/w234/test/image.jpg"></p>';
+
+    $this->string->setValue($html);
+
+    $this->assertEquals(array(
+      'http://blog.gustavus.edu/files/image_1342.jpg',
+      'https://beta.gac.edu/test/image.jpg'
+    ), $this->string->extractImages());
+
+    $this->assertEquals('http://blog.gustavus.edu/files/image_1342.jpg', $this->string->extractFirstImage());
+
+    $this->string->setValue('Lorem ipsum dolor sit amet, consectetur adipisicing elit. Necessitatibus, culpa nemo iure perspiciatis illo excepturi ipsam modi rerum tempora quae error mollitia alias commodi suscipit eius hic aperiam nostrum maxime?');
+
+    $this->assertFalse($this->string->extractImages());
+    $this->assertFalse($this->string->extractFirstImage());
+
+  }
 }

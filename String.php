@@ -1075,4 +1075,43 @@ class String extends Base implements ArrayAccess
     return $this;
 
   }
+
+  /**
+   * Extracts all the image urls from the content
+   *
+   * @return array|boolean Returns an array of the urls or false if no images are found.
+   */
+  public function extractImages()
+  {
+    $hasImages = preg_match_all('`<img[^>]+src=["\']([^"\']+)["\'][^>]*>`', $this->value, $images);
+
+    if ($hasImages) {
+      return array_map(function ($url) {
+
+        // Remove SLIR or GIMLI to get the original image
+        $url = preg_replace('`/(?:slir|gimli)/[^/]+/`', '/', $url);
+
+        // Remove WordPress dimensions to get the original image
+        $url = preg_replace('`-\d+x\d+\.(jpg|png|gif)$`', '.$1', $url);
+
+        return $url;
+      }, $images[1]);
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * Returns the first image found in the content.
+   *
+   * @return string|boolean Returns the url of the image or false.
+   */
+  public function extractFirstImage()
+  {
+    if ($images = $this->extractImages()) {
+      return $images[0];
+    } else {
+      return false;
+    }
+  }
 }

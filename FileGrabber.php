@@ -135,7 +135,7 @@ class FileGrabber
   }
 
   /**
-   * Delayed grabs a file from the remote server
+   * Delays grabbing a file from the remote server.
    *
    * @param  string         $url URL to retrieve.
    * @return string|boolean      Returns the future local url of the file or false if can't queue file.
@@ -166,11 +166,11 @@ class FileGrabber
    */
   public function isAllowed($url)
   {
-    $d = $this->isAllowedDomain($url);
-    $r = $this->isReadable($url);
-    $g = $this->isGrabbed($url);
-    $m = $this->isAllowedMime($url);
-    return ($d && $r && (!$g || ($g && $m)));
+    $domain   = $this->isAllowedDomain($url);
+    $readable = $this->isReadable($url);
+    $grabbed  = $this->isGrabbed($url);
+    $mime     = $this->isAllowedMime($url);
+    return ($domain && $readable && (!$grabbed || ($grabbed && $mime)));
   }
 
   /**
@@ -205,13 +205,17 @@ class FileGrabber
    *
    * **Requires that the file already be cached.**
    *
-   * @param  string  $url URL to check.
-   * @return boolean      Returns true if file passes check. Will return false if unable to preform check.
+   * @param  string           $url  URL to check.
+   * @throws \RuntimeException      If FileInfo can't load.
+   * @return boolean                Returns true if file passes check. Will return false if unable to preform check.
    */
   public function isAllowedMime($url)
   {
     if ($this->isGrabbed($url)) {
       $finfo = new \finfo(FILEINFO_MIME_TYPE);
+      if (!$finfo) {
+        throw new \RuntimeException('Opening fileinfo database failed');
+      }
       $mime = $finfo->file($this->localPath($url));
       return in_array($mime, $this->mimeTypes);
     } else {
@@ -380,6 +384,7 @@ class FileGrabber
   /**
    * Fetches the files from a remote server
    * @param  string             $url URL to pull file from.
+   * @throws \RuntimeException       If directory does not exist.
    * @throws \RuntimeException       If URL is invalid.
    * @throws \RuntimeException       If remote file isn't an accepted mime type.
    * @return string                  Returns the contentents of the file.
@@ -388,6 +393,9 @@ class FileGrabber
   {
     if (preg_match(Regex::url(), $url) && $this->isAllowedDomain($url) && $this->isReadable($url)) {
       $file = static::$curl->execute($url);
+      if (!file_exists(static::FILE_GRABBER_FS_STORAGE)) {
+        throw new \RuntimeException("\"{static::FILE_GRABBER_FS_STORAGE}\" does not exist.");
+      }
       file_put_contents($this->localPath($url), $file);
       if ($this->isAllowedMime($url)) {
         return $file;
