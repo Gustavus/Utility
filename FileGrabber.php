@@ -49,6 +49,8 @@ class FileGrabber
     // Google
     'google.com',
     'youtube.com',
+    'ggpht.com',
+    'ytimg.com',
     'blogspot.com',
 
     // Twitter
@@ -285,6 +287,9 @@ class FileGrabber
    */
   public function localURL($url)
   {
+    if (!is_link(rtrim(rtrim($_SERVER['DOCUMENT_ROOT'], '/') . static::FILE_GRABBER_WEB_ACCESS, '/'))) {
+      symlink(static::FILE_GRABBER_FS_STORAGE, $_SERVER['DOCUMENT_ROOT'] . static::FILE_GRABBER_WEB_ACCESS);
+    }
     return static::FILE_GRABBER_WEB_ACCESS . md5($url);
   }
 
@@ -393,8 +398,8 @@ class FileGrabber
   {
     if (preg_match(Regex::url(), $url) && $this->isAllowedDomain($url) && $this->isReadable($url)) {
       $file = static::$curl->execute($url);
-      if (!file_exists(static::FILE_GRABBER_FS_STORAGE)) {
-        throw new \RuntimeException("\"{static::FILE_GRABBER_FS_STORAGE}\" does not exist.");
+      if (!is_dir(static::FILE_GRABBER_FS_STORAGE)) {
+        mkdir(static::FILE_GRABBER_FS_STORAGE, 0775, true);
       }
       file_put_contents($this->localPath($url), $file);
       if ($this->isAllowedMime($url)) {
