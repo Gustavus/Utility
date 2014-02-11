@@ -367,6 +367,10 @@ class FileGrabberTest extends Test
 
     $this->assertTrue(is_string($file));
 
+    // Check file was cached
+    $this->assertTrue(file_exists($this->fg->localPath('https://beta.gac.edu/test.jpg')));
+    $this->assertTrue(file_exists($_SERVER['DOCUMENT_ROOT'] . $this->fg->localURL('https://beta.gac.edu/test.jpg')));
+
     unlink($this->fg->localPath('https://beta.gac.edu/test.jpg'));
   }
 
