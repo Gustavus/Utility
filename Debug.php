@@ -32,6 +32,14 @@ class Debug
    */
   const DUMP_INDENT_INCREMENT = 2;
 
+  /**
+   * The maximum number of characters that will be displayed in a string. Strings longer than this
+   * value will be trimmed down and have an ellipsis appended. Should be a positive integer.
+   *
+   * @var integer
+   */
+  const DUMP_STRING_DISPLAY_LENGTH = 256;
+
 
   /**
    * Recursively dumps the specified variable and any properties or elements it contains. If an
@@ -84,7 +92,6 @@ class Debug
       $padding = str_repeat(' ', $indent);
       $buffer = $padding;
 
-      ++$reclevel;
       $type = gettype($value);
 
       if (isset($key)) {
@@ -104,9 +111,28 @@ class Debug
           $encoding = mb_detect_encoding($value);
           $len = $encoding ? mb_strlen($value, $encoding) : mb_strlen($value);
 
-          // @todo:
-          // Perhaps add slashes to the string here...?
+          if ($len > static::DUMP_STRING_DISPLAY_LENGTH) {
+            $value = ($encoding ? mb_substr($value, 0, static::DUMP_STRING_DISPLAY_LENGTH, $encoding) : mb_substr($value, 0, static::DUMP_STRING_DISPLAY_LENGTH));
+            $value .= mb_convert_encoding('...', ($encoding ? $encoding : 'UTF-8'));
+          }
 
+          if ($encoding) {
+            mb_regex_encoding($encoding);
+          }
+
+          $value = mb_ereg_replace_callback('([\\\\\'"\\n\\x00])', function($matches) {
+            switch ($matches[1]) {
+              case "\x00":
+                  return "\\0";
+
+              case "\n":
+                  return "\\n";
+            }
+
+            return "\\{$matches[1]}";
+          }, $value);
+
+          mb_regex_encoding();
           $buffer .= "(string[{$len}]): \"{$value}\"\n";
             break;
 
@@ -114,14 +140,13 @@ class Debug
           $count = (isset($value[$reckey]) ? count($value) - 1 : count($value));
           $buffer .= "(array[{$count}]) {\n";
 
-          if ($reclevel <= $maxdepth || $maxdepth < 1) {
+          if (++$reclevel <= $maxdepth || $maxdepth < 1) {
             if (!isset($value[$reckey])) {
 
               $value[$reckey] = $reclevel;
 
               foreach ($value as $key => &$val) {
                 if ($key !== $reckey) {
-                  $pv = print_r($val, true);
                   $buffer .= $formatter($indent + static::DUMP_INDENT_INCREMENT, true, $key, $val);
                 }
               }
@@ -135,6 +160,7 @@ class Debug
             $buffer .= str_repeat(' ', $indent + static::DUMP_INDENT_INCREMENT) . "...\n";
           }
 
+          --$reclevel;
           $buffer .= "{$padding}}\n";
             break;
 
@@ -142,7 +168,7 @@ class Debug
           $class = get_class($value);
           $buffer .= "(object): {$class} {\n";
 
-          if ($reclevel <= $maxdepth || $maxdepth < 1) {
+          if (++$reclevel <= $maxdepth || $maxdepth < 1) {
             if ($value instanceof DebugPrinter) {
               // Object generates its own debug output.
               $buffer .= $value->generateDebugOutput($indent + static::DUMP_INDENT_INCREMENT, max($maxdepth - $reclevel, 0)) . "\n";
@@ -177,6 +203,7 @@ class Debug
             $buffer .= str_repeat(' ', $indent + static::DUMP_INDENT_INCREMENT) . "...\n";
           }
 
+          --$reclevel;
           $buffer .= "{$padding}}\n";
             break;
 
@@ -186,8 +213,6 @@ class Debug
           $buffer .= '(' . strtolower($type) . ")\n";
             break;
       }
-
-      --$reclevel;
 
       if (!$capture) {
         print($buffer);
