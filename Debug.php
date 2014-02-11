@@ -8,7 +8,9 @@
  */
 namespace Gustavus\Utility;
 
-use ReflectionObject;
+use ReflectionObject,
+
+    InvalidArgumentException;
 
 
 
@@ -28,7 +30,7 @@ class Debug
    *
    * @var integer
    */
-  const DUMP_DEPTH_INCREMENT = 2;
+  const DUMP_INDENT_INCREMENT = 2;
 
 
   /**
@@ -45,19 +47,41 @@ class Debug
    *  Whether or not to capture and return the debug output, or to print directly to the standard
    *  output stream. If true, the debug output will be returned as a string. Defaults to false.
    *
+   * @param integer $indent
+   *  <em>Optional</em>.
+   *  The initial depth of the indentation. Can be used to make nested calls while maintaining
+   *  proper indentation.
+   *
+   * @param integer $maxdepth
+   *  <em>Optional</em>.
+   *  The maximum depth into an object or array this function will traverse. If zero, no limit will
+   *  be imposed. Defaults to zero.
+   *
+   * @throws InvalidArgumentException
+   *  if $indent or $maxdepth is a not an integer or contains a negative value.
+   *
    * @return string
    *  The captured debug output if, and only if, $capture was set; null otherwise.
    */
-  public static function dump($var, $capture = false)
+  public static function dump($var, $capture = false, $indent = 0, $maxdepth = 6)
   {
+    if (!is_int($indent) || $indent < 0) {
+      throw new InvalidArgumentException('$indent is not an integer or contains a negative value.');
+    }
+
+    if (!is_int($maxdepth) || $maxdepth < 0) {
+      throw new InvalidArgumentException('$maxdepth is not an integer or contains a negative value.');
+    }
+
+
     // Used to detect recursion in arrays and objects
     $reckey = '__recursion_key-' . time();
     $reclevel = 0;
     $recmap = [];
 
     // Formatter which does all the work of actually formatting data...
-    $formatter = function ($depth, $capture, $key, &$value) use (&$formatter, &$reckey, &$reclevel, &$recmap) {
-      $padding = str_repeat(' ', $depth);
+    $formatter = function ($indent, $capture, $key, &$value) use (&$formatter, &$maxdepth, &$reckey, &$reclevel, &$recmap) {
+      $padding = str_repeat(' ', $indent);
       $buffer = $padding;
 
       ++$reclevel;
@@ -87,26 +111,28 @@ class Debug
             break;
 
         case 'array':
-          $count = count($value);
+          $count = (isset($value[$reckey]) ? count($value) - 1 : count($value));
+          $buffer .= "(array[{$count}]) {\n";
 
-          if (!isset($value[$reckey])) {
-            $buffer .= "(array[{$count}]) {\n";
-            $value[$reckey] = $reclevel;
+          if ($reclevel <= $maxdepth || $maxdepth < 1) {
+            if (!isset($value[$reckey])) {
 
-            foreach ($value as $key => &$val) {
-              if ($key !== $reckey) {
-                $pv = print_r($val, true);
-                $buffer .= $formatter($depth + static::DUMP_DEPTH_INCREMENT, true, $key, $val);
+              $value[$reckey] = $reclevel;
+
+              foreach ($value as $key => &$val) {
+                if ($key !== $reckey) {
+                  $pv = print_r($val, true);
+                  $buffer .= $formatter($indent + static::DUMP_INDENT_INCREMENT, true, $key, $val);
+                }
               }
+
+              unset($value[$reckey]);
+            } else {
+              $diff = $reclevel - $value[$reckey];
+              $buffer .= str_repeat(' ', $indent + static::DUMP_INDENT_INCREMENT) . "**RECURSION: {$diff} level(s)**\n";
             }
-
-            unset($value[$reckey]);
           } else {
-            --$count;
-            $buffer .= "(array[{$count}]) {\n";
-
-            $diff = $reclevel - $value[$reckey];
-            $buffer .= str_repeat(' ', $depth + static::DUMP_DEPTH_INCREMENT) . "**RECURSION: {$diff} level(s)**\n";
+            $buffer .= str_repeat(' ', $indent + static::DUMP_INDENT_INCREMENT) . "...\n";
           }
 
           $buffer .= "{$padding}}\n";
@@ -116,38 +142,42 @@ class Debug
           $class = get_class($value);
           $buffer .= "(object): {$class} {\n";
 
-          if ($value instanceof DebugPrinter) {
-            // Object generates its own debug output.
-            $buffer .= $value->generateDebugOutput($depth + static::DUMP_DEPTH_INCREMENT) . "\n{$padding}}\n";
-          } else {
-            // We need to generate generic output.
-            $hash = spl_object_hash($value);
-
-            if (!isset($recmap[$hash])) {
-              $recmap[$hash] = $reclevel;
-
-              // Process object
-              $ro = new ReflectionObject($value);
-              $properties = $ro->getProperties();
-
-              foreach ($properties as $property) {
-                if (!$property->isStatic()) {
-                  $property->setAccessible(true);
-                  $key = $property->getName();
-                  $val = $property->getValue($value);
-
-                  $buffer .= $formatter($depth + static::DUMP_DEPTH_INCREMENT, true, $key, $val);
-                }
-              }
-
-              unset($recmap[$hash]);
+          if ($reclevel <= $maxdepth || $maxdepth < 1) {
+            if ($value instanceof DebugPrinter) {
+              // Object generates its own debug output.
+              $buffer .= $value->generateDebugOutput($indent + static::DUMP_INDENT_INCREMENT, max($maxdepth - $reclevel, 0)) . "\n";
             } else {
-              $diff = $reclevel - $recmap[$hash];
-              $buffer .= str_repeat(' ', $depth + static::DUMP_DEPTH_INCREMENT) . "**RECURSION: {$diff} level(s)**\n";
-            }
+              // We need to generate generic output.
+              $hash = spl_object_hash($value);
 
-            $buffer .= "{$padding}}\n";
+              if (!isset($recmap[$hash])) {
+                $recmap[$hash] = $reclevel;
+
+                // Process object
+                $ro = new ReflectionObject($value);
+                $properties = $ro->getProperties();
+
+                foreach ($properties as $property) {
+                  if (!$property->isStatic()) {
+                    $property->setAccessible(true);
+                    $key = $property->getName();
+                    $val = $property->getValue($value);
+
+                    $buffer .= $formatter($indent + static::DUMP_INDENT_INCREMENT, true, $key, $val);
+                  }
+                }
+
+                unset($recmap[$hash]);
+              } else {
+                $diff = $reclevel - $recmap[$hash];
+                $buffer .= str_repeat(' ', $indent + static::DUMP_INDENT_INCREMENT) . "**RECURSION: {$diff} level(s)**\n";
+              }
+            }
+          } else {
+            $buffer .= str_repeat(' ', $indent + static::DUMP_INDENT_INCREMENT) . "...\n";
           }
+
+          $buffer .= "{$padding}}\n";
             break;
 
         case 'resource':
@@ -167,7 +197,7 @@ class Debug
       }
     };
 
-    return $formatter(0, $capture, null, $var);
+    return $formatter($indent, $capture, null, $var);
   }
 
   /**

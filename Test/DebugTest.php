@@ -70,7 +70,7 @@ class DebugTest extends Test
    */
   public function dataForDump()
   {
-    $padding = str_repeat(' ', Debug::DUMP_DEPTH_INCREMENT);
+    $padding = str_repeat(' ', Debug::DUMP_INDENT_INCREMENT);
 
     $selfrefarr = [];
     $selfrefarr[0] =& $selfrefarr;
@@ -160,6 +160,139 @@ class DebugTest extends Test
     $this->assertEmpty($captured);
     $this->assertEquals($expected, $output);
   }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  /**
+   * @test
+   * @dataProvider dataForIndentation
+   *
+   * @cover ::dump
+   */
+  public function testInitialIndent($var, $indent, $expected, $exception)
+  {
+    if (!empty($exception)) {
+      $this->setExpectedException($exception);
+    }
+
+    $result = Debug::dump($var, true, $indent);
+    $this->assertSame($expected, $result);
+  }
+
+  /**
+   * Data provider for the indent test.
+   *
+   * @return array
+   */
+  public function dataForIndentation()
+  {
+    $padding = str_repeat(' ', Debug::DUMP_INDENT_INCREMENT);
+
+    $dummy = new DummyClass();
+    $dummy->var2 = 'two';
+    $dclass = get_class($dummy);
+
+    $dummy2 = new DummyClassTwo();
+    $dclass2 = get_class($dummy2);
+
+    return [
+      ['a string',  3, "   (string[8]): \"a string\"\n",  null],
+      ['',          5, "     (string[0]): \"\"\n",        null],
+      [true,        3, "   (boolean): true\n",            null],
+      [false,       5, "     (boolean): false\n",         null],
+      [123,         3, "   (integer): 123\n",             null],
+      [-321,        5, "     (integer): -321\n",          null],
+      [3.14159,     3, "   (double): 3.14159\n",          null],
+      [-2.71828,    5, "     (double): -2.71828\n",       null],
+      [STDOUT,      3, "   (resource)\n",                 null],
+      [null,        5, "     (null)\n",                   null],
+
+      [$dummy,      3,    "   (object): {$dclass} {\n   {$padding}var => (null)\n   {$padding}var2 => (string[3]): \"two\"\n   }\n", null],
+      [$dummy2,     5,    "     (object): {$dclass2} {\n     {$padding}{$dclass2}\n     }\n", null],
+
+      [null, -1, null, 'InvalidArgumentException'],
+      [null, '', null, 'InvalidArgumentException'],
+      [null, '1', null, 'InvalidArgumentException'],
+      [null, true, null, 'InvalidArgumentException'],
+      [null, false, null, 'InvalidArgumentException'],
+      [null, 3.14159, null, 'InvalidArgumentException'],
+      [null, -2.71828, null, 'InvalidArgumentException'],
+      [null, [1], null, 'InvalidArgumentException'],
+      [null, new StdClass(), null, 'InvalidArgumentException'],
+      [null, STDOUT, null, 'InvalidArgumentException'],
+    ];
+  }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  /**
+   * @test
+   * @dataProvider dataForMaxDepth
+   *
+   * @cover ::dump
+   */
+  public function testMaxDepth($var, $maxdepth, $expected, $exception)
+  {
+    if (!empty($exception)) {
+      $this->setExpectedException($exception);
+    }
+
+    $result = Debug::dump($var, true, 0, $maxdepth);
+    $this->assertSame($expected, $result);
+  }
+
+  /**
+   * Data provider for the max depth test(s).
+   *
+   * @return array
+   */
+  public function dataForMaxDepth()
+  {
+    $padding = str_repeat(' ', Debug::DUMP_INDENT_INCREMENT);
+
+    $obj1 = new StdClass();
+    $obj2 = new StdClass();
+    $obj3 = new StdClass();
+
+    $obj3->next = null;
+    $obj2->next = $obj3;
+    $obj1->next = $obj2;
+
+
+    $arr1 = [];
+    $arr2 = [];
+    $arr3 = [];
+
+    $arr3['next'] = null;
+    $arr2['next'] = $arr3;
+    $arr1['next'] = $arr2;
+
+    return [
+      [$obj1, 5, "(object): stdClass {\n{$padding}next => (object): stdClass {\n{$padding}{$padding}next => (object): stdClass {\n{$padding}{$padding}{$padding}next => (null)\n{$padding}{$padding}}\n{$padding}}\n}\n", null],
+      [$obj1, 4, "(object): stdClass {\n{$padding}next => (object): stdClass {\n{$padding}{$padding}next => (object): stdClass {\n{$padding}{$padding}{$padding}next => (null)\n{$padding}{$padding}}\n{$padding}}\n}\n", null],
+      [$obj1, 3, "(object): stdClass {\n{$padding}next => (object): stdClass {\n{$padding}{$padding}next => (object): stdClass {\n{$padding}{$padding}{$padding}next => (null)\n{$padding}{$padding}}\n{$padding}}\n}\n", null],
+      [$obj1, 2, "(object): stdClass {\n{$padding}next => (object): stdClass {\n{$padding}{$padding}next => (object): stdClass {\n{$padding}{$padding}{$padding}...\n{$padding}{$padding}}\n{$padding}}\n}\n", null],
+      [$obj1, 1, "(object): stdClass {\n{$padding}next => (object): stdClass {\n{$padding}{$padding}...\n{$padding}}\n}\n", null],
+      [$obj1, 0, "(object): stdClass {\n{$padding}next => (object): stdClass {\n{$padding}{$padding}next => (object): stdClass {\n{$padding}{$padding}{$padding}next => (null)\n{$padding}{$padding}}\n{$padding}}\n}\n", null],
+
+      [$arr1, 5, "(array[1]) {\n{$padding}next => (array[1]) {\n{$padding}{$padding}next => (array[1]) {\n{$padding}{$padding}{$padding}next => (null)\n{$padding}{$padding}}\n{$padding}}\n}\n", null],
+      [$arr1, 4, "(array[1]) {\n{$padding}next => (array[1]) {\n{$padding}{$padding}next => (array[1]) {\n{$padding}{$padding}{$padding}next => (null)\n{$padding}{$padding}}\n{$padding}}\n}\n", null],
+      [$arr1, 3, "(array[1]) {\n{$padding}next => (array[1]) {\n{$padding}{$padding}next => (array[1]) {\n{$padding}{$padding}{$padding}next => (null)\n{$padding}{$padding}}\n{$padding}}\n}\n", null],
+      [$arr1, 2, "(array[1]) {\n{$padding}next => (array[1]) {\n{$padding}{$padding}next => (array[1]) {\n{$padding}{$padding}{$padding}...\n{$padding}{$padding}}\n{$padding}}\n}\n", null],
+      [$arr1, 1, "(array[1]) {\n{$padding}next => (array[1]) {\n{$padding}{$padding}...\n{$padding}}\n}\n", null],
+      [$arr1, 0, "(array[1]) {\n{$padding}next => (array[1]) {\n{$padding}{$padding}next => (array[1]) {\n{$padding}{$padding}{$padding}next => (null)\n{$padding}{$padding}}\n{$padding}}\n}\n", null],
+
+      [null, -1, null, 'InvalidArgumentException'],
+      [null, '', null, 'InvalidArgumentException'],
+      [null, '1', null, 'InvalidArgumentException'],
+      [null, true, null, 'InvalidArgumentException'],
+      [null, false, null, 'InvalidArgumentException'],
+      [null, 3.14159, null, 'InvalidArgumentException'],
+      [null, -2.71828, null, 'InvalidArgumentException'],
+      [null, [1], null, 'InvalidArgumentException'],
+      [null, new StdClass(), null, 'InvalidArgumentException'],
+      [null, STDOUT, null, 'InvalidArgumentException'],    ];
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -185,9 +318,9 @@ class DummyClassTwo implements DebugPrinter
   public static $svar;
   public $var;
 
-  public function generateDebugOutput($depth)
+  public function generateDebugOutput($indent, $maxdepth)
   {
-    return str_repeat(' ', $depth) . get_class($this);
+    return str_repeat(' ', $indent) . get_class($this);
   }
 }
 
