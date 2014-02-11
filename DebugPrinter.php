@@ -33,7 +33,7 @@ interface DebugPrinter
    *
    * @param integer $maxdepth
    *  The maximum number of levels this method should traverse in cases where it is recursively
-   *  called. If this parameter is less than one, no limit should be imposed.
+   *  called. If this parameter is negative, no limit should be imposed.
    *
    * @return string
    *  The debug output for this object.

@@ -62,23 +62,23 @@ class Debug
    *
    * @param integer $maxdepth
    *  <em>Optional</em>.
-   *  The maximum depth into an object or array this function will traverse. If zero, no limit will
-   *  be imposed. Defaults to zero.
+   *  The maximum depth into an object or array this function will traverse. If negative, no limit
+   *  will be imposed. Defaults to five.
    *
    * @throws InvalidArgumentException
-   *  if $indent or $maxdepth is a not an integer or contains a negative value.
+   *  if $indent is a not an integer or contains a negative value, or $maxdepth is not an integer.
    *
    * @return string
    *  The captured debug output if, and only if, $capture was set; null otherwise.
    */
-  public static function dump($var, $capture = false, $indent = 0, $maxdepth = 6)
+  public static function dump($var, $capture = false, $indent = 0, $maxdepth = 5)
   {
     if (!is_int($indent) || $indent < 0) {
       throw new InvalidArgumentException('$indent is not an integer or contains a negative value.');
     }
 
-    if (!is_int($maxdepth) || $maxdepth < 0) {
-      throw new InvalidArgumentException('$maxdepth is not an integer or contains a negative value.');
+    if (!is_int($maxdepth)) {
+      throw new InvalidArgumentException('$maxdepth is not an integer.');
     }
 
 
@@ -140,7 +140,7 @@ class Debug
           $count = (isset($value[$reckey]) ? count($value) - 1 : count($value));
           $buffer .= "(array[{$count}]) {\n";
 
-          if (++$reclevel <= $maxdepth || $maxdepth < 1) {
+          if (++$reclevel <= $maxdepth || $maxdepth < 0) {
             if (!isset($value[$reckey])) {
 
               $value[$reckey] = $reclevel;
@@ -168,7 +168,7 @@ class Debug
           $class = get_class($value);
           $buffer .= "(object): {$class} {\n";
 
-          if (++$reclevel <= $maxdepth || $maxdepth < 1) {
+          if (++$reclevel <= $maxdepth || $maxdepth < 0) {
             if ($value instanceof DebugPrinter) {
               // Object generates its own debug output.
               $buffer .= $value->generateDebugOutput($indent + static::DUMP_INDENT_INCREMENT, max($maxdepth - $reclevel, 0)) . "\n";
