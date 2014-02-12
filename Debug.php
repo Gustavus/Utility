@@ -41,18 +41,11 @@ class Debug
   const DUMP_STRING_DISPLAY_LENGTH = 256;
 
   /**
-   * The character sets the string encoding will attempt to use when converting. Comma delimited.
-   *
-   * @var string
-   */
-  const DUMP_STRING_SRC_ENCODING = 'BASE64, UTF-16, UTF-32, EUC-CN, EUC-JP, EUC-KR, EUC-TW, SJIS, UTF-7, ASCII';
-
-  /**
    * The character set to force upon all displayed strings.
    *
    * @var string
    */
-  const DUMP_STRING_DEST_ENCODING = 'UTF-8';
+  const DUMP_STRING_ENCODING = 'UTF-8';
 
   /**
    * Recursively dumps the specified variable and any properties or elements it contains. If an
@@ -121,20 +114,15 @@ class Debug
             break;
 
         case 'string':
-          // Impl note:
-          // We're gonna convert everything to UTF-8 for the sake of simplicity. This will likely
-          // break if we ever get an unexpected encoding. In such a case, add the unsupported
-          // encoding to the list in DUMP_STRING_SRC_ENCODING.
-          $value = mb_convert_encoding($value, static::DUMP_STRING_DEST_ENCODING, static::DUMP_STRING_SRC_ENCODING);
-          $len = mb_strlen($value, static::DUMP_STRING_DEST_ENCODING);
+          $len = mb_strlen($value, static::DUMP_STRING_ENCODING);
 
           if ($len > static::DUMP_STRING_DISPLAY_LENGTH) {
-            $value = mb_substr($value, 0, static::DUMP_STRING_DISPLAY_LENGTH, static::DUMP_STRING_DEST_ENCODING);
+            $value = mb_substr($value, 0, static::DUMP_STRING_DISPLAY_LENGTH, static::DUMP_STRING_ENCODING);
             $value .= '...';
           }
 
           $original = mb_regex_encoding();
-          mb_regex_encoding(static::DUMP_STRING_DEST_ENCODING);
+          mb_regex_encoding(static::DUMP_STRING_ENCODING);
 
           $value = mb_ereg_replace_callback('([\\\\\'"\\n\\x00])', function($matches) {
             switch ($matches[1]) {
