@@ -1083,7 +1083,7 @@ class String extends Base implements ArrayAccess
    */
   public function extractImages()
   {
-    $hasImages = preg_match_all('`<img[^>]+src=["\']([^"\']+)["\'][^>]*>`', $this->value, $images);
+    $hasImages = preg_match_all('`<img[^>]+src=["\']((?!https?://feeds\.feedburner\.com)[^"\']+)["\'][^>]*>`', $this->value, $images);
 
     if ($hasImages) {
       return array_map(function ($url) {

@@ -1175,7 +1175,7 @@ class StringTest extends Test
   public function extractImagesAndExtractFirstImage()
   {
 
-    $html = '<p><img src="http://blog.gustavus.edu/files/image_1342-200x200.jpg">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fuga, sit libero. Maiores, dolores, sint sed fuga eum est delectus odio similique incidunt consectetur impedit voluptatem tempore eligendi minus hic natus! <img src="https://beta.gac.edu/gimli/w234/test/image.jpg"></p>';
+    $html = '<p><img src="http://blog.gustavus.edu/files/image_1342-200x200.jpg">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fuga, sit libero. Maiores, dolores, sint sed fuga eum est delectus odio similique incidunt consectetur impedit voluptatem tempore eligendi minus hic natus! <img src="https://beta.gac.edu/gimli/w234/test/image.jpg"></p><img src="http://feeds.feedburner.com/~r/gustavus/news/~4/qVkAZSjO2tY" height="1" width="1"/>';
 
     $this->string->setValue($html);
 
