@@ -1180,11 +1180,11 @@ class StringTest extends Test
     $this->string->setValue($html);
 
     $this->assertEquals(array(
-      'http://blog.gustavus.edu/files/image_1342.jpg',
+      'http://blog.gustavus.edu/files/image_1342-200x200.jpg',
       'https://beta.gac.edu/test/image.jpg'
     ), $this->string->extractImages());
 
-    $this->assertEquals('http://blog.gustavus.edu/files/image_1342.jpg', $this->string->extractFirstImage());
+    $this->assertEquals('http://blog.gustavus.edu/files/image_1342-200x200.jpg', $this->string->extractFirstImage());
 
     $this->string->setValue('Lorem ipsum dolor sit amet, consectetur adipisicing elit. Necessitatibus, culpa nemo iure perspiciatis illo excepturi ipsam modi rerum tempora quae error mollitia alias commodi suscipit eius hic aperiam nostrum maxime?');
 

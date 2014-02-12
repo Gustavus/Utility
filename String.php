@@ -1091,9 +1091,6 @@ class String extends Base implements ArrayAccess
         // Remove SLIR or GIMLI to get the original image
         $url = preg_replace('`/(?:slir|gimli)/[^/]+/`', '/', $url);
 
-        // Remove WordPress dimensions to get the original image
-        $url = preg_replace('`-\d+x\d+\.(jpg|png|gif)$`', '.$1', $url);
-
         return $url;
       }, $images[1]);
     } else {
