@@ -33,12 +33,27 @@ class Debug
   const DUMP_INDENT_INCREMENT = 2;
 
   /**
-   * The maximum number of characters that will be displayed in a string. Strings longer than this
-   * value will be trimmed down and have an ellipsis appended. Should be a positive integer.
+   * The default initial indentation depth at which to begin indenting.
    *
    * @var integer
    */
-  const DUMP_STRING_DISPLAY_LENGTH = 256;
+  const DUMP_DEFAULT_INITIAL_INDENT = 0;
+
+  /**
+   * The default maximum depth into objects an arrays the dump function will traverse in a single
+   * call. If negative, no limit will be imposed.
+   *
+   * @var integer
+   */
+  const DUMP_DEFAULT_MAX_TRAVERSAL_DEPTH = 5;
+
+  /**
+   * The default maximum number of characters to display when printing strings. If negative, no
+   * limit will be imposed.
+   *
+   * @var integer
+   */
+  const DUMP_DEFAULT_MAX_STRING_LENGTH = 256;
 
   /**
    * The character set to force upon all displayed strings.
@@ -61,32 +76,39 @@ class Debug
    *  Whether or not to capture and return the debug output, or to print directly to the standard
    *  output stream. If true, the debug output will be returned as a string. Defaults to false.
    *
-   * @param integer $indent
+   * @param array $options
    *  <em>Optional</em>.
-   *  The initial depth of the indentation. Can be used to make nested calls while maintaining
-   *  proper indentation.
+   *  An associative array consisting of output options. Valid options are as follows:
+   *  <ul>
+   *    <li>
+   *      <strong>indent</strong> - integer<br/>
+   *      The initial depth of the indentation. Can be used to make nested calls while maintaining
+   *      proper indentation. Default: 0.
+   *    </li>
+   *    <li>
+   *      <strong>maxdepth</strong> - integer<br/>
+   *      The maximum depth into an object or array this function will traverse. If negative, no
+   *      limit will be imposed. Default: 5.
+   *    </li>
+   *    <li>
+   *      <strong>maxstrlen</strong> - integer<br/>
+   *      The maximum number of characters to display when dumping strings. Characters after the
+   *      limit will be trimmed and replaced with an ellipsis. If negative, no limit will be
+   *      imposed. Default: 256.
+   *    </li>
+   *  </ul>
    *
-   * @param integer $maxdepth
-   *  <em>Optional</em>.
-   *  The maximum depth into an object or array this function will traverse. If negative, no limit
-   *  will be imposed. Defaults to five.
-   *
-   * @throws InvalidArgumentException
-   *  if $indent is a not an integer or contains a negative value, or $maxdepth is not an integer.
+   *  Invalid options will be silently ignored.
    *
    * @return string
    *  The captured debug output if, and only if, $capture was set; null otherwise.
    */
-  public static function dump($var, $capture = false, $indent = 0, $maxdepth = 5)
+  public static function dump($var, $capture = false, array $options = [])
   {
-    if (!is_int($indent) || $indent < 0) {
-      throw new InvalidArgumentException('$indent is not an integer or contains a negative value.');
-    }
-
-    if (!is_int($maxdepth)) {
-      throw new InvalidArgumentException('$maxdepth is not an integer.');
-    }
-
+    // Parse options
+    $indent = (isset($options['indent']) && is_numeric($options['indent'])) ? (int) $options['indent'] : static::DUMP_DEFAULT_INITIAL_INDENT;
+    $maxdepth = (isset($options['maxdepth']) && is_numeric($options['maxdepth'])) ? (int) $options['maxdepth'] : static::DUMP_DEFAULT_MAX_TRAVERSAL_DEPTH;
+    $maxstrlen = (isset($options['maxstrlen']) && is_numeric($options['maxstrlen'])) ? (int) $options['maxstrlen'] : static::DUMP_DEFAULT_MAX_STRING_LENGTH;
 
     // Used to detect recursion in arrays and objects
     $reckey = '__recursion_key-' . time();
@@ -94,7 +116,7 @@ class Debug
     $recmap = [];
 
     // Formatter which does all the work of actually formatting data...
-    $formatter = function ($indent, $capture, $key, &$value) use (&$formatter, &$maxdepth, &$reckey, &$reclevel, &$recmap) {
+    $formatter = function ($indent, $capture, $key, &$value) use (&$formatter, &$maxdepth, &$maxstrlen, &$reckey, &$reclevel, &$recmap) {
       $padding = str_repeat(' ', $indent);
       $buffer = $padding;
 
@@ -116,11 +138,13 @@ class Debug
         case 'string':
           $len = mb_strlen($value, static::DUMP_STRING_ENCODING);
 
-          if ($len > static::DUMP_STRING_DISPLAY_LENGTH) {
-            $value = mb_substr($value, 0, static::DUMP_STRING_DISPLAY_LENGTH, static::DUMP_STRING_ENCODING);
+          if ($maxstrlen >= 0 && $len > $maxstrlen) {
+            $value = mb_substr($value, 0, $maxstrlen, static::DUMP_STRING_ENCODING);
             $value .= '...';
           }
 
+          // @todo:
+          // Maybe add an option to not add slashes to "special" characters within the string?
           $original = mb_regex_encoding();
           mb_regex_encoding(static::DUMP_STRING_ENCODING);
 
@@ -227,7 +251,7 @@ class Debug
       }
     };
 
-    return $formatter($indent, $capture, null, $var);
+    return $formatter(($indent > 0 ? $indent : 0), $capture, null, $var);
   }
 
   /**

@@ -181,7 +181,7 @@ class DebugTest extends Test
       $this->setExpectedException($exception);
     }
 
-    $result = Debug::dump($var, true, $indent);
+    $result = Debug::dump($var, true, ['indent' => $indent]);
     $this->assertSame($expected, $result);
   }
 
@@ -216,16 +216,16 @@ class DebugTest extends Test
       [$dummy,      3,    "   (object): {$dclass} {\n   {$padding}var => (null)\n   {$padding}var2 => (string[3]): \"two\"\n   }\n", null],
       [$dummy2,     5,    "     (object): {$dclass2} {\n     {$padding}{$dclass2}\n     }\n", null],
 
-      [null, -1, null, 'InvalidArgumentException'],
-      [null, '', null, 'InvalidArgumentException'],
-      [null, '1', null, 'InvalidArgumentException'],
-      [null, true, null, 'InvalidArgumentException'],
-      [null, false, null, 'InvalidArgumentException'],
-      [null, 3.14159, null, 'InvalidArgumentException'],
-      [null, -2.71828, null, 'InvalidArgumentException'],
-      [null, [1], null, 'InvalidArgumentException'],
-      [null, new StdClass(), null, 'InvalidArgumentException'],
-      [null, STDOUT, null, 'InvalidArgumentException'],
+      // [null, -1, null, 'InvalidArgumentException'],
+      // [null, '', null, 'InvalidArgumentException'],
+      // [null, '1', null, 'InvalidArgumentException'],
+      // [null, true, null, 'InvalidArgumentException'],
+      // [null, false, null, 'InvalidArgumentException'],
+      // [null, 3.14159, null, 'InvalidArgumentException'],
+      // [null, -2.71828, null, 'InvalidArgumentException'],
+      // [null, [1], null, 'InvalidArgumentException'],
+      // [null, new StdClass(), null, 'InvalidArgumentException'],
+      // [null, STDOUT, null, 'InvalidArgumentException'],
     ];
   }
 
@@ -243,7 +243,7 @@ class DebugTest extends Test
       $this->setExpectedException($exception);
     }
 
-    $result = Debug::dump($var, true, 0, $maxdepth);
+    $result = Debug::dump($var, true, ['maxdepth' => $maxdepth]);
     $this->assertSame($expected, $result);
   }
 
@@ -290,16 +290,58 @@ class DebugTest extends Test
       [$arr1, 0, "(array[1]) {\n{$padding}...\n}\n", null],
       [$arr1, -1, "(array[1]) {\n{$padding}next => (array[1]) {\n{$padding}{$padding}next => (array[1]) {\n{$padding}{$padding}{$padding}next => (null)\n{$padding}{$padding}}\n{$padding}}\n}\n", null],
 
-      [null, '', null, 'InvalidArgumentException'],
-      [null, '1', null, 'InvalidArgumentException'],
-      [null, '-1', null, 'InvalidArgumentException'],
-      [null, true, null, 'InvalidArgumentException'],
-      [null, false, null, 'InvalidArgumentException'],
-      [null, 3.14159, null, 'InvalidArgumentException'],
-      [null, -2.71828, null, 'InvalidArgumentException'],
-      [null, [1], null, 'InvalidArgumentException'],
-      [null, new StdClass(), null, 'InvalidArgumentException'],
-      [null, STDOUT, null, 'InvalidArgumentException'],    ];
+      // [null, '', null, 'InvalidArgumentException'],
+      // [null, '1', null, 'InvalidArgumentException'],
+      // [null, '-1', null, 'InvalidArgumentException'],
+      // [null, true, null, 'InvalidArgumentException'],
+      // [null, false, null, 'InvalidArgumentException'],
+      // [null, 3.14159, null, 'InvalidArgumentException'],
+      // [null, -2.71828, null, 'InvalidArgumentException'],
+      // [null, [1], null, 'InvalidArgumentException'],
+      // [null, new StdClass(), null, 'InvalidArgumentException'],
+      // [null, STDOUT, null, 'InvalidArgumentException'],    ];
+    ];
+  }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  /**
+   * @test
+   * @dataProvider dataForMaxStringLength
+   *
+   * @cover ::dump
+   */
+  public function testMaxStringLength($var, $maxstrlen, $expected, $exception)
+  {
+    if (!empty($exception)) {
+      $this->setExpectedException($exception);
+    }
+
+    $result = Debug::dump($var, true, ['maxstrlen' => $maxstrlen]);
+    $this->assertSame($expected, $result);
+  }
+
+  /**
+   * Data provider for the max string length test(s).
+   *
+   * @return array
+   */
+  public function dataForMaxStringLength()
+  {
+    return [
+      ['a string',  5,  "(string[8]): \"a str...\"\n",  null],
+      ['a string',  10, "(string[8]): \"a string\"\n",  null],
+      ['a string',  -5, "(string[8]): \"a string\"\n",  null],
+      ['',          5,  "(string[0]): \"\"\n",          null],
+      [true,        3,  "(boolean): true\n",            null],
+      [false,       5,  "(boolean): false\n",           null],
+      [123,         3,  "(integer): 123\n",             null],
+      [-321,        5,  "(integer): -321\n",            null],
+      [3.14159,     3,  "(double): 3.14159\n",          null],
+      [-2.71828,    5,  "(double): -2.71828\n",         null],
+      [STDOUT,      3,  "(resource)\n",                 null],
+      [null,        5,  "(null)\n",                     null],
+    ];
   }
 }
 
