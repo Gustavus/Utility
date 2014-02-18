@@ -1079,20 +1079,29 @@ class String extends Base implements ArrayAccess
   /**
    * Extracts all the image urls from the content
    *
-   * @return array|boolean Returns an array of the urls or false if no images are found.
+   * @param  boolean        $removeDuplicates Removes duplicated images from the results.
+   * @return array|boolean                    Returns an array of the urls or false if no images are found.
    */
-  public function extractImages()
+  public function extractImages($removeDuplicates = true)
   {
-    $hasImages = preg_match_all('`<img[^>]+src=["\']((?!https?://feeds\.feedburner\.com)[^"\']+)["\'][^>]*>`', $this->value, $images);
+    $hasImages = preg_match_all('`<img[^>]+src=["\']((?!https?://feeds\.feedburner\.com)[^"\']+)["\'][^>]*>`', $this->value, $matches);
 
     if ($hasImages) {
+
+      if ($removeDuplicates) {
+        $images = array_values(array_unique($matches[1]));
+      } else {
+        $images = $matches[1];
+      }
+
       return array_map(function ($url) {
 
         // Remove SLIR or GIMLI to get the original image
         $url = preg_replace('`/(?:slir|gimli)/[^/]+/`', '/', $url);
 
         return $url;
-      }, $images[1]);
+      }, $images);
+
     } else {
       return false;
     }
