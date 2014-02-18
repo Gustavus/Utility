@@ -291,18 +291,18 @@ class NumberTest extends Test
 
   /**
    * @test
-   * @dataProvider studentYearProvider
+   * @dataProvider yearInCreditProvider
    */
-  public function studentYear($year, $expected)
+  public function yearInCredit($year, $expected)
   {
     $this->number->setValue($year);
-    $this->assertEquals($expected, $this->number->studentYear()->getValue());
+    $this->assertEquals($expected, $this->number->yearInCredit()->getValue());
   }
 
   /**
-   * Provides data for studentYear
+   * Provides data for yearInCredit
    */
-  public static function studentYearProvider()
+  public static function yearInCreditProvider()
   {
     return array(
       [1,  'First-year'],

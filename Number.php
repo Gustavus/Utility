@@ -380,11 +380,11 @@ class Number extends Base
   }
 
   /**
-   * Converts a students year to string.
+   * Converts a persons credit year to string.
    *
    * @return String        Returns a string for the students year.
    */
-  public function studentYear()
+  public function yearInCredit()
   {
     switch ((int) $this->value) {
       case 1:
