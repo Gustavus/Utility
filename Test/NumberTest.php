@@ -288,4 +288,34 @@ class NumberTest extends Test
       [20, '’20'],
     ];
   }
+
+  /**
+   * @test
+   * @dataProvider studentYearProvider
+   */
+  public function studentYear($year, $expected)
+  {
+    $this->number->setValue($year);
+    $this->assertEquals($expected, $this->number->studentYear()->getValue());
+  }
+
+  /**
+   * Provides data for studentYear
+   */
+  public static function studentYearProvider()
+  {
+    return array(
+      [1,  'First-year'],
+      [2,  'Sophomore'],
+      [3,  'Junior'],
+      [4,  'Senior'],
+      [5,  'Fifth-year'],
+      [6,  'Exchange'],
+      [7,  'Non-degree'],
+      [8,  'PSEO'],
+      [9,  'Graduate'],
+      [10, 'Community auditor'],
+      [11, 'unknown']
+    );
+  }
 }
