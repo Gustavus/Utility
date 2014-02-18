@@ -215,17 +215,6 @@ class DebugTest extends Test
 
       [$dummy,      3,    "   (object): {$dclass} {\n   {$padding}var => (null)\n   {$padding}var2 => (string[3]): \"two\"\n   }\n", null],
       [$dummy2,     5,    "     (object): {$dclass2} {\n     {$padding}{$dclass2}\n     }\n", null],
-
-      // [null, -1, null, 'InvalidArgumentException'],
-      // [null, '', null, 'InvalidArgumentException'],
-      // [null, '1', null, 'InvalidArgumentException'],
-      // [null, true, null, 'InvalidArgumentException'],
-      // [null, false, null, 'InvalidArgumentException'],
-      // [null, 3.14159, null, 'InvalidArgumentException'],
-      // [null, -2.71828, null, 'InvalidArgumentException'],
-      // [null, [1], null, 'InvalidArgumentException'],
-      // [null, new StdClass(), null, 'InvalidArgumentException'],
-      // [null, STDOUT, null, 'InvalidArgumentException'],
     ];
   }
 
@@ -289,17 +278,6 @@ class DebugTest extends Test
       [$arr1, 1, "(array[1]) {\n{$padding}next => (array[1]) {\n{$padding}{$padding}...\n{$padding}}\n}\n", null],
       [$arr1, 0, "(array[1]) {\n{$padding}...\n}\n", null],
       [$arr1, -1, "(array[1]) {\n{$padding}next => (array[1]) {\n{$padding}{$padding}next => (array[1]) {\n{$padding}{$padding}{$padding}next => (null)\n{$padding}{$padding}}\n{$padding}}\n}\n", null],
-
-      // [null, '', null, 'InvalidArgumentException'],
-      // [null, '1', null, 'InvalidArgumentException'],
-      // [null, '-1', null, 'InvalidArgumentException'],
-      // [null, true, null, 'InvalidArgumentException'],
-      // [null, false, null, 'InvalidArgumentException'],
-      // [null, 3.14159, null, 'InvalidArgumentException'],
-      // [null, -2.71828, null, 'InvalidArgumentException'],
-      // [null, [1], null, 'InvalidArgumentException'],
-      // [null, new StdClass(), null, 'InvalidArgumentException'],
-      // [null, STDOUT, null, 'InvalidArgumentException'],    ];
     ];
   }
 
