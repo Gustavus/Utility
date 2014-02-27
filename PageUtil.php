@@ -146,24 +146,33 @@ class PageUtil
   }
 
   /**
-   * Checks if the JSON or JSON-P request originates from Gustavus domain
-   * to prevent 3rd party cross-site calls. This function will assume browsers
-   * that don't set ORIGIN or REFERER are from Gustavus, so that older browsers
-   * don't have any issues and directly visiting the URL works.
+   * Checks HTTP_ORIGIN and HTTP_REFERER and returns value
    *
-   * @return boolean Returns true if request originates from a Gustavus domain
+   * @return string Returns the refer or null if no refer is set.
+   */
+  public static function getRefer()
+  {
+    if (isset($_SERVER['HTTP_ORIGIN'])) {
+      return $_SERVER['HTTP_ORIGIN'];
+    } else if (isset($_SERVER['HTTP_REFERER'])) {
+      return $_SERVER['HTTP_REFERER'];
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * Checks if the request originates from Gustavus domain to prevent.
+   * This function will assume browsers that don't set a refer are from
+   * Gustavus, so that older browsers don't have any issues and directly
+   * visiting the URL works.
+   *
+   * @return boolean Returns true if request originates from a Gustavus domain.
    */
   public static function hasInternalOrigin()
   {
-    if (isset($_SERVER['HTTP_ORIGIN'])) {
-      $serverVar = $_SERVER['HTTP_ORIGIN'];
-    } else if (isset($_SERVER['HTTP_REFERER'])) {
-      $serverVar = $_SERVER['HTTP_REFERER'];
-    } else {
-      $serverVar = null;
-    }
-
-    return empty($serverVar) || strpos($serverVar, 'gustavus.edu') !== false || strpos($serverVar, 'gac.edu') !== false;
+    $refer = static::getRefer();
+    return empty($refer) || strpos($refer, 'gustavus.edu') !== false || strpos($refer, 'gac.edu') !== false;
   }
 
   /**

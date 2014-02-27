@@ -184,6 +184,25 @@ class PageUtilTest extends Test
   /**
    * @test
    */
+  public function getRefer()
+  {
+
+    $_SERVER['HTTP_ORIGIN'] = null;
+    $_SERVER['HTTP_REFERER'] = null;
+    $this->assertNull(PageUtil::getRefer());
+
+    $_SERVER['HTTP_ORIGIN'] = 'blog.gustavus.edu';
+    $this->assertEquals('blog.gustavus.edu', PageUtil::getRefer());
+
+    $_SERVER['HTTP_ORIGIN'] = null;
+    $_SERVER['HTTP_REFERER'] = 'google.com';
+    $this->assertEquals('google.com', PageUtil::getRefer());
+
+  }
+
+  /**
+   * @test
+   */
   public function hasInternalOrigin()
   {
 
@@ -200,8 +219,5 @@ class PageUtilTest extends Test
     $_SERVER['HTTP_ORIGIN'] = 'gts.gac.edu';
     $this->assertTrue(PageUtil::hasInternalOrigin());
 
-    unset($_SERVER['HTTP_ORIGIN']);
-    $_SERVER['HTTP_REFERER'] = 'gts.gac.edu';
-    $this->assertTrue(PageUtil::hasInternalOrigin());
   }
 }
