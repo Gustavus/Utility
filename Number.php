@@ -378,4 +378,60 @@ class Number extends Base
 
     return new String('’' . substr((string) $this->value, -2, 2));
   }
+
+  /**
+   * Converts a persons credit year to string.
+   *
+   * @return String        Returns a string for the students year.
+   */
+  public function yearInCredit()
+  {
+    switch ((int) $this->value) {
+      case 1:
+        $string = 'First-year';
+          break;
+
+      case 2:
+        $string = 'Sophomore';
+          break;
+
+      case 3:
+        $string = 'Junior';
+          break;
+
+      case 4:
+        $string = 'Senior';
+          break;
+
+      case 5:
+        $string = 'Fifth-year';
+          break;
+
+      case 6:
+        $string = 'Exchange';
+          break;
+
+      case 7:
+        $string = 'Non-degree';
+          break;
+
+      case 8:
+        $string = 'PSEO';
+          break;
+
+      case 9:
+        $string = 'Graduate';
+          break;
+
+      case 10:
+        $string = 'Community auditor';
+          break;
+
+      default:
+        $string = 'unknown';
+          break;
+    }
+
+    return new String($string);
+  }
 }

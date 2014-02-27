@@ -166,4 +166,25 @@ class PageUtil
     return empty($serverVar) || strpos($serverVar, 'gustavus.edu') !== false || strpos($serverVar, 'gac.edu') !== false;
   }
 
+  /**
+   * Renders page not found
+   *
+   * @return void
+   */
+  public static function renderPageNotFound()
+  {
+    $header = 'HTTP/1.0 404 Not Found';
+    $_SERVER['REDIRECT_STATUS'] = 404;
+
+    // we don't want the auxbox to be displayed
+    $GLOBALS['templatePreferences']['auxBox'] = false;
+    header($header);
+    ob_start();
+
+    if (!isset($_SERVER['REDIRECT_URL'])) {
+      $_SERVER['REDIRECT_URL']    = false;
+    }
+    include_once '/cis/www/errorPages/error.php';
+    exit;
+  }
 }

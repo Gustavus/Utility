@@ -288,4 +288,34 @@ class NumberTest extends Test
       [20, '’20'],
     ];
   }
+
+  /**
+   * @test
+   * @dataProvider yearInCreditProvider
+   */
+  public function yearInCredit($year, $expected)
+  {
+    $this->number->setValue($year);
+    $this->assertEquals($expected, $this->number->yearInCredit()->getValue());
+  }
+
+  /**
+   * Provides data for yearInCredit
+   */
+  public static function yearInCreditProvider()
+  {
+    return array(
+      [1,  'First-year'],
+      [2,  'Sophomore'],
+      [3,  'Junior'],
+      [4,  'Senior'],
+      [5,  'Fifth-year'],
+      [6,  'Exchange'],
+      [7,  'Non-degree'],
+      [8,  'PSEO'],
+      [9,  'Graduate'],
+      [10, 'Community auditor'],
+      [11, 'unknown']
+    );
+  }
 }

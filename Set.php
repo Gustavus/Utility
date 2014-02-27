@@ -6,7 +6,9 @@
 namespace Gustavus\Utility;
 
 use Gustavus\TwigFactory\TwigFactory,
-  ArrayAccess;
+
+    Twig_Extension_StringLoader,
+    ArrayAccess;
 
 /**
  * Object for working with Arrays
@@ -174,8 +176,16 @@ class Set extends Base implements ArrayAccess
   {
     $twig = TwigFactory::getTwigFilesystem('/cis/lib/Gustavus/Utility/Views/Set/');
 
-    $templateString = "{% autoescape false %}$templateString{% endautoescape %}";
+    // Add the string loader extension if necessary.
+    $ext = new Twig_Extension_StringLoader();
+    if (!$twig->hasExtension($ext->getName())) {
+      $twig->addExtension($ext);
+    }
 
+    // Disable autoescaping for our input template
+    $templateString = "{% autoescape false %}{$templateString}{% endautoescape %}";
+
+    // Render!
     return new String($twig->render('sentence.twig', array('values' => $this->value, 'endWord' => $endWord, 'max' => $max, 'wordUnit' => $templateString, 'separator' => $separator)));
   }
 

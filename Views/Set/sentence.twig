@@ -4,7 +4,7 @@
 
     {% set valueStr = '' %}
     {% for value in values %}
-      {% set valueStr = valueStr ~ eval(wordUnit)|join(' ')|striptags %}
+      {% set valueStr = valueStr ~ include(template_from_string(wordUnit))|join(' ')|striptags %}
     {% endfor %}
 
     {% if values|length > 2 %}
@@ -20,7 +20,7 @@
     {% set filteredValues = [] %}
 
     {% for key,value in values %}
-      {% set word %}{{ eval(wordUnit) }}{% endset %}
+      {% set word %}{{ include(template_from_string(wordUnit)) }}{% endset %}
       {% if word != '' %}
         {% set filteredValues = filteredValues|merge([word]) %}
       {% endif %}
