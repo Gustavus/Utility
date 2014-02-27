@@ -6,7 +6,9 @@
 namespace Gustavus\Utility;
 
 use Gustavus\TwigFactory\TwigFactory,
-  ArrayAccess;
+
+    Twig_Extension_StringLoader,
+    ArrayAccess;
 
 /**
  * Object for working with Arrays
@@ -172,9 +174,10 @@ class Set extends Base implements ArrayAccess
    */
   public function toSentence($templateString = '{{ value }}', $endWord = 'and', $max = 0, $separator = ',')
   {
-    $twig = TwigFactory::getTwigFilesystem('/cis/lib/Gustavus/Utility/Views/Set/');
+    $twig = TwigFactory::getTwigFilesystem('/cis/lib/Gustavus/Utility/Views/Set/', false);
+    $twig->addExtension(new Twig_Extension_StringLoader());
 
-    $templateString = "{% autoescape false %}$templateString{% endautoescape %}";
+    $templateString = "{% autoescape false %}{$templateString}{% endautoescape %}";
 
     return new String($twig->render('sentence.twig', array('values' => $this->value, 'endWord' => $endWord, 'max' => $max, 'wordUnit' => $templateString, 'separator' => $separator)));
   }
