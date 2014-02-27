@@ -150,7 +150,7 @@ class PageUtil
    *
    * @return string Returns the refer or null if no refer is set.
    */
-  public static function getRefer()
+  public static function getReferer()
   {
     if (isset($_SERVER['HTTP_ORIGIN'])) {
       return $_SERVER['HTTP_ORIGIN'];
@@ -171,7 +171,7 @@ class PageUtil
    */
   public static function hasInternalOrigin()
   {
-    $refer = static::getRefer();
+    $refer = static::getReferer();
     return empty($refer) || strpos($refer, 'gustavus.edu') !== false || strpos($refer, 'gac.edu') !== false;
   }
 

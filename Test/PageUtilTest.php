@@ -184,19 +184,19 @@ class PageUtilTest extends Test
   /**
    * @test
    */
-  public function getRefer()
+  public function getReferer()
   {
 
     $_SERVER['HTTP_ORIGIN'] = null;
     $_SERVER['HTTP_REFERER'] = null;
-    $this->assertNull(PageUtil::getRefer());
+    $this->assertNull(PageUtil::getReferer());
 
     $_SERVER['HTTP_ORIGIN'] = 'blog.gustavus.edu';
-    $this->assertEquals('blog.gustavus.edu', PageUtil::getRefer());
+    $this->assertEquals('blog.gustavus.edu', PageUtil::getReferer());
 
     $_SERVER['HTTP_ORIGIN'] = null;
     $_SERVER['HTTP_REFERER'] = 'google.com';
-    $this->assertEquals('google.com', PageUtil::getRefer());
+    $this->assertEquals('google.com', PageUtil::getReferer());
 
   }
 
