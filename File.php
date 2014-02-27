@@ -14,6 +14,13 @@ namespace Gustavus\Utility;
 class File extends Base
 {
   /**
+   * Array to store extention to mime type mappings
+   *
+   * @var array
+   */
+  private static $mimeTypes;
+
+  /**
    * Function to overide abstract function in base to make sure the value is valid
    *
    * @param  mixed $value value passed into setValue()
@@ -187,5 +194,51 @@ class File extends Base
     // file not found
     $this->value = $defaultValue;
     return $this;
+  }
+
+  /**
+   * Serves the current file
+   *
+   * @return void
+   */
+  public function serve()
+  {
+    if (empty(self::$mimeTypes)) {
+      self::$mimeTypes = [
+        'pdf' => 'application/pdf',
+        'zip' => 'application/zip',
+        'gzip' => 'application/gzip',
+        'doc' => 'application/msword',
+        'docx' => 'application/msword',
+        'xls' => 'application/vnd.ms-excel',
+        'xlsx' => 'application/vnd.ms-excel',
+        'ppt' => 'application/vnd.ms-powerpoint',
+        'pptx' => 'application/vnd.ms-powerpoint'
+      ];
+    }
+
+    $info = pathinfo($this->value);
+    $ext = isset($info['extension']) ? strtolower($info['extension']) : '';
+
+    if (is_readable($this->value) && isset(self::$mimeTypes[$ext])) {
+      $mime = $mimeTypes[$ext];
+      $size = filesize($this->value);
+
+      header("Pragma: public"); // required
+      header("Expires: 0");
+      header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+      header("Cache-Control: private",false); // required for certain browsers
+      header("Content-Type: {$mime}");
+      header("Content-Disposition: filename=\"{$info['basename']}\";" );
+      header("Content-Transfer-Encoding: binary");
+      header("Content-Length: {$size}");
+
+      ob_clean();
+      flush();
+      readfile($this->value);
+    } else {
+      PageUtil::renderPageNotFound();
+      exit;
+    }
   }
 }
