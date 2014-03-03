@@ -101,35 +101,6 @@ class IGBinarySerializerTest extends Test
 
   /**
    * @test
-   * @covers ::unpack
-   */
-  public function testUnpackWithMalformedData()
-  {
-    $input = [
-      null,
-      'string',
-      123,
-      -987,
-      2.17828,
-      -3.14159,
-      true,
-      false,
-      ['array'],
-      new stdClass(),
-      STDOUT
-    ];
-
-    $serializer = new IGBinarySerializer();
-
-    $serialized = igbinary_serialize($input);
-
-    // This should fail without our identifier.
-    $unserialized = @$serializer->unpack($serialized);
-    $this->assertFalse($unserialized);
-  }
-
-  /**
-   * @test
    * @covers ::pack
    * @expectedException RuntimeException
    */

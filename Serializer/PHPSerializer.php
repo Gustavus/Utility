@@ -60,10 +60,6 @@ class PHPSerializer implements Serializer
     // Patch for PHP bug #65967 (SplObjectStorage adds corrupt data to serialization streams)
     $serialized = str_replace("\x00gcdata", '_gcdata', $serialized);
 
-    // Tag our data so we can identify it later.
-    $tag = '::<' . self::SERIALIZER_NAME . '>::';
-    $serialized = $tag . $serialized;
-
     // Return!
     return $serialized;
   }
@@ -73,18 +69,7 @@ class PHPSerializer implements Serializer
    */
   public function unpack($serialized)
   {
-    $tag = '::<' . self::SERIALIZER_NAME . '>::';
-    $len = strlen($tag);
-    $result = false;
-
-    if (strlen($serialized) > $len && substr($serialized, 0, $len) == $tag) {
-      $serialized = substr($serialized, $len);
-      $result = unserialize($serialized);
-    } else {
-      trigger_error('Serialization format tag absent or malformed.', E_USER_WARNING);
-    }
-
-    return $result;
+    return unserialize($serialized);
   }
 
 }

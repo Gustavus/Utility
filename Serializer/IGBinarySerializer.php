@@ -61,10 +61,6 @@ class IGBinarySerializer implements Serializer
     // Perform initial serialization
     $serialized = igbinary_serialize($value);
 
-    // Tag our data so we can identify it later.
-    $tag = '::<' . self::SERIALIZER_NAME . '>::';
-    $serialized = $tag . $serialized;
-
     // Return!
     return $serialized;
   }
@@ -78,18 +74,7 @@ class IGBinarySerializer implements Serializer
       throw new RuntimeException('IGBinary is not available in the current environment.');
     }
 
-    $tag = '::<' . self::SERIALIZER_NAME . '>::';
-    $len = strlen($tag);
-    $result = false;
-
-    if (strlen($serialized) > $len && substr($serialized, 0, $len) == $tag) {
-      $serialized = substr($serialized, $len);
-      $result = igbinary_unserialize($serialized);
-    } else {
-      trigger_error('Serialization format tag absent or malformed.', E_USER_WARNING);
-    }
-
-    return $result;
+    return igbinary_unserialize($serialized);
   }
 
 }

@@ -98,33 +98,4 @@ class PHPSerializerTest extends Test
     $this->assertEquals($output, $unserialized);
   }
 
-  /**
-   * @test
-   * @covers ::unpack
-   */
-  public function testUnpackWithMalformedData()
-  {
-    $input = [
-      null,
-      'string',
-      123,
-      -987,
-      2.17828,
-      -3.14159,
-      true,
-      false,
-      ['array'],
-      new stdClass(),
-      STDOUT
-    ];
-
-    $serializer = new PHPSerializer();
-
-    $serialized = serialize($input);
-
-    // This should fail without our identifier.
-    $unserialized = @$serializer->unpack($serialized);
-    $this->assertFalse($unserialized);
-  }
-
 }
