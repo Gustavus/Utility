@@ -221,7 +221,7 @@ class File extends Base
     $ext = isset($info['extension']) ? strtolower($info['extension']) : '';
 
     if (is_readable($this->value) && isset(self::$mimeTypes[$ext])) {
-      $mime = $mimeTypes[$ext];
+      $mime = self::$mimeTypes[$ext];
       $size = filesize($this->value);
 
       header("Pragma: public"); // required
