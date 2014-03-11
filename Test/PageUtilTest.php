@@ -30,6 +30,12 @@ class PageUtilRedirectOveride extends PageUtil
 class PageUtilTest extends Test
 {
   /**
+   * Override tokens
+   * @var array
+   */
+  private $overrides = array();
+
+  /**
    * sets up the object for each test
    * @return void
    */
@@ -44,6 +50,20 @@ class PageUtilTest extends Test
    */
   public function tearDown()
   {
+    unset($this->overrides);
+  }
+
+  /**
+   * Sets up overriding header()
+   *
+   * @return void
+   */
+  private function overrideHeader()
+  {
+    $self = $this;
+    $this->overrides['header'] = override_function('header', function ($header) use (&$self) {
+      $self->headers[] = $header;
+    });
   }
 
   /**
@@ -184,6 +204,25 @@ class PageUtilTest extends Test
   /**
    * @test
    */
+  public function getReferer()
+  {
+
+    $_SERVER['HTTP_ORIGIN'] = null;
+    $_SERVER['HTTP_REFERER'] = null;
+    $this->assertNull(PageUtil::getReferer());
+
+    $_SERVER['HTTP_ORIGIN'] = 'blog.gustavus.edu';
+    $this->assertEquals('blog.gustavus.edu', PageUtil::getReferer());
+
+    $_SERVER['HTTP_ORIGIN'] = null;
+    $_SERVER['HTTP_REFERER'] = 'google.com';
+    $this->assertEquals('google.com', PageUtil::getReferer());
+
+  }
+
+  /**
+   * @test
+   */
   public function hasInternalOrigin()
   {
 
@@ -199,9 +238,47 @@ class PageUtilTest extends Test
 
     $_SERVER['HTTP_ORIGIN'] = 'gts.gac.edu';
     $this->assertTrue(PageUtil::hasInternalOrigin());
+  }
 
-    unset($_SERVER['HTTP_ORIGIN']);
-    $_SERVER['HTTP_REFERER'] = 'gts.gac.edu';
-    $this->assertTrue(PageUtil::hasInternalOrigin());
+  /**
+   * @test
+   */
+  public function renderPageNotFound()
+  {
+    $_SERVER['SERVER_NAME'] = 'testing';
+    $_SERVER['REQUEST_URI'] = 'testing';
+    $_SERVER['REMOTE_ADDR'] = 'testing';
+    $this->overrideHeader();
+    $result = PageUtil::renderPageNotFound(true);
+    $this->assertContains('Page Not Found', $result);
+    $this->set('\Template', 'template', null);
+  }
+
+  /**
+   * @test
+   */
+  public function renderBadRequest()
+  {
+    $_SERVER['SERVER_NAME'] = 'testing';
+    $_SERVER['REQUEST_URI'] = 'testing';
+    $_SERVER['REMOTE_ADDR'] = 'testing';
+    $this->overrideHeader();
+    $result = PageUtil::renderBadRequest(true);
+    $this->assertContains('Bad Request', $result);
+    $this->set('\Template', 'template', null);
+  }
+
+  /**
+   * test
+   */
+  public function renderAccessDenied()
+  {
+    $_SERVER['SERVER_NAME'] = 'testing';
+    $_SERVER['REQUEST_URI'] = 'testing';
+    $_SERVER['REMOTE_ADDR'] = 'testing';
+    $this->overrideHeader();
+    $result = PageUtil::renderAccessDenied(true);
+    $this->assertContains('Access Denied', $result);
+    $this->set('\Template', 'template', null);
   }
 }
