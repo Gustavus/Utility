@@ -114,9 +114,10 @@ class Debug
     $reckey = '__recursion_key-' . time();
     $reclevel = 0;
     $recmap = [];
+    $insmap = [];
 
     // Formatter which does all the work of actually formatting data...
-    $formatter = function ($indent, $capture, $key, &$value) use (&$formatter, &$maxdepth, &$maxstrlen, &$reckey, &$reclevel, &$recmap) {
+    $formatter = function ($indent, $capture, $key, &$value) use (&$formatter, &$maxdepth, &$maxstrlen, &$reckey, &$reclevel, &$recmap, &$insmap) {
       $padding = str_repeat(' ', $indent);
       $buffer = $padding;
 
@@ -195,7 +196,9 @@ class Debug
 
         case 'object':
           $class = get_class($value);
-          $buffer .= "(object): {$class} {\n";
+          $hash = spl_object_hash($value);
+          $oid = isset($insmap[$hash]) ? $insmap[$hash] : ($insmap[$hash] = count($insmap));
+          $buffer .= "(object): {$class} [{$oid}: {$hash}] {\n";
 
           if (++$reclevel <= $maxdepth || $maxdepth < 0) {
             if ($value instanceof DebugPrinter) {
