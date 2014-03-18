@@ -114,7 +114,9 @@ class Debug
     $reckey = '__recursion_key-' . time();
     $reclevel = 0;
     $recmap = [];
-    $insmap = [];
+
+    static $calldepth = 0;
+    static $insmap = [];
 
     // Formatter which does all the work of actually formatting data...
     $formatter = function ($indent, $capture, $key, &$value) use (&$formatter, &$maxdepth, &$maxstrlen, &$reckey, &$reclevel, &$recmap, &$insmap) {
@@ -254,7 +256,16 @@ class Debug
       }
     };
 
-    return $formatter(($indent > 0 ? $indent : 0), $capture, null, $var);
+    ++$calldepth;
+
+    $result = $formatter(($indent > 0 ? $indent : 0), $capture, null, $var);
+
+    if (--$calldepth <= 0) {
+      $calldepth = 0;
+      $insmap = [];
+    }
+
+    return $result;
   }
 
   /**
