@@ -115,8 +115,11 @@ class Debug
     $reclevel = 0;
     $recmap = [];
 
+    static $calldepth = 0;
+    static $insmap = [];
+
     // Formatter which does all the work of actually formatting data...
-    $formatter = function ($indent, $capture, $key, &$value) use (&$formatter, &$maxdepth, &$maxstrlen, &$reckey, &$reclevel, &$recmap) {
+    $formatter = function ($indent, $capture, $key, &$value) use (&$formatter, &$maxdepth, &$maxstrlen, &$reckey, &$reclevel, &$recmap, &$insmap) {
       $padding = str_repeat(' ', $indent);
       $buffer = $padding;
 
@@ -195,7 +198,9 @@ class Debug
 
         case 'object':
           $class = get_class($value);
-          $buffer .= "(object): {$class} {\n";
+          $hash = spl_object_hash($value);
+          $oid = isset($insmap[$hash]) ? $insmap[$hash] : ($insmap[$hash] = count($insmap));
+          $buffer .= "(object): {$class} [{$oid}: {$hash}] {\n";
 
           if (++$reclevel <= $maxdepth || $maxdepth < 0) {
             if ($value instanceof DebugPrinter) {
@@ -251,7 +256,16 @@ class Debug
       }
     };
 
-    return $formatter(($indent > 0 ? $indent : 0), $capture, null, $var);
+    ++$calldepth;
+
+    $result = $formatter(($indent > 0 ? $indent : 0), $capture, null, $var);
+
+    if (--$calldepth <= 0) {
+      $calldepth = 0;
+      $insmap = [];
+    }
+
+    return $result;
   }
 
   /**

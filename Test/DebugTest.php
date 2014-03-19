@@ -43,7 +43,12 @@ class DebugTest extends Test
     ob_end_clean();
 
     $this->assertEmpty($captured);
-    $this->assertEquals($expected, $output);
+
+    if (is_string($expected) && substr($expected, 0, 1) === '/') {
+      $this->assertRegExp($expected, $output);
+    } else {
+      $this->assertEquals($expected, $output);
+    }
   }
 
   /**
@@ -59,7 +64,12 @@ class DebugTest extends Test
     $captured = ob_get_contents();
     ob_end_clean();
 
-    $this->assertEquals($expected, $captured);
+    if (is_string($expected) && substr($expected, 0, 1) === '/') {
+      $this->assertRegExp($expected, $captured);
+    } else {
+      $this->assertEquals($expected, $captured);
+    }
+
     $this->assertEmpty($output);
   }
 
@@ -80,10 +90,10 @@ class DebugTest extends Test
 
     $dummy = new DummyClass();
     $dummy->var2 = 'two';
-    $dclass = get_class($dummy);
+    $dclass = str_replace('\\', '\\\\', get_class($dummy));
 
     $dummy2 = new DummyClassTwo();
-    $dclass2 = get_class($dummy2);
+    $dclass2 = str_replace('\\', '\\\\', get_class($dummy2));
 
 
     $longstr = "0123456789\x000123456789\n0123456789'0123456789\"0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789";
@@ -103,11 +113,11 @@ class DebugTest extends Test
       [STDOUT,        "(resource)\n"],
       [null,          "(null)\n"],
 
-      [$dummy,        "(object): {$dclass} {\n{$padding}var => (null)\n{$padding}var2 => (string[3]): \"two\"\n}\n"],
-      [$dummy2,       "(object): {$dclass2} {\n{$padding}{$dclass2}\n}\n"],
+      [$dummy,        "/\\(object\\): {$dclass} \\[\\d+: .+?\\] \\{\n{$padding}var => \\(null\\)\n{$padding}var2 => \\(string\\[3\\]\\): \"two\"\n}\n/"],
+      [$dummy2,       "/\\(object\\): {$dclass2} \\[\\d+: .+?\\] \\{\n{$padding}{$dclass2}\n}\n/"],
 
       [$selfrefarr,   "(array[1]) {\n{$padding}0 => (array[1]) {\n{$padding}{$padding}0 => (array[1]) {\n{$padding}{$padding}{$padding}**RECURSION: 1 level(s)**\n{$padding}{$padding}}\n{$padding}}\n}\n"],
-      [$selfrefobj,   "(object): stdClass {\n{$padding}self => (object): stdClass {\n{$padding}{$padding}**RECURSION: 1 level(s)**\n{$padding}}\n}\n"],
+      [$selfrefobj,   "/\\(object\\): stdClass \\[\\d+: .+?\\] \\{\n{$padding}self => \\(object\\): stdClass \\[\\d+: .+?\\] \\{\n{$padding}{$padding}\\*\\*RECURSION: 1 level\\(s\\)\\*\\*\n{$padding}}\n}\n/"],
     ];
   }
 
@@ -120,7 +130,22 @@ class DebugTest extends Test
    */
   public function testDumpAll()
   {
-    $data = $this->dataForDump();
+    $longstr = "0123456789\x000123456789\n0123456789'0123456789\"0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789";
+    $longstrexp = "0123456789\\00123456789\\n0123456789\\'0123456789\\\"01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901...";
+    $data = [
+      ['a string',    "(string[8]): \"a string\"\n"],
+      [$longstr,      "(string[264]): \"{$longstrexp}\"\n"],
+      ['',            "(string[0]): \"\"\n"],
+      [true,          "(boolean): true\n"],
+      [false,         "(boolean): false\n"],
+      [123,           "(integer): 123\n"],
+      [-321,          "(integer): -321\n"],
+      [3.14159,       "(double): 3.14159\n"],
+      [-2.71828,      "(double): -2.71828\n"],
+      [STDOUT,        "(resource)\n"],
+      [null,          "(null)\n"],
+    ];
+
     $vars = [];
     $expected = '';
 
@@ -147,7 +172,22 @@ class DebugTest extends Test
    */
   public function testDumpAllToString()
   {
-    $data = $this->dataForDump();
+    $longstr = "0123456789\x000123456789\n0123456789'0123456789\"0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789";
+    $longstrexp = "0123456789\\00123456789\\n0123456789\\'0123456789\\\"01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901...";
+    $data = [
+      ['a string',    "(string[8]): \"a string\"\n"],
+      [$longstr,      "(string[264]): \"{$longstrexp}\"\n"],
+      ['',            "(string[0]): \"\"\n"],
+      [true,          "(boolean): true\n"],
+      [false,         "(boolean): false\n"],
+      [123,           "(integer): 123\n"],
+      [-321,          "(integer): -321\n"],
+      [3.14159,       "(double): 3.14159\n"],
+      [-2.71828,      "(double): -2.71828\n"],
+      [STDOUT,        "(resource)\n"],
+      [null,          "(null)\n"],
+    ];
+
     $vars = [];
     $expected = '';
 
@@ -182,7 +222,12 @@ class DebugTest extends Test
     }
 
     $result = Debug::dump($var, true, ['indent' => $indent]);
-    $this->assertSame($expected, $result);
+
+    if (is_string($expected) && substr($expected, 0, 1) === '/') {
+      $this->assertRegExp($expected, $result);
+    } else {
+      $this->assertSame($expected, $result);
+    }
   }
 
   /**
@@ -196,10 +241,10 @@ class DebugTest extends Test
 
     $dummy = new DummyClass();
     $dummy->var2 = 'two';
-    $dclass = get_class($dummy);
+    $dclass = str_replace('\\', '\\\\', get_class($dummy));
 
     $dummy2 = new DummyClassTwo();
-    $dclass2 = get_class($dummy2);
+    $dclass2 = str_replace('\\', '\\\\', get_class($dummy2));
 
     return [
       ['a string',  3, "   (string[8]): \"a string\"\n",  null],
@@ -213,8 +258,8 @@ class DebugTest extends Test
       [STDOUT,      3, "   (resource)\n",                 null],
       [null,        5, "     (null)\n",                   null],
 
-      [$dummy,      3,    "   (object): {$dclass} {\n   {$padding}var => (null)\n   {$padding}var2 => (string[3]): \"two\"\n   }\n", null],
-      [$dummy2,     5,    "     (object): {$dclass2} {\n     {$padding}{$dclass2}\n     }\n", null],
+      [$dummy,      3,    "/   \\(object\\): {$dclass} \\[\\d+: .+?\\] \\{\n   {$padding}var => \\(null\\)\n   {$padding}var2 => \\(string\\[3\\]\\): \"two\"\n   }\n/", null],
+      [$dummy2,     5,    "/     \\(object\\): {$dclass2} \\[\\d+: .+?\\] \\{\n     {$padding}{$dclass2}\n     }\n/", null],
     ];
   }
 
@@ -233,7 +278,7 @@ class DebugTest extends Test
     }
 
     $result = Debug::dump($var, true, ['maxdepth' => $maxdepth]);
-    $this->assertSame($expected, $result);
+    $this->assertRegExp($expected, $result);
   }
 
   /**
@@ -263,21 +308,21 @@ class DebugTest extends Test
     $arr1['next'] = $arr2;
 
     return [
-      [$obj1, 5, "(object): stdClass {\n{$padding}next => (object): stdClass {\n{$padding}{$padding}next => (object): stdClass {\n{$padding}{$padding}{$padding}next => (null)\n{$padding}{$padding}}\n{$padding}}\n}\n", null],
-      [$obj1, 4, "(object): stdClass {\n{$padding}next => (object): stdClass {\n{$padding}{$padding}next => (object): stdClass {\n{$padding}{$padding}{$padding}next => (null)\n{$padding}{$padding}}\n{$padding}}\n}\n", null],
-      [$obj1, 3, "(object): stdClass {\n{$padding}next => (object): stdClass {\n{$padding}{$padding}next => (object): stdClass {\n{$padding}{$padding}{$padding}next => (null)\n{$padding}{$padding}}\n{$padding}}\n}\n", null],
-      [$obj1, 2, "(object): stdClass {\n{$padding}next => (object): stdClass {\n{$padding}{$padding}next => (object): stdClass {\n{$padding}{$padding}{$padding}...\n{$padding}{$padding}}\n{$padding}}\n}\n", null],
-      [$obj1, 1, "(object): stdClass {\n{$padding}next => (object): stdClass {\n{$padding}{$padding}...\n{$padding}}\n}\n", null],
-      [$obj1, 0, "(object): stdClass {\n{$padding}...\n}\n", null],
-      [$obj1, -1, "(object): stdClass {\n{$padding}next => (object): stdClass {\n{$padding}{$padding}next => (object): stdClass {\n{$padding}{$padding}{$padding}next => (null)\n{$padding}{$padding}}\n{$padding}}\n}\n", null],
+      [$obj1, 5, "/\\(object\\): stdClass \\[\d+: .+?\\] \\{\n{$padding}next => \\(object\\): stdClass \\[\d+: .+?\\] \\{\n{$padding}{$padding}next => \\(object\\): stdClass \\[\d+: .+?\\] \\{\n{$padding}{$padding}{$padding}next => \\(null\\)\n{$padding}{$padding}}\n{$padding}}\n}\n/", null],
+      [$obj1, 4, "/\\(object\\): stdClass \\[\d+: .+?\\] \\{\n{$padding}next => \\(object\\): stdClass \\[\d+: .+?\\] \\{\n{$padding}{$padding}next => \\(object\\): stdClass \\[\d+: .+?\\] \\{\n{$padding}{$padding}{$padding}next => \\(null\\)\n{$padding}{$padding}}\n{$padding}}\n}\n/", null],
+      [$obj1, 3, "/\\(object\\): stdClass \\[\d+: .+?\\] \\{\n{$padding}next => \\(object\\): stdClass \\[\d+: .+?\\] \\{\n{$padding}{$padding}next => \\(object\\): stdClass \\[\d+: .+?\\] \\{\n{$padding}{$padding}{$padding}next => \\(null\\)\n{$padding}{$padding}}\n{$padding}}\n}\n/", null],
+      [$obj1, 2, "/\\(object\\): stdClass \\[\d+: .+?\\] \\{\n{$padding}next => \\(object\\): stdClass \\[\d+: .+?\\] \\{\n{$padding}{$padding}next => \\(object\\): stdClass \\[\d+: .+?\\] \\{\n{$padding}{$padding}{$padding}...\n{$padding}{$padding}}\n{$padding}}\n}\n/", null],
+      [$obj1, 1, "/\\(object\\): stdClass \\[\d+: .+?\\] \\{\n{$padding}next => \\(object\\): stdClass \\[\d+: .+?\\] \\{\n{$padding}{$padding}...\n{$padding}}\n}\n/", null],
+      [$obj1, 0, "/\\(object\\): stdClass \\[\d+: .+?\\] \\{\n{$padding}...\n}\n/", null],
+      [$obj1, -1, "/\\(object\\): stdClass \\[\d+: .+?\\] \\{\n{$padding}next => \\(object\\): stdClass \\[\d+: .+?\\] \\{\n{$padding}{$padding}next => \\(object\\): stdClass \\[\d+: .+?\\] \\{\n{$padding}{$padding}{$padding}next => \\(null\\)\n{$padding}{$padding}}\n{$padding}}\n}\n/", null],
 
-      [$arr1, 5, "(array[1]) {\n{$padding}next => (array[1]) {\n{$padding}{$padding}next => (array[1]) {\n{$padding}{$padding}{$padding}next => (null)\n{$padding}{$padding}}\n{$padding}}\n}\n", null],
-      [$arr1, 4, "(array[1]) {\n{$padding}next => (array[1]) {\n{$padding}{$padding}next => (array[1]) {\n{$padding}{$padding}{$padding}next => (null)\n{$padding}{$padding}}\n{$padding}}\n}\n", null],
-      [$arr1, 3, "(array[1]) {\n{$padding}next => (array[1]) {\n{$padding}{$padding}next => (array[1]) {\n{$padding}{$padding}{$padding}next => (null)\n{$padding}{$padding}}\n{$padding}}\n}\n", null],
-      [$arr1, 2, "(array[1]) {\n{$padding}next => (array[1]) {\n{$padding}{$padding}next => (array[1]) {\n{$padding}{$padding}{$padding}...\n{$padding}{$padding}}\n{$padding}}\n}\n", null],
-      [$arr1, 1, "(array[1]) {\n{$padding}next => (array[1]) {\n{$padding}{$padding}...\n{$padding}}\n}\n", null],
-      [$arr1, 0, "(array[1]) {\n{$padding}...\n}\n", null],
-      [$arr1, -1, "(array[1]) {\n{$padding}next => (array[1]) {\n{$padding}{$padding}next => (array[1]) {\n{$padding}{$padding}{$padding}next => (null)\n{$padding}{$padding}}\n{$padding}}\n}\n", null],
+      [$arr1, 5, "/\\(array\\[1\\]\\) \\{\n{$padding}next => \\(array\\[1\\]\\) \\{\n{$padding}{$padding}next => \\(array\\[1\\]\\) \\{\n{$padding}{$padding}{$padding}next => \\(null\\)\n{$padding}{$padding}}\n{$padding}}\n}\n/", null],
+      [$arr1, 4, "/\\(array\\[1\\]\\) \\{\n{$padding}next => \\(array\\[1\\]\\) \\{\n{$padding}{$padding}next => \\(array\\[1\\]\\) \\{\n{$padding}{$padding}{$padding}next => \\(null\\)\n{$padding}{$padding}}\n{$padding}}\n}\n/", null],
+      [$arr1, 3, "/\\(array\\[1\\]\\) \\{\n{$padding}next => \\(array\\[1\\]\\) \\{\n{$padding}{$padding}next => \\(array\\[1\\]\\) \\{\n{$padding}{$padding}{$padding}next => \\(null\\)\n{$padding}{$padding}}\n{$padding}}\n}\n/", null],
+      [$arr1, 2, "/\\(array\\[1\\]\\) \\{\n{$padding}next => \\(array\\[1\\]\\) \\{\n{$padding}{$padding}next => \\(array\\[1\\]\\) \\{\n{$padding}{$padding}{$padding}...\n{$padding}{$padding}}\n{$padding}}\n}\n/", null],
+      [$arr1, 1, "/\\(array\\[1\\]\\) \\{\n{$padding}next => \\(array\\[1\\]\\) \\{\n{$padding}{$padding}...\n{$padding}}\n}\n/", null],
+      [$arr1, 0, "/\\(array\\[1\\]\\) \\{\n{$padding}...\n}\n/", null],
+      [$arr1, -1, "/\\(array\\[1\\]\\) \\{\n{$padding}next => \\(array\\[1\\]\\) \\{\n{$padding}{$padding}next => \\(array\\[1\\]\\) \\{\n{$padding}{$padding}{$padding}next => \\(null\\)\n{$padding}{$padding}}\n{$padding}}\n}\n/", null],
     ];
   }
 
