@@ -150,12 +150,23 @@ class File extends Base
       }
     }
 
+    // Make sure our filename isn't too long. Names longer than 250 characters tend to break certain
+    // applications (see: Office).
+    // We use 240 characters instead of 250 here to give us 10 extra characters to play with for
+    // adding extra digits in the case of filename collisions (see below).
+    $blen = strlen($filename);
+    $elen = strlen($fileExtension);
+
+    if ($blen + $elen > 240) {
+      $filename = substr($filename, 0, 240 - $elen);
+    }
+
     $this->value  = preg_replace('`\s+|\+`', '-', strtolower($filename . $fileExtension));
 
     if (!empty($location)) {
       $filename = preg_replace('`\s+|\+`', '-', strtolower($filename));
       $i = 1;
-      while (file_exists("$location/$this->value")) {
+      while (file_exists("{$location}/{$this->value}")) {
         $this->value = strtolower("{$filename}-{$i}{$fileExtension}");
         ++$i;
       }

@@ -145,6 +145,10 @@ class FileTest extends Test
    */
   public function filenameData()
   {
+    $extension = '.ext';
+    $longname = str_repeat('abc123', 45) . $extension;
+    $truncated = substr($longname, 0, 240 - strlen($extension)) . $extension;
+
     return [
       ['newfile.php', 'newfile.php', '/new/path/'],
       ['newfile', 'newfile', '/new/path/'],
@@ -153,6 +157,8 @@ class FileTest extends Test
       ['fetch>uid>.gac>10046.gac>10046', 'fetch>UID>.GAC>10046.GAC%3E10046', '/cis/lib/Gustavus/Utility/Test/Files'],
       ['fetch>uid>.gac>10046.gac>10046.jpg', 'fetch>UID>.GAC>10046.GAC%3E10046', '/cis/lib/Gustavus/Utility/Test/Files', 'jpg'],
       ['fetch>uid>.gac>10046.gac>10046.jpg', 'fetch>UID>.GAC>10046.GAC%3E10046', '/cis/lib/Gustavus/Utility/Test/Files', '.jpg'],
+      [$truncated, $longname],
+      [$truncated, $longname, '/long/path/'],
     ];
   }
 
