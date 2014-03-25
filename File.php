@@ -229,7 +229,7 @@ class File extends Base
   }
 
   /**
-   * Servers the file represented by this File object. If the file is not a file, cannot be read or
+   * Serves the file represented by this File object. If the file is not a file, cannot be read or
    * does not match the MIME type restrictions, a File Not Found error page will be served instead.
    *
    * Note:
