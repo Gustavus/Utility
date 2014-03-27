@@ -26,7 +26,7 @@ class File extends Base
   const DEFAULT_MIMETYPE_WHITELIST = '/\\/(?:html|g?zip|gif|jpe?g|png|pdf|msword|vnd\\.ms-(?:excel|powerpoint))\\z/i';
 
   /**
-   * The defaulte blacklist to use for MIME types when no blacklist is provided.
+   * The default blacklist to use for MIME types when no blacklist is provided.
    *
    * @var string
    */
