@@ -252,7 +252,18 @@ class String extends Base implements ArrayAccess
       $baseDir = '';
     }
 
-    $this->value = sprintf('https://%s%s%s', $_SERVER['HTTP_HOST'], $baseDir, $this->value);
+    // $_SERVER variables that contain host information
+    $serverHostVars = ['HTTP_HOST', 'SERVER_NAME', 'HOSTNAME', 'HOST'];
+
+    $host = null;
+    foreach ($serverHostVars as $serverVar) {
+      if (isset($_SERVER[$serverVar])) {
+        $host = $_SERVER[$serverVar];
+        break;
+      }
+    }
+
+    $this->value = sprintf('https://%s%s%s', $host, $baseDir, $this->value);
 
     return $this;
   }

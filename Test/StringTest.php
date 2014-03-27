@@ -291,6 +291,8 @@ class StringTest extends Test
       array('https://beta.gac.edu/profiles/arst/', '/profiles/arst/', 'beta.gac.edu'),
       array('https://gustavus.edu/admission/apply/', 'apply/', 'gustavus.edu', '/admission/index.php'),
       array('https://gustavus.edu/admission/apply/?arst=arst', 'apply/?arst=arst', 'gustavus.edu', '/admission/index.php'),
+      // host is null, so we will fallback to HOSTNAME in this case
+      array('https://bart.gac.edu/admission/apply/?arst=arst', 'apply/?arst=arst', null, '/admission/index.php'),
     );
   }
 
