@@ -2,17 +2,38 @@
 /**
  * @package Utility
  * @author  Billy Visto
+ * @author  Chris Rog <crog@gustavus.edu>
  */
 namespace Gustavus\Utility;
+
+use InvalidArgumentException;
+
 
 /**
  * Object for working with Files
  *
  * @package Utility
  * @author  Billy Visto
+ * @author  Chris Rog <crog@gustavus.edu>
  */
 class File extends Base
 {
+  /**
+   * The default whitelist to use for MIME types when no whitelist is provided.
+   *
+   * @var string
+   */
+  const DEFAULT_MIMETYPE_WHITELIST = '/\\/(?:html|g?zip|gif|jpe?g|png|pdf|msword|vnd\\.ms-(?:excel|powerpoint))\\z/i';
+
+  /**
+   * The default blacklist to use for MIME types when no blacklist is provided.
+   *
+   * @var string
+   */
+  const DEFAULT_MIMETYPE_BLACKLIST = '/\\/(?:(?:x-)?(?:httpd-)?php(?:-source)?)\\z/i';
+
+
+
   /**
    * Array to store extention to mime type mappings
    *
@@ -150,12 +171,23 @@ class File extends Base
       }
     }
 
+    // Make sure our filename isn't too long. Names longer than 250 characters tend to break certain
+    // applications (see: Office).
+    // We use 240 characters instead of 250 here to give us 10 extra characters to play with for
+    // adding extra digits in the case of filename collisions (see below).
+    $blen = strlen($filename);
+    $elen = strlen($fileExtension);
+
+    if ($blen + $elen > 240) {
+      $filename = substr($filename, 0, 240 - $elen);
+    }
+
     $this->value  = preg_replace('`\s+|\+`', '-', strtolower($filename . $fileExtension));
 
     if (!empty($location)) {
       $filename = preg_replace('`\s+|\+`', '-', strtolower($filename));
       $i = 1;
-      while (file_exists("$location/$this->value")) {
+      while (file_exists("{$location}/{$this->value}")) {
         $this->value = strtolower("{$filename}-{$i}{$fileExtension}");
         ++$i;
       }
@@ -197,48 +229,93 @@ class File extends Base
   }
 
   /**
-   * Serves the current file
+   * Serves the file represented by this File object. If the file is not a file, cannot be read or
+   * does not match the MIME type restrictions, a File Not Found error page will be served instead.
+   *
+   * Note:
+   *  This method sends headers and ends the request via "exit." The calling application will not
+   *  continue after a call to this method.
+   *
+   * @param string $name
+   *  <em>Optional</em>.
+   *  The name to use when serving the file. If omitted, the basename of the file will be used.
+   *
+   * @param string $whitelist
+   *  <em>Optional</em>.
+   *  A regular expression specifying an expression the file's MIME type must match to be served. If
+   *  omitted, the default MIME type whitelist will be used.
+   *
+   * @param string $blacklist
+   *  <em>Optional</em>.
+   *  A regular expression specifying an expression the file's MIME type must not match to be
+   *  served. If omitted, the default MIME type blacklist will be used.
+   *
+   * @throws InvalidArgumentException
+   *  if $name is provided, but is empty or not a string, or either $whitelist or $blacklist are
+   *  provided, but are empty, not strings or not valid regular expressions.
    *
    * @return void
    */
-  public function serve()
+  public function serve($name = null, $whitelist = null, $blacklist = null)
   {
-    if (empty(self::$mimeTypes)) {
-      self::$mimeTypes = [
-        'pdf' => 'application/pdf',
-        'zip' => 'application/zip',
-        'gzip' => 'application/gzip',
-        'doc' => 'application/msword',
-        'docx' => 'application/msword',
-        'xls' => 'application/vnd.ms-excel',
-        'xlsx' => 'application/vnd.ms-excel',
-        'ppt' => 'application/vnd.ms-powerpoint',
-        'pptx' => 'application/vnd.ms-powerpoint'
-      ];
+    if (isset($name) && (empty($name) || !is_string($name))) {
+      throw new InvalidArgumentException('$name is provided, but is empty or not a string.');
     }
 
-    $info = pathinfo($this->value);
-    $ext = isset($info['extension']) ? strtolower($info['extension']) : '';
+    if (isset($whitelist)) {
+      if (empty($whitelist) || !is_string($whitelist)) {
+        throw new InvalidArgumentException('$whitelist is empty or not a string.');
+      }
+    } else {
+      $whitelist = static::DEFAULT_MIMETYPE_WHITELIST;
+    }
 
-    if (is_readable($this->value) && isset(self::$mimeTypes[$ext])) {
-      $mime = self::$mimeTypes[$ext];
+    if (isset($blacklist)) {
+      if (empty($blacklist) || !is_string($blacklist)) {
+        throw new InvalidArgumentException('$blacklist is empty or not a string.');
+      }
+    } else {
+      $blacklist = static::DEFAULT_MIMETYPE_BLACKLIST;
+    }
+
+    $serve = false;
+    $mime = null;
+
+    if (is_file($this->value) && is_readable($this->value)) {
+      // Get the mimetype of the file
+      $finfo = finfo_open(FILEINFO_MIME_TYPE);
+      $mime = @finfo_file($finfo, $this->value);
+      finfo_close($finfo);
+
+      if ($mime !== false) {
+        // Check that it matches our whitelist and doesn't match our blacklist.
+        if (preg_match($whitelist, $mime) && preg_match($blacklist, $mime) === 0) {
+          $serve = true;
+        }
+      }
+    }
+
+    if ($serve && $mime) {
       $size = filesize($this->value);
+
+      if (!isset($name)) {
+        $name = basename($this->value);
+      }
 
       header("Pragma: public"); // required
       header("Expires: 0");
       header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
       header("Cache-Control: private",false); // required for certain browsers
       header("Content-Type: {$mime}");
-      header("Content-Disposition: filename=\"{$info['basename']}\";" );
+      header("Content-Disposition: filename=\"{$name}\";" ); // Will this require urlencoding...?
       header("Content-Transfer-Encoding: binary");
       header("Content-Length: {$size}");
 
-      ob_clean();
-      flush();
       readfile($this->value);
     } else {
       PageUtil::renderPageNotFound();
-      exit;
     }
+
+    exit;
   }
 }

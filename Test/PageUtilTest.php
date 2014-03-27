@@ -245,6 +245,7 @@ class PageUtilTest extends Test
    */
   public function renderPageNotFound()
   {
+    $_SERVER['HTTP_HOST']   = 'testing';
     $_SERVER['SERVER_NAME'] = 'testing';
     $_SERVER['REQUEST_URI'] = 'testing';
     $_SERVER['REMOTE_ADDR'] = 'testing';
@@ -259,6 +260,7 @@ class PageUtilTest extends Test
    */
   public function renderBadRequest()
   {
+    $_SERVER['HTTP_HOST']   = 'testing';
     $_SERVER['SERVER_NAME'] = 'testing';
     $_SERVER['REQUEST_URI'] = 'testing';
     $_SERVER['REMOTE_ADDR'] = 'testing';
@@ -273,6 +275,7 @@ class PageUtilTest extends Test
    */
   public function renderAccessDenied()
   {
+    $_SERVER['HTTP_HOST']   = 'testing';
     $_SERVER['SERVER_NAME'] = 'testing';
     $_SERVER['REQUEST_URI'] = 'testing';
     $_SERVER['REMOTE_ADDR'] = 'testing';
