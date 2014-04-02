@@ -60,6 +60,7 @@ class FileGrabber
     // Facebook
     'facebook.com',
     'fbcdn.net',
+    'akamaihd.net',
 
     // Instagram
     'instagram.com',
