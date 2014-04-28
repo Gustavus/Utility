@@ -239,9 +239,10 @@ class String extends Base implements ArrayAccess
    * // Outputs: https://gustavus.edu/admission/apply
    * </code>
    *
+   * @param  boolean $fromMainWebServers Whether to resolve this to our main webservers or maintain the current host
    * @return $this
    */
-  public function buildUrl()
+  public function buildUrl($fromMainWebServers = false)
   {
     $this->value = trim($this->value);
 
@@ -252,14 +253,22 @@ class String extends Base implements ArrayAccess
       $baseDir = '';
     }
 
-    // $_SERVER variables that contain host information
-    $serverHostVars = ['HTTP_HOST', 'SERVER_NAME', 'HOSTNAME', 'HOST'];
+    if ($fromMainWebServers) {
+      if (\Config::isBeta()) {
+        $host = 'beta.gac.edu';
+      } else {
+        $host = 'gustavus.edu';
+      }
+    } else {
+      // $_SERVER variables that contain host information
+      $serverHostVars = ['HTTP_HOST', 'SERVER_NAME', 'HOSTNAME', 'HOST'];
 
-    $host = null;
-    foreach ($serverHostVars as $serverVar) {
-      if (isset($_SERVER[$serverVar])) {
-        $host = $_SERVER[$serverVar];
-        break;
+      $host = null;
+      foreach ($serverHostVars as $serverVar) {
+        if (isset($_SERVER[$serverVar])) {
+          $host = $_SERVER[$serverVar];
+          break;
+        }
       }
     }
 

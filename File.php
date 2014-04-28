@@ -19,27 +19,16 @@ use InvalidArgumentException;
 class File extends Base
 {
   /**
-   * The default whitelist to use for MIME types when no whitelist is provided.
+   * Retrieves the MIME util instance to use for performing MIME type checks and operations.
    *
-   * @var string
+   * @return MimeUtil
+   *  A MimeUtil instance.
    */
-  const DEFAULT_MIMETYPE_WHITELIST = '/\\/(?:html|g?zip|gif|jpe?g|png|pdf|msword|vnd\\.ms-(?:excel|powerpoint))\\z/i';
+  protected function getMimeUtil()
+  {
+    return new MimeUtil();
+  }
 
-  /**
-   * The default blacklist to use for MIME types when no blacklist is provided.
-   *
-   * @var string
-   */
-  const DEFAULT_MIMETYPE_BLACKLIST = '/\\/(?:(?:x-)?(?:httpd-)?php(?:-source)?)\\z/i';
-
-
-
-  /**
-   * Array to store extention to mime type mappings
-   *
-   * @var array
-   */
-  private static $mimeTypes;
 
   /**
    * Function to overide abstract function in base to make sure the value is valid
@@ -262,38 +251,9 @@ class File extends Base
       throw new InvalidArgumentException('$name is provided, but is empty or not a string.');
     }
 
-    if (isset($whitelist)) {
-      if (empty($whitelist) || !is_string($whitelist)) {
-        throw new InvalidArgumentException('$whitelist is empty or not a string.');
-      }
-    } else {
-      $whitelist = static::DEFAULT_MIMETYPE_WHITELIST;
-    }
-
-    if (isset($blacklist)) {
-      if (empty($blacklist) || !is_string($blacklist)) {
-        throw new InvalidArgumentException('$blacklist is empty or not a string.');
-      }
-    } else {
-      $blacklist = static::DEFAULT_MIMETYPE_BLACKLIST;
-    }
-
-    $serve = false;
-    $mime = null;
-
-    if (is_file($this->value) && is_readable($this->value)) {
-      // Get the mimetype of the file
-      $finfo = finfo_open(FILEINFO_MIME_TYPE);
-      $mime = @finfo_file($finfo, $this->value);
-      finfo_close($finfo);
-
-      if ($mime !== false) {
-        // Check that it matches our whitelist and doesn't match our blacklist.
-        if (preg_match($whitelist, $mime) && preg_match($blacklist, $mime) === 0) {
-          $serve = true;
-        }
-      }
-    }
+    $mu = $this->getMimeUtil();
+    $mime = $mu->getMimeType($this->value);
+    $serve = $mu->validateMimeType($mime, $whitelist, $blacklist);
 
     if ($serve && $mime) {
       $size = filesize($this->value);
