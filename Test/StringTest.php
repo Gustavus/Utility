@@ -270,12 +270,12 @@ class StringTest extends Test
    * @test
    * @dataProvider buildUrlData
    */
-  public function buildUrl($expected, $url, $host, $scriptName = '/test/test.php')
+  public function buildUrl($expected, $url, $host, $scriptName = '/test/test.php', $fromMainWebServers = false)
   {
     $_SERVER['HTTP_HOST']   = $host;
     $_SERVER['SCRIPT_NAME'] = $scriptName;
     $this->string->setValue($url);
-    $this->assertSame($expected, $this->string->buildUrl()->getValue());
+    $this->assertSame($expected, $this->string->buildUrl($fromMainWebServers)->getValue());
   }
 
   /**
@@ -293,6 +293,10 @@ class StringTest extends Test
       array('https://gustavus.edu/admission/apply/?arst=arst', 'apply/?arst=arst', 'gustavus.edu', '/admission/index.php'),
       // host is null, so we will fallback to HOSTNAME in this case
       array('https://bart.gac.edu/admission/apply/?arst=arst', 'apply/?arst=arst', null, '/admission/index.php'),
+
+      array('https://blog-beta.gac.edu/admission/apply/?arst=arst', 'apply/?arst=arst', 'blog-beta.gac.edu', '/admission/index.php'),
+      array('https://blog-beta.gac.edu/admission/apply/?arst=arst', 'apply/?arst=arst', 'blog-beta.gac.edu', '/admission/index.php'),
+      array('https://beta.gac.edu/admission/apply/?arst=arst', 'apply/?arst=arst', 'blog-beta.gac.edu', '/admission/index.php', true),
     );
   }
 
