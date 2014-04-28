@@ -134,7 +134,7 @@ class MimeUtil
    *  <em>Optional</em>.
    *  A regular expression to use as the blacklist for validating the given MIME type. If omitted,
    *  the default MIME type blacklist will be used.
-
+   *
    * @throws InvalidArgumentException
    *  if $mime is provided but is not a string, or a $whitelist or $blacklist are provided, but are
    *  empty, not strings or not valid regular expressions.
@@ -185,7 +185,7 @@ class MimeUtil
    *  <em>Optional</em>.
    *  A regular expression to use as the blacklist for validating the given MIME type. If omitted,
    *  the default MIME type blacklist will be used.
-
+   *
    * @throws InvalidArgumentException
    *  if $name is null, empty or not a string, or a $whitelist or $blacklist are provided, but are
    *  empty, not strings or not valid regular expressions.
