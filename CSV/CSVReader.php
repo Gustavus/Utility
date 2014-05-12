@@ -63,6 +63,13 @@ class CSVReader
    */
   protected $stream;
 
+  /**
+   * Token buffer to be used with the peekToken method.
+   *
+   * @var mixed
+   */
+  protected $tbuffer;
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
   public function __construct($stream)
@@ -79,6 +86,7 @@ class CSVReader
     }
 
     $this->stream = $stream;
+    $this->tbuffer = null;
   }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -96,7 +104,47 @@ class CSVReader
    */
   protected function readToken()
   {
+    if (!isset($this->tbuffer)) {
+      $this->peekToken();
+    }
 
+    $token = $this->tbuffer;
+    $this->tbuffer = null;
+
+    return $token;
+  }
+
+  /**
+   * Reads the next token from the backing input stream without consuming the token. The return type
+   * of this method varies depending on the token returned. For generic character data, the value
+   * returned will be a string. For special control tokens, the value will be an integer.
+   *
+   * @throws RuntimeException
+   *  if the backing input stream is closed or data is, otherwise, unavailable.
+   *
+   * @return string|integer
+   *  The next token in the stream.
+   */
+  protected function peekToken()
+  {
+    if (!isset($this->tbuffer)) {
+      $char = fgetc($this->stream);
+
+      if ($char !== false) {
+        switch ($char) {
+          case '"':
+            // Peek next character
+            // Check if the next character is also a quote.
+
+
+        }
+      } else {
+        $this->tbuffer = static::TOKEN_END_OF_STREAM;
+      }
+    }
+
+    // We need to make sure this is set by the time we get here.
+    return $this->tbuffer;
   }
 
 
