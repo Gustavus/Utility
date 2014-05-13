@@ -75,7 +75,7 @@ class CSVReader
   public function __construct($stream)
   {
     if (!is_resource($stream)) {
-      throw new InvalidArgumentException('$stream is not a valid output stream.');
+      throw new InvalidArgumentException('$stream is not a valid input stream.');
     }
 
     // Make sure the stream is readable or we'll have problems later.

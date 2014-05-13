@@ -22,13 +22,22 @@ interface StreamReader
 {
   /**
    * Closes this StreamReader, the input stream backing it and releases any associated resources.
-   * Once the stream has closed, further calls to read(), peek(), skip(), available(), mark() and
-   * rewind() will throw an exception. Repeated invocations will have no effect on this instance.
+   * Once the stream has closed, further calls to <tt>read()</tt>, <tt>peek()</tt>, <tt>skip()</tt>,
+   * <tt>available()</tt>, <tt>mark()</tt> and <tt>rewind()</tt> will throw an exception. Repeated
+   * invocations will have no effect on this instance.
    *
    * @return boolean
    *  True if this reader was closed successfully; false otherwise.
    */
   public function close();
+
+  /**
+   * Checks if this StreamReader has been closed.
+   *
+   * @return boolean
+   *  True if this reader is closed; false otherwise.
+   */
+  public function isClosed();
 
   /**
    * Returns the estimated number of characters that can be read, peeked or skipped without

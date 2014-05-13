@@ -81,7 +81,7 @@ class CSVWriter
   {
     $result = false;
 
-    if (is_scalar($data) || $data === null) {
+    if (is_resource($this->stream) && (is_scalar($data) || $data === null)) {
       $target   = strlen($data);
       $attempts = 0;
 
