@@ -1066,10 +1066,10 @@ class StringTest extends Test
       ['Joseph', 'Joseph', null, null, null, 'verbose'],
       ['Joseph Lencioni', 'Joseph', null, 'Lencioni', null, 'verbose'],
       ['Joseph Daniel Lencioni', 'Joseph', 'Daniel', 'Lencioni', null, 'verbose'],
-      ['Joseph (Joe) Daniel Lencioni', 'Joseph', 'Daniel', 'Lencioni', 'Joe', 'verbose'],
+      ['Joseph "Joe" Daniel Lencioni', 'Joseph', 'Daniel', 'Lencioni', 'Joe', 'verbose'],
       ['Joe Daniel Lencioni', '', 'Daniel', 'Lencioni', 'Joe', 'verbose'],
 
-      ['Samantha (Sam) Arlene Lencioni ’07 (Samantha (Sam) Arlene Matthes)', 'Samantha', 'Arlene', 'Lencioni', 'Sam', 'verbose', false, false, 2007, 'Matthes'],
+      ['Samantha "Sam" Arlene Lencioni ’07 (Samantha "Sam" Arlene Matthes)', 'Samantha', 'Arlene', 'Lencioni', 'Sam', 'verbose', false, false, 2007, 'Matthes'],
     ];
   }
 
