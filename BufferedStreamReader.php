@@ -125,9 +125,17 @@ class BufferedStreamReader implements StreamReader
   /**
    * {@inheritDoc}
    */
+  public function isClosed()
+  {
+    return !is_resource($this->stream);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   public function available()
   {
-    if (!is_resource($this->stream)) {
+    if ($this->isClosed()) {
       throw new RuntimeException('The stream has been closed.');
     }
 
@@ -139,7 +147,7 @@ class BufferedStreamReader implements StreamReader
    */
   public function read($count = 1, &$read = null)
   {
-    if (!is_resource($this->stream)) {
+    if ($this->isClosed()) {
       throw new RuntimeException('The stream has been closed.');
     }
 
@@ -151,7 +159,7 @@ class BufferedStreamReader implements StreamReader
    */
   public function peek($count = 1, &$read = null)
   {
-    if (!is_resource($this->stream)) {
+    if ($this->isClosed()) {
       throw new RuntimeException('The stream has been closed.');
     }
 
@@ -163,7 +171,7 @@ class BufferedStreamReader implements StreamReader
    */
   public function skip($count = 1, &$read = null)
   {
-    if (!is_resource($this->stream)) {
+    if ($this->isClosed()) {
       throw new RuntimeException('The stream has been closed.');
     }
 
@@ -191,7 +199,7 @@ class BufferedStreamReader implements StreamReader
    */
   public function mark()
   {
-    if (!is_resource($this->stream)) {
+    if ($this->isClosed()) {
       throw new RuntimeException('The stream has been closed.');
     }
 
@@ -203,7 +211,7 @@ class BufferedStreamReader implements StreamReader
    */
   public function rewind()
   {
-    if (!is_resource($this->stream)) {
+    if ($this->isClosed()) {
       throw new RuntimeException('The stream has been closed.');
     }
 

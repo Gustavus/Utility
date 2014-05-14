@@ -7,15 +7,12 @@
  *
  * @author Chris Rog <crog@gustavus.edu>
  */
-namespace Gustavus\Utility\Test\CSV;
+namespace Gustavus\Utility\Test;
 
 use Gustavus\Test\Test,
     Gustavus\Test\DelayedExecutionToken,
 
-    Gustavus\Utility\CSV\StreamReader,
-    // Gustavus\Utility\Test\CSV\StreamReaderTest\StreamReaderTestImpl,
-
-    StdClass;
+    Gustavus\Utility\StreamReader;
 
 
 
@@ -27,7 +24,7 @@ use Gustavus\Test\Test,
  *
  * @author Chris Rog <crog@gustavus.edu>
  */
-abstract class StreamReaderTest extends Test
+abstract class StreamReaderTestTemplate extends Test
 {
   protected $tokens;
 
@@ -40,8 +37,12 @@ abstract class StreamReaderTest extends Test
 
   public function tearDown()
   {
-    foreach ($this->tokens as $token) {
-      override_revert($token);
+    foreach ($this->tokens as &$token) {
+      if (is_resource($token)) {
+        override_revert($token);
+      }
+
+      $token = null;
     }
   }
 
@@ -58,7 +59,9 @@ abstract class StreamReaderTest extends Test
     $stream = fopen('php://memory', 'rb+');
 
     $this->tokens[] = new DelayedExecutionToken(function() use (&$stream) {
-      fclose($stream);
+      if (is_resource($stream)) {
+        fclose($stream);
+      }
     });
 
     return $stream;
@@ -293,7 +296,7 @@ abstract class StreamReaderTest extends Test
     $reader = $this->buildInstance($stream);
 
     $result = $reader->canMark();
-    $this->assertTrue(is_boolean($result));
+    $this->assertSame('boolean', gettype($result));
   }
 
   /**
@@ -305,7 +308,7 @@ abstract class StreamReaderTest extends Test
     $reader = $this->buildInstance($stream);
 
     $result = $reader->canRewind();
-    $this->assertTrue(is_boolean($result));
+    $this->assertSame('boolean', gettype($result));
   }
 
   /**
@@ -316,11 +319,11 @@ abstract class StreamReaderTest extends Test
     $stream = $this->buildStream();
     $reader = $this->buildInstance($stream);
 
-    if (!$stream->canMark()) {
+    if (!$reader->canMark()) {
       $this->setExpectedException('RuntimeException');
     }
 
-    $result = $stream->mark();
+    $result = $reader->mark();
     $this->assertTrue($result);
   }
 
@@ -338,7 +341,7 @@ abstract class StreamReaderTest extends Test
     fwrite($stream, $input);
     rewind($stream);
 
-    if (!$stream->canRewind()) {
+    if (!$reader->canRewind()) {
       $this->setExpectedException('RuntimeException');
     }
 

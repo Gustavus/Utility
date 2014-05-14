@@ -1,161 +1,37 @@
 <?php
 /**
- * StreamReaderTest.php
+ * BufferedStreamReaderTest.php
  *
  * @package Utility
  * @subpackage Test
  *
  * @author Chris Rog <crog@gustavus.edu>
  */
-namespace Gustavus\Utility\Test\CSV;
+namespace Gustavus\Utility\Test;
 
 use Gustavus\Test\Test,
     Gustavus\Test\DelayedExecutionToken,
 
-    Gustavus\Utility\CSV\StreamReader,
-    // Gustavus\Utility\Test\CSV\StreamReaderTest\StreamReaderTestImpl,
-
-    StdClass;
+    Gustavus\Utility\BufferedStreamReader;
 
 
 
 /**
- * Test suite for the StreamReader class.
+ * Test suite for the BufferedStreamReader class.
  *
  * @package Utility
  * @subpackage Test
  *
  * @author Chris Rog <crog@gustavus.edu>
  */
-abstract class StreamReaderTest extends Test
+class BufferedStreamReaderTest //extends StreamReaderTestTemplate
 {
-  protected $tokens;
-
-
-
-  public function setup()
-  {
-    $this->tokens = [];
-  }
-
-  public function tearDown()
-  {
-    foreach ($this->tokens as $token) {
-      override_revert($token);
-    }
-  }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
   /**
-   * Builds a stream to be used during testing.
-   *
-   * @return resource
-   *  A stream usable during testing.
+   * {@inheritDoc}
    */
-  public function buildStream()
+  public function buildInstance($stream)
   {
-    $stream = fopen('php://memory', 'wb+');
-
-    $this->tokens[] = new DelayedExecutionToken(function() use (&$stream) {
-      fclose($stream);
-    });
-
-    return $stream;
+    return new BufferedStreamReader($stream);
   }
-
-  /**
-   * Builds the StreamReader instance to test, using the specified stream as the backing input
-   * stream.
-   *
-   * @param resource $stream
-   *  The stream from which the newly built StreamReader should read.
-   *
-   * @return StreamReader
-   *  The StreamReader instance to test.
-   */
-  public abstract function buildInstance($stream);
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  /**
-   * @test
-   */
-  public function testClose()
-  {
-    $stream = $this->buildStream();
-    $reader = $this->buildInstance($stream);
-
-
-
-  }
-
-  /**
-   * @test
-   */
-  public function testAvailable()
-  {
-
-  }
-
-  /**
-   * @test
-   */
-  public function testRead()
-  {
-
-  }
-
-  /**
-   * @test
-   */
-  public function testPeek()
-  {
-
-  }
-
-  /**
-   * @test
-   */
-  public function testSkip()
-  {
-
-  }
-
-  /**
-   * @test
-   */
-  public function testCanMark()
-  {
-
-  }
-
-  /**
-   * @test
-   */
-  public function testCanRewind()
-  {
-
-  }
-
-  /**
-   * @test
-   */
-  public function testMark()
-  {
-
-  }
-
-  /**
-   * @test
-   */
-  public function testRewind()
-  {
-
-  }
-
-
-
-
 
 }
