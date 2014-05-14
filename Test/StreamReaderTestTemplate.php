@@ -26,24 +26,19 @@ use Gustavus\Test\Test,
  */
 abstract class StreamReaderTestTemplate extends Test
 {
-  protected $tokens;
-
-
-
-  public function setup()
-  {
-    $this->tokens = [];
-  }
+  protected $tokens = [];
 
   public function tearDown()
   {
     foreach ($this->tokens as &$token) {
-      if (is_resource($token)) {
+      if (is_resource($token) && get_resource_type($token) === 'GTO Override Token') {
         override_revert($token);
       }
 
       $token = null;
     }
+
+    $this->tokens = [];
   }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -130,6 +125,19 @@ abstract class StreamReaderTestTemplate extends Test
 
   /**
    * @test
+   * @expectedException RuntimeException
+   */
+  public function testAvailableClosedException()
+  {
+    $stream = $this->buildStream();
+    $reader = $this->buildInstance($stream);
+
+    $reader->close();
+    $reader->available();
+  }
+
+  /**
+   * @test
    */
   public function testReadSingleCharacter()
   {
@@ -170,7 +178,7 @@ abstract class StreamReaderTestTemplate extends Test
     rewind($stream);
 
     for ($i = 0; $i < 10; ++$i) {
-      $chunksize = mt_rand(2, 9);
+      $chunksize = mt_rand(3, 9);
       $expected = substr($input, $offset, $chunksize);
 
       $result = $reader->read($chunksize, $read);
@@ -179,6 +187,32 @@ abstract class StreamReaderTestTemplate extends Test
 
       $offset += $chunksize;
     }
+  }
+
+  /**
+   * @test
+   * @expectedException RuntimeException
+   */
+  public function testReadClosedException()
+  {
+    $stream = $this->buildStream();
+    $reader = $this->buildInstance($stream);
+
+    $reader->close();
+    $reader->read();
+  }
+
+  /**
+   * @test
+   * @dataProvider invalidCountProvider
+   * @expectedException InvalidArgumentException
+   */
+  public function testReadInvalidCount($count)
+  {
+    $stream = $this->buildStream();
+    $reader = $this->buildInstance($stream);
+
+    $reader->read($count);
   }
 
   /**
@@ -220,13 +254,39 @@ abstract class StreamReaderTestTemplate extends Test
     rewind($stream);
 
     for ($i = 0; $i < 10; ++$i) {
-      $chunksize = mt_rand(2, 9);
+      $chunksize = mt_rand(3, 9);
       $expected = substr($input, $offset, $chunksize);
 
       $result = $reader->peek($chunksize, $read);
       $this->assertSame($expected, $result);
       $this->assertSame($chunksize, $read);
     }
+  }
+
+  /**
+   * @test
+   * @expectedException RuntimeException
+   */
+  public function testPeekClosedException()
+  {
+    $stream = $this->buildStream();
+    $reader = $this->buildInstance($stream);
+
+    $reader->close();
+    $reader->peek();
+  }
+
+  /**
+   * @test
+   * @dataProvider invalidCountProvider
+   * @expectedException InvalidArgumentException
+   */
+  public function testPeekInvalidCount($count)
+  {
+    $stream = $this->buildStream();
+    $reader = $this->buildInstance($stream);
+
+    $reader->peek($count);
   }
 
   /**
@@ -245,7 +305,7 @@ abstract class StreamReaderTestTemplate extends Test
     rewind($stream);
 
     for ($i = 0; $i < 10; ++$i) {
-      $expected = substr($input, $offset, $chunksize);
+      $expected = substr($input, $offset + $chunksize, $chunksize);
 
       $reader->skip($chunksize, $read);
       $this->assertSame($chunksize, $read);
@@ -273,8 +333,8 @@ abstract class StreamReaderTestTemplate extends Test
     rewind($stream);
 
     for ($i = 0; $i < 10; ++$i) {
-      $chunksize = mt_rand(2, 9);
-      $expected = substr($input, $offset, $chunksize);
+      $chunksize = mt_rand(3, 9);
+      $expected = substr($input, $offset + $chunksize, $chunksize);
 
       $reader->skip($chunksize, $read);
       $this->assertSame($chunksize, $read);
@@ -285,6 +345,93 @@ abstract class StreamReaderTestTemplate extends Test
 
       $offset += $chunksize;
     }
+  }
+
+  /**
+   * @test
+   * @expectedException RuntimeException
+   */
+  public function testSkipClosedException()
+  {
+    $stream = $this->buildStream();
+    $reader = $this->buildInstance($stream);
+
+    $reader->close();
+    $reader->skip();
+  }
+
+  /**
+   * @test
+   * @dataProvider invalidCountProvider
+   * @expectedException InvalidArgumentException
+   */
+  public function testSkipInvalidCount($count)
+  {
+    $stream = $this->buildStream();
+    $reader = $this->buildInstance($stream);
+
+    $reader->skip($count);
+  }
+
+  /**
+   * Data provider for tests that require invalid counts.
+   *
+   * @return array
+   */
+  public function invalidCountProvider()
+  {
+    return [
+      [null],
+      [''],
+      ['1'],
+      [true],
+      [false],
+      [[1]],
+      [$this],
+      [function() { return 1; }],
+      [STDOUT],
+    ];
+  }
+
+
+
+  /**
+   * @test
+   */
+  public function testIsEOF()
+  {
+    $stream = $this->buildStream();
+    $reader = $this->buildInstance($stream);
+
+    $input = str_repeat('0123456789abcdefghij', 5);
+
+    fwrite($stream, $input);
+    rewind($stream);
+
+    // Initially, nothing should be available, as there hasn't been a reason to buffer any data.
+    // After a one char/byte read operation, there should be /something/ available.
+
+    $result = $reader->isEOF();
+    $this->assertFalse($result);
+
+    $result = $reader->read(strlen($input));
+    $this->assertSame($input, $result);
+
+    $result = $reader->isEOF();
+    $this->assertTrue($result);
+  }
+
+  /**
+   * @test
+   * @expectedException RuntimeException
+   */
+  public function testIsEOFClosedException()
+  {
+    $stream = $this->buildStream();
+    $reader = $this->buildInstance($stream);
+
+    $reader->close();
+    $reader->isEOF();
   }
 
   /**
@@ -329,8 +476,100 @@ abstract class StreamReaderTestTemplate extends Test
 
   /**
    * @test
+   * @expectedException RuntimeException
    */
-  public function testRewind()
+  public function testMarkClosedException()
+  {
+    $stream = $this->buildStream();
+    $reader = $this->buildInstance($stream);
+
+    $reader->close();
+    $reader->mark();
+  }
+
+  /**
+   * @test
+   */
+  public function testIsMarked()
+  {
+    $stream = $this->buildStream();
+    $reader = $this->buildInstance($stream);
+
+    $result = $reader->isMarked();
+    $this->assertFalse($result);
+
+    if ($reader->canMark()) {
+      $result = $reader->mark();
+      $this->assertTrue($result);
+
+      $result = $reader->isMarked();
+      $this->assertTrue($result);
+    }
+  }
+
+  /**
+   * @test
+   * @expectedException RuntimeException
+   */
+  public function testIsMarkedClosedException()
+  {
+    $stream = $this->buildStream();
+    $reader = $this->buildInstance($stream);
+
+    $reader->close();
+    $reader->isMarked();
+  }
+
+  /**
+   * @test
+   */
+  public function testClearMark()
+  {
+    $stream = $this->buildStream();
+    $reader = $this->buildInstance($stream);
+
+    $result = $reader->isMarked();
+    $this->assertFalse($result);
+
+    $result = $reader->clearMark();
+    $this->assertFalse($result);
+
+    $result = $reader->isMarked();
+    $this->assertFalse($result);
+
+
+    if ($reader->canMark()) {
+      $result = $reader->mark();
+      $this->assertTrue($result);
+
+      $result = $reader->isMarked();
+      $this->assertTrue($result);
+
+      $result = $reader->clearMark();
+      $this->assertTrue($result);
+
+      $result = $reader->isMarked();
+      $this->assertFalse($result);
+    }
+  }
+
+  /**
+   * @test
+   * @expectedException RuntimeException
+   */
+  public function testClearMarkClosedException()
+  {
+    $stream = $this->buildStream();
+    $reader = $this->buildInstance($stream);
+
+    $reader->close();
+    $reader->clearMark();
+  }
+
+  /**
+   * @test
+   */
+  public function testRewindNoMark()
   {
     $stream = $this->buildStream();
     $reader = $this->buildInstance($stream);
@@ -346,7 +585,7 @@ abstract class StreamReaderTestTemplate extends Test
     }
 
     for ($i = 0; $i < 10; ++$i) {
-      $chunksize = mt_rand(2, 9);
+      $chunksize = mt_rand(3, 9);
       $expected = substr($input, $offset, $chunksize);
 
       $result = $reader->read($chunksize, $read);
@@ -361,7 +600,7 @@ abstract class StreamReaderTestTemplate extends Test
 
     $offset = 0;
     for ($i = 0; $i < 10; ++$i) {
-      $chunksize = mt_rand(2, 9);
+      $chunksize = mt_rand(3, 9);
       $expected = substr($input, $offset, $chunksize);
 
       $result = $reader->read($chunksize, $read);
@@ -372,8 +611,76 @@ abstract class StreamReaderTestTemplate extends Test
     }
   }
 
+  /**
+   * @test
+   */
+  public function testRewindWithMark()
+  {
+    $stream = $this->buildStream();
+    $reader = $this->buildInstance($stream);
+
+    $input = str_repeat('0123456789abcdefghij', 5);
+    $offset = 0;
+
+    fwrite($stream, $input);
+    rewind($stream);
+
+    if (!$reader->canRewind() || !$reader->canMark()) {
+      $this->setExpectedException('RuntimeException');
+    }
 
 
+    $chunksize = mt_rand(3, 9);
+    $expected = substr($input, $offset, $chunksize);
 
+    $result = $reader->read($chunksize, $read);
+    $this->assertSame($expected, $result);
+    $this->assertSame($chunksize, $read);
+
+    $offset += $chunksize;
+    $mark = $offset;
+
+    $result = $reader->mark();
+    $this->assertTrue($result);
+
+    $result = $reader->isMarked();
+    $this->assertTrue($result);
+
+    $chunksize = mt_rand(3, 9);
+    $expected = substr($input, $offset, $chunksize);
+
+    $result = $reader->read($chunksize, $read);
+    $this->assertSame($expected, $result);
+    $this->assertSame($chunksize, $read);
+
+    if ($reader->isMarked()) {
+      $offset = $mark;
+    } else {
+      $offset = 0;
+    }
+
+    $result = $reader->rewind();
+    $this->assertTrue($result);
+
+    $chunksize = mt_rand(3, 9);
+    $expected = substr($input, $offset, $chunksize);
+
+    $result = $reader->read($chunksize, $read);
+    $this->assertSame($expected, $result);
+    $this->assertSame($chunksize, $read);
+  }
+
+  /**
+   * @test
+   * @expectedException RuntimeException
+   */
+  public function testRewindClosedException()
+  {
+    $stream = $this->buildStream();
+    $reader = $this->buildInstance($stream);
+
+    $reader->close();
+    $reader->rewind();
+  }
 
 }

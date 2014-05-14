@@ -22,9 +22,8 @@ interface StreamReader
 {
   /**
    * Closes this StreamReader, the input stream backing it and releases any associated resources.
-   * Once the stream has closed, further calls to <tt>read()</tt>, <tt>peek()</tt>, <tt>skip()</tt>,
-   * <tt>available()</tt>, <tt>mark()</tt> and <tt>rewind()</tt> will throw an exception. Repeated
-   * invocations will have no effect on this instance.
+   * Once the stream has closed, calls to methods which perform operations on the stream will throw
+   * an exception. Repeated invocations will have no effect on this instance.
    *
    * @return boolean
    *  True if this reader was closed successfully; false otherwise.
@@ -38,6 +37,18 @@ interface StreamReader
    *  True if this reader is closed; false otherwise.
    */
   public function isClosed();
+
+  /**
+   * Checks if this StreamReader is at the end-of-file/stream. Note that for a stream to reach EOF,
+   * it must first fail a read operation.
+   *
+   * @throws RuntimeException
+   *  if the stream is closed or an error occurs during reading.
+   *
+   * @return boolean
+   *  True if the stream is at EOF; false otherwise.
+   */
+  public function isEOF();
 
   /**
    * Returns the estimated number of characters that can be read, peeked or skipped without
@@ -64,6 +75,9 @@ interface StreamReader
    * @throws RuntimeException
    *  if the stream is closed or an error occurs during reading.
    *
+   * @throws InvalidArgumentException
+   *  if $count is not an integer value.
+   *
    * @return string
    *  The characters read from the stream as a string.
    */
@@ -88,6 +102,9 @@ interface StreamReader
    * @throws RuntimeException
    *  if the stream is closed or an error occurs during reading.
    *
+   * @throws InvalidArgumentException
+   *  if $count is not an integer value.
+   *
    * @return string
    *  The characters read from the stream as a string.
    */
@@ -108,6 +125,9 @@ interface StreamReader
    *
    * @throws RuntimeException
    *  if the stream is closed or an error occurs during reading.
+   *
+   * @throws InvalidArgumentException
+   *  if $count is not an integer value.
    *
    * @return void
    */
@@ -137,19 +157,52 @@ interface StreamReader
    *  Not all StreamReader implementations will support this operation. Check the result of the
    *  <tt>canMark()</tt> method if this functionality is required.
    *
+   * @throws RuntimeException
+   *  if the stream is closed.
+   *
    * @return boolean
    *  True if the current position was marked successfully; false otherwise.
    */
   public function mark();
 
   /**
+   * Clears the marked position, if any, in the stream.
+   *
+   * @throws RuntimeException
+   *  if the stream is closed.
+   *
+   * @return boolean
+   *  True if a marked position was cleared; false otherwise.
+   */
+  public function clearMark();
+
+  /**
+   * Checks if this stream has a previous position in the stream marked and the mark has not been
+   * invalidated.
+   *
+   * @throws RuntimeException
+   *  if the stream is closed.
+   *
+   * @return boolean
+   *  True if this stream has a valid, marked position; false otherwise.
+   */
+  public function isMarked();
+
+  /**
    * Attempts to reposition the stream to the previously marked position. If a position has not been
-   * marked, the stream will be attempt to be rewound to the beginning. If the rewind operation
+   * marked, the stream will be attempt to be repositioned to the beginning. If the rewind operation
    * cannot complete successfully, the stream pointer will not be repositioned at all.
+   *
+   * As marked positions may be invalidated by the reader, calling applications should first check
+   * the result of the <tt>isMarked()</tt> method to determine which behavior will be triggered by
+   * this method.
    *
    * <strong>Note:</strong>
    *  Not all StreamReader implementations will support this operation. Check the result of the
    *  <tt>canRewind()</tt> method if this functionality is required.
+   *
+   * @throws RuntimeException
+   *  if the stream is closed.
    *
    * @return boolean
    *  True if the stream was repositioned successfully; false otherwise.

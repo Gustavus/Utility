@@ -43,11 +43,11 @@ class CSVWriterTest extends Test
       $this->setExpectedException($exception);
     }
 
-    if (is_resource($stream) && $stream !== STDOUT) {
-      $token = new DelayedExecutionToken(function() use(&$stream) {
-        @fclose($stream);
-      });
-    }
+    $token = new DelayedExecutionToken(function() use(&$stream) {
+      if (is_resource($stream) && $stream !== STDOUT) {
+        fclose($stream);
+      }
+    });
 
     $writer = new CSVWriter($stream);
   }
