@@ -1006,7 +1006,7 @@ class String extends Base implements ArrayAccess
 
       case 'verbose':
         if ($first != '' && $preferred != '') {
-          $f  = "$first ($preferred)";
+          $f  = "$first \"$preferred\"";
         } else if ($first != '') {
           $f  = $first;
         } else {
