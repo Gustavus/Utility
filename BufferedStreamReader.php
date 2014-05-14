@@ -195,17 +195,17 @@ class BufferedStreamReader implements StreamReader
 
       // Read enough data to fill our buffer or fulfill the request.
       while ($available < $request && $remain > 0) {
-        if (($chunk = fread($this->stream, $remain)) === false) {
+        if ($chunk = fread($this->stream, $remain)) {
+          $clen   = strlen($chunk);
+          $read   += $clen;
+          $remain -= $clen;
+
+          $this->buffer .= $chunk;
+          $this->length += $clen;
+          $available    += $clen;
+        } else {
           break; // EOF or error
         }
-
-        $clen   = strlen($chunk);
-        $read   += $clen;
-        $remain -= $clen;
-
-        $this->buffer .= $chunk;
-        $this->length += $clen;
-        $available    += $clen;
       }
     }
 
@@ -273,7 +273,7 @@ class BufferedStreamReader implements StreamReader
     }
 
 
-    $result = '';
+    $result = false;
     $remain = $count;
 
     while ($remain > 0) {
@@ -314,7 +314,7 @@ class BufferedStreamReader implements StreamReader
     }
 
 
-    $result = '';
+    $result = false;
     $remain = $count;
     $offset = $this->offset;
     $index  = $this->offset;
@@ -382,6 +382,8 @@ class BufferedStreamReader implements StreamReader
     }
 
     $read = ($count - $remain);
+
+    return !$remain;
   }
 
   /**

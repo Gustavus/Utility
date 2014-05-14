@@ -191,6 +191,62 @@ abstract class StreamReaderTestTemplate extends Test
 
   /**
    * @test
+   */
+  public function testReadLargeChunk()
+  {
+    $stream = $this->buildStream();
+    $reader = $this->buildInstance($stream);
+
+    $input = str_repeat('0123456789abcdefghij', 50);
+    $smallchunk = 20;
+    $largechunk = 200;
+    $offset = 0;
+
+    fwrite($stream, $input);
+    rewind($stream);
+
+    $result = $reader->read($smallchunk, $read);
+    $this->assertSame(substr($input, $offset, $smallchunk), $result);
+    $this->assertSame($smallchunk, $read);
+
+    $offset += $smallchunk;
+
+    $result = $reader->read($largechunk, $read);
+    $this->assertSame(substr($input, $offset, $largechunk), $result);
+    $this->assertSame($largechunk, $read);
+
+    $offset += $largechunk;
+
+    $result = $reader->read($largechunk, $read);
+    $this->assertSame(substr($input, $offset, $largechunk), $result);
+    $this->assertSame($largechunk, $read);
+  }
+
+  /**
+   * @test
+   */
+  public function testReadToEOF()
+  {
+    $stream = $this->buildStream();
+    $reader = $this->buildInstance($stream);
+
+    $input = '0123456789abcdefghij';
+    $offset = 0;
+
+    fwrite($stream, $input);
+    rewind($stream);
+
+    $result = $reader->read(strlen($input), $read);
+    $this->assertSame($input, $result);
+    $this->assertSame(strlen($input), $read);
+
+    $result = $reader->read(5, $read);
+    $this->assertFalse($result);
+    $this->assertSame(0, $read);
+  }
+
+  /**
+   * @test
    * @expectedException RuntimeException
    */
   public function testReadClosedException()
@@ -261,6 +317,64 @@ abstract class StreamReaderTestTemplate extends Test
       $this->assertSame($expected, $result);
       $this->assertSame($chunksize, $read);
     }
+  }
+
+  /**
+   * @test
+   */
+  public function testPeekLargeChunk()
+  {
+    $stream = $this->buildStream();
+    $reader = $this->buildInstance($stream);
+
+    $input = str_repeat('0123456789abcdefghij', 50);
+    $smallchunk = 20;
+    $largechunk = 200;
+    $offset = 0;
+
+    fwrite($stream, $input);
+    rewind($stream);
+
+    $result = $reader->read($smallchunk, $read);
+    $this->assertSame(substr($input, $offset, $smallchunk), $result);
+    $this->assertSame($smallchunk, $read);
+
+    $offset += $smallchunk;
+
+    $result = $reader->peek($largechunk, $read);
+    $this->assertSame(substr($input, $offset, $largechunk), $result);
+    $this->assertSame($largechunk, $read);
+
+    $result = $reader->peek($largechunk, $read);
+    $this->assertSame(substr($input, $offset, $largechunk), $result);
+    $this->assertSame($largechunk, $read);
+
+    $result = $reader->read($largechunk, $read);
+    $this->assertSame(substr($input, $offset, $largechunk), $result);
+    $this->assertSame($largechunk, $read);
+  }
+
+  /**
+   * @test
+   */
+  public function testPeekToEOF()
+  {
+    $stream = $this->buildStream();
+    $reader = $this->buildInstance($stream);
+
+    $input = '0123456789abcdefghij';
+    $offset = 0;
+
+    fwrite($stream, $input);
+    rewind($stream);
+
+    $result = $reader->read(strlen($input), $read);
+    $this->assertSame($input, $result);
+    $this->assertSame(strlen($input), $read);
+
+    $result = $reader->peek(5, $read);
+    $this->assertFalse($result);
+    $this->assertSame(0, $read);
   }
 
   /**
@@ -345,6 +459,62 @@ abstract class StreamReaderTestTemplate extends Test
 
       $offset += $chunksize;
     }
+  }
+
+  /**
+   * @test
+   */
+  public function testSkipLargeChunk()
+  {
+    $stream = $this->buildStream();
+    $reader = $this->buildInstance($stream);
+
+    $input = str_repeat('0123456789abcdefghij', 50);
+    $smallchunk = 20;
+    $largechunk = 200;
+    $offset = 0;
+
+    fwrite($stream, $input);
+    rewind($stream);
+
+    $result = $reader->read($smallchunk, $read);
+    $this->assertSame(substr($input, $offset, $smallchunk), $result);
+    $this->assertSame($smallchunk, $read);
+
+    $offset += $smallchunk;
+
+    $result = $reader->skip($largechunk, $read);
+    $this->assertTrue($result);
+    $this->assertSame($largechunk, $read);
+
+    $offset += $largechunk;
+
+    $result = $reader->read($largechunk, $read);
+    $this->assertSame(substr($input, $offset, $largechunk), $result);
+    $this->assertSame($largechunk, $read);
+  }
+
+  /**
+   * @test
+   */
+  public function testSkipToEOF()
+  {
+    $stream = $this->buildStream();
+    $reader = $this->buildInstance($stream);
+
+    $input = '0123456789abcdefghij';
+    $offset = 0;
+
+    fwrite($stream, $input);
+    rewind($stream);
+
+    $result = $reader->skip(strlen($input), $read);
+    $this->assertTrue($result);
+    $this->assertSame(strlen($input), $read);
+
+    $result = $reader->skip(5, $read);
+    $this->assertFalse($result);
+    $this->assertSame(0, $read);
   }
 
   /**

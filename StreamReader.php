@@ -78,8 +78,8 @@ interface StreamReader
    * @throws InvalidArgumentException
    *  if $count is not an integer value.
    *
-   * @return string
-   *  The characters read from the stream as a string.
+   * @return string|boolean
+   *  The characters read from the stream as a string or false if no characters could be read.
    */
   public function read($count = 1, &$read = null);
 
@@ -105,8 +105,8 @@ interface StreamReader
    * @throws InvalidArgumentException
    *  if $count is not an integer value.
    *
-   * @return string
-   *  The characters read from the stream as a string.
+   * @return string|boolean
+   *  The characters read from the stream as a string or false if no characters could be read.
    */
   public function peek($count = 1, &$read = null);
 
@@ -129,7 +129,8 @@ interface StreamReader
    * @throws InvalidArgumentException
    *  if $count is not an integer value.
    *
-   * @return void
+   * @return boolean
+   *  True if the requested characters were skipped successfully; false otherwise.
    */
   public function skip($count = 1, &$read = null);
 
