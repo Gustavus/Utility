@@ -9,13 +9,31 @@
  */
 namespace Gustavus\Utility\CSV;
 
-use InvalidArgumentException;
+use Gustavus\Utility\BufferedStreamReader,
+
+    InvalidArgumentException;
 
 
 
 /**
  * The CSVReader class provides stream-like read functionality for CSV data, reading raw CSV data
  * from a backing input stream and allowing it to be processed in logical chunks.
+ *
+ * This implementation uses the following grammar for parsing CSV data:
+ *
+ *  <csv>         ::= <row-set>
+ *
+ *  <row-set>     ::= <row> <row-del> <row-set> | <row>
+ *  <row>         ::= <val-set>
+ *  <row-del>     ::= "\r\n" | "\n"
+ *
+ *  <val-set>     ::= <val> <val-del> <val-set> | <val>
+ *  <val>         ::= '"' <quoted-text> '"' | <safe-chars>
+ *  <val-del>     ::= <whitespace> "," <whitespace>
+ *
+ *  <quoted-text> ::= '""' <quoted-text> | <safe-chars> | [\r\n,]
+ *  <safe-chars>  ::= ~[\r\n,"] <safe-chars> | ""
+ *  <whitespace>  ::= " " <whitespace> | "\t" <whitespace> | ""
  *
  * @package Utility
  * @subpackage CSV
@@ -25,51 +43,12 @@ use InvalidArgumentException;
 class CSVReader
 {
   /**
-   * Token identifier for the end of the stream.
-   *
-   * @var integer
-   */
-  const TOKEN_END_OF_STREAM   = 0x00;
-
-  /**
-   * Token identifier for a column (value) delimiter.
-   *
-   * @var integer
-   */
-  const TOKEN_COL_DELIMITER   = 0x01;
-
-  /**
-   * Token identifier for a row delimiter.
-   *
-   * @var integer
-   */
-  const TOKEN_ROW_DELIMITER   = 0x02;
-
-  /**
-   * Token identifier for a value enclosure.
-   *
-   * @var integer
-   */
-  const TOKEN_VALUE_ENCLOSURE = 0x03;
-
-
-
-
-
-  /**
    * The underlying input stream from which raw CSV data is read, wrapped in a StreamReader
    * instance.
    *
    * @var StreamReader
    */
   protected $reader;
-
-  /**
-   * Token buffer to be used with the peekToken method.
-   *
-   * @var mixed
-   */
-  protected $tbuffer;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -95,7 +74,7 @@ class CSVReader
     }
 
     $this->reader = $this->getStreamReader($stream);
-    $this->tbuffer = null;
+    $this->lastToken = null;
   }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -115,206 +94,160 @@ class CSVReader
   }
 
   /**
-   * Reads the next token from the backing input stream. The return type of this method varies
-   * depending on the token. For generic character data, the value returned will be a string. For
-   * special control tokens, the value will be an integer.
+   * Checks if the stream backing this CSVReader is at end-of-file.
    *
-   * @param boolean $enclosed
-   *  Whether or not the token is enclosed within a value enclosure.
-   *
-   * @throws RuntimeException
-   *  if the backing input stream is closed or data is, otherwise, unavailable.
-   *
-   * @return string|integer
-   *  The next token in the stream.
+   * @return boolean
+   *  True if the stream is at EOF; false otherwise.
    */
-  protected function readToken($enclosed)
+  public function isEOF()
   {
-    if (!isset($this->tbuffer)) {
-      $this->peekToken($enclosed);
-    }
-
-    $token = $this->tbuffer;
-    $this->tbuffer = null;
-
-    return $token;
+    return $this->reader->isEOF();
   }
-
-  /**
-   * Reads the next token from the backing input stream without consuming the token. The return type
-   * of this method varies depending on the token returned. For generic character data, the value
-   * returned will be a string. For special control tokens, the value will be an integer.
-   *
-   * @param boolean $enclosed
-   *  Whether or not the token is enclosed within a value enclosure.
-   *
-   * @throws RuntimeException
-   *  if the backing input stream is closed or data is, otherwise, unavailable.
-   *
-   * @return string|integer
-   *  The next token in the stream.
-   */
-  protected function peekToken()
-  {
-    if (!isset($this->tbuffer)) {
-      $token = null;
-
-
-      $char = $this->reader->read(1, $read);
-
-
-      if ($read === 1) {
-        switch ($char) {
-          case '"':
-            // Quote magic
-            if ($enclosed) {
-              if ($char === $next) {
-                $this->reader->skip(1);
-                $this->tbuffer = $char;
-              } else {
-                $this->tbuffer = static::TOKEN_VALUE_ENCLOSURE;
-              }
-            } else {
-              $this->tbuffer = $invalue ? static::TOKEN_VALUE_ENCLOSURE : $char;
-            }
-              break;
-
-          case ',':
-            // If we're not between enclosures, it's a column delimiter
-            $this->tbuffer = $enclosed ? $char : static::TOKEN_COL_DELIMITER;
-              break;
-
-          case "\r":
-            // If we're not between enclosures and a line break follows, it's a row delimiter.
-            if (!$enclosed && $next === "\n") {
-              $this->reader->skip(1);
-              $this->tbuffer = static::TOKEN_ROW_DELIMITER;
-              break;
-            }
-
-          default:
-            $this->tbuffer = $char;
-        }
-      } else {
-        $this->tbuffer = static::TOKEN_END_OF_STREAM;
-      }
-    }
-
-    // We need to make sure this is set by the time we get here.
-    return $this->tbuffer;
-  }
-
 
   /**
    * Reads the next value from the stream.
+   *
+   * @param boolean &$endofrow
+   *  <em>Optional, Out</em>
+   *  Whether or not the value read by this method was at the end of its row.
    *
    * @throws RuntimeException
    *  if the backing input stream is closed or data is, otherwise, unavailable.
    *
    * @return string
-   *  The next value in the stream.
+   *  The next value in the stream, or false if the stream is at EOF.
    */
-  public function readValue()
+  public function readValue(&$endofrow = null)
   {
-    $buffer = '';
-    $enclosed = false;
+    $buffer = false;
+    $whitespace = '';
 
-    //  - Should we buffer an entire row of values...?
-    //    - Line breaks aren't enough to determine the end of a row
-    //    - Officially, a Windows-style CRLF is required instead of just LF.
-    //
-    //  - If not, we still need to identify when we're at the end of a row for processing entire
-    //    rows via readRow.
-    //    -
+    $inval    = false;  // Whether or not we're in a value.
+    $enclosed = false;  // Whether or not the value is enclosed. Implies inval.
+    $endofrow = false;
 
+    // Force a read so we can check if there's any data available.
+    $this->reader->peek(1);
 
+    if (!$this->reader->isEOF()) {
+      $buffer = '';
 
+      while (true) {
+        $chars = $this->reader->peek(2);
 
-    while (true) {
-      $token = $this->readToken($enclosed, $invalue);
+        if ($chars !== false) {
+          switch ($chars[0]) {
+            case ',': // Column/value delimiter
+              if (!$enclosed) {
+                $this->reader->skip(1);
+                break 2;
+              }
+                break;
 
-      if (is_string($token)) {
-        // Generic data
+            case '"':
+              if ($enclosed) {
+                $this->reader->skip(1);
 
-      } else {
-        // Control token
-        switch ($token) {
+                if (empty($chars[1]) || $chars[1] !== $chars[0]) {
+                  $enclosed = false;
+                  $inval = false;
 
-          case static::TOKEN_END_OF_STREAM:
+                  continue 2;
+                }
+              } else if (!$inval) {
+                $this->reader->skip(1);
 
-              break;
+                $inval = true;
+                $enclosed = true;
 
-          case static::TOKEN_COL_DELIMITER:
-            if ($enclosed) {
-              // BROKEN!
-            }
-              break;
+                continue 2;
+              }
+                break;
 
-          case static::TOKEN_ROW_DELIMITER:
-            // End of value, last value on row.
+            case "\r":
+              if (!$enclosed && !empty($chars[1]) && $chars[1] === "\n") {
+                $endofrow = true;
+                $this->reader->skip(2);
 
-              break;
+                break 2;
+              }
+                break;
 
-          case static::TOKEN_VALUE_ENCLOSURE:
-            if (!$enclosed) {
-              if (trim($buffer)) {
-                // Badness. Malformed file.
+            case "\n":
+              if (!$enclosed) {
+                $endofrow = true;
+                $this->reader->skip(1);
+
+                break 2;
+              }
+                break;
+
+            case " ":
+            case "\t":
+              if (!$inval) {
+                $whitespace .= $chars[0];
+                $this->reader->skip(1);
+                continue 2;
               }
 
+            default:
+              if (!$inval && !empty($buffer)) {
+                // This only happens if the data appeared to be quoted when it really wasn't. For
+                // example: ""What is this garbage!?" he exclaimed loudly."
 
-            }
-              break;
+                // We can recover by tacking the quote and whitespace to our buffer and letting it
+                // process normally.
 
+                $buffer = "\"{$buffer}\"{$whitespace}";
+              }
+          }
 
+          $buffer .= $chars[0];
+          $this->reader->skip(1);
+
+          $inval = true;
+          $whitespace = '';
+        } else {
+          $endofrow = true;
+          break;
         }
       }
     }
 
-
-
-    // Loop: Read a token
-    //  If the token is character data, add it to the buffer
-    //
-    //  If the token is an enclosure
-    //    If we've not found an enclosure, check if our buffer has (non-whitespace) data
-    //      If it does, the value seems to be malformed. Throw an exception
-    //      Else discard the whitespace and set the "enclosed" flag
-    //
-    //    If we've found an enclosure
-    //      Deserialize the value
-    //      if the next token is one of: column delimiter, row delimiter or EOF
-    //        deserialize value
-    //        return value
-    //
-    //      Else
-    //        Data is malformed. Throw an exception.
-    //
-    //  If the token is a column or row delimiter, or stream EOF:
-    //    If we've found an enclosure, the data is malformed. Throw an exception
-    //
-    //    If we've not found an enclosure
-    //      deserialize the value
-    //      return value
-    //
-    //  If the token is anything else, throw an exception.
+    return $buffer;
   }
 
   /**
    * Reads the remaining values in the current row. If the current row is empty, this method returns
    * an empty array.
    *
+   * @param boolean &$endoffile
+   *  <em>Optional, Out</em>
+   *  Whether or not the
+   *
    * @throws RuntimeException
    *  if the backing input stream is closed or data is, otherwise, unavailable.
    *
    * @return array
-   *  An array containing the values remaining in the current row.
+   *  An array containing the values remaining in the current row, or false if the stream is at EOF.
    */
   public function readRow()
   {
-    // Loop: Read values until EOR or EOF
+    $result = false;
+    $endofrow = false;
+    $endoffile = true;
 
-    // - Determining the last token consumed to read a value is troublesome. We could buffer it
-    // internally somewhere, but that seems pretty janky and not very friendly for extending.
+    $this->reader->peek(1);
+
+    if (!$this->reader->isEOF()) {
+      $result = [];
+
+      while (!$endofrow && ($value = $this->readValue($endofrow)) !== false) {
+        $result[] = $value;
+      }
+    }
+
+    return $result;
   }
 
 }

@@ -244,7 +244,7 @@ class BufferedStreamReader implements StreamReader
       throw new RuntimeException('This stream has been closed.');
     }
 
-    return feof($this->stream);
+    return !($this->length - $this->offset) && feof($this->stream);
   }
 
   /**

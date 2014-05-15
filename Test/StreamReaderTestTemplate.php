@@ -49,7 +49,7 @@ abstract class StreamReaderTestTemplate extends Test
    * @return resource
    *  A stream usable during testing.
    */
-  public function buildStream()
+  public function buildStream($data = null)
   {
     $stream = fopen('php://memory', 'rb+');
 
@@ -58,6 +58,11 @@ abstract class StreamReaderTestTemplate extends Test
         fclose($stream);
       }
     });
+
+    if (!empty($data)) {
+      fwrite($stream, $data);
+      rewind($stream);
+    }
 
     return $stream;
   }
@@ -105,11 +110,8 @@ abstract class StreamReaderTestTemplate extends Test
    */
   public function testAvailable()
   {
-    $stream = $this->buildStream();
+    $stream = $this->buildStream(str_repeat('testdata', 10));
     $reader = $this->buildInstance($stream);
-
-    fwrite($stream, str_repeat('testdata', 10));
-    rewind($stream);
 
     // Initially, nothing should be available, as there hasn't been a reason to buffer any data.
     // After a one char/byte read operation, there should be /something/ available.
@@ -141,16 +143,14 @@ abstract class StreamReaderTestTemplate extends Test
    */
   public function testReadSingleCharacter()
   {
-    $stream = $this->buildStream();
-    $reader = $this->buildInstance($stream);
-
     $input = str_repeat('0123456789abcdefghij', 5);
     $offset = 0;
     $length = strlen($input);
     $chunksize = 1;
 
-    fwrite($stream, $input);
-    rewind($stream);
+    $stream = $this->buildStream($input);
+    $reader = $this->buildInstance($stream);
+
 
     for ($i = 0; $i < 10; ++$i) {
       $expected = substr($input, $offset, $chunksize);
@@ -168,14 +168,11 @@ abstract class StreamReaderTestTemplate extends Test
    */
   public function testReadMultipleCharacters()
   {
-    $stream = $this->buildStream();
-    $reader = $this->buildInstance($stream);
-
     $input = str_repeat('0123456789abcdefghij', 5);
     $offset = 0;
 
-    fwrite($stream, $input);
-    rewind($stream);
+    $stream = $this->buildStream($input);
+    $reader = $this->buildInstance($stream);
 
     for ($i = 0; $i < 10; ++$i) {
       $chunksize = mt_rand(3, 9);
@@ -194,16 +191,13 @@ abstract class StreamReaderTestTemplate extends Test
    */
   public function testReadLargeChunk()
   {
-    $stream = $this->buildStream();
-    $reader = $this->buildInstance($stream);
-
     $input = str_repeat('0123456789abcdefghij', 50);
     $smallchunk = 20;
     $largechunk = 200;
     $offset = 0;
 
-    fwrite($stream, $input);
-    rewind($stream);
+    $stream = $this->buildStream($input);
+    $reader = $this->buildInstance($stream);
 
     $result = $reader->read($smallchunk, $read);
     $this->assertSame(substr($input, $offset, $smallchunk), $result);
@@ -227,14 +221,11 @@ abstract class StreamReaderTestTemplate extends Test
    */
   public function testReadToEOF()
   {
-    $stream = $this->buildStream();
-    $reader = $this->buildInstance($stream);
-
     $input = '0123456789abcdefghij';
     $offset = 0;
 
-    fwrite($stream, $input);
-    rewind($stream);
+    $stream = $this->buildStream($input);
+    $reader = $this->buildInstance($stream);
 
     $result = $reader->read(strlen($input), $read);
     $this->assertSame($input, $result);
@@ -276,15 +267,13 @@ abstract class StreamReaderTestTemplate extends Test
    */
   public function testPeekSingleCharacter()
   {
-    $stream = $this->buildStream();
-    $reader = $this->buildInstance($stream);
-
     $input = str_repeat('0123456789abcdefghij', 5);
     $offset = 0;
     $chunksize = 1;
 
-    fwrite($stream, $input);
-    rewind($stream);
+    $stream = $this->buildStream($input);
+    $reader = $this->buildInstance($stream);
+
 
     for ($i = 0; $i < 10; ++$i) {
       $expected = substr($input, $offset, $chunksize);
@@ -300,14 +289,12 @@ abstract class StreamReaderTestTemplate extends Test
    */
   public function testPeekMultipleCharacters()
   {
-    $stream = $this->buildStream();
-    $reader = $this->buildInstance($stream);
-
     $input = str_repeat('0123456789abcdefghij', 5);
     $offset = 0;
 
-    fwrite($stream, $input);
-    rewind($stream);
+    $stream = $this->buildStream($input);
+    $reader = $this->buildInstance($stream);
+
 
     for ($i = 0; $i < 10; ++$i) {
       $chunksize = mt_rand(3, 9);
@@ -324,16 +311,14 @@ abstract class StreamReaderTestTemplate extends Test
    */
   public function testPeekLargeChunk()
   {
-    $stream = $this->buildStream();
-    $reader = $this->buildInstance($stream);
-
     $input = str_repeat('0123456789abcdefghij', 50);
     $smallchunk = 20;
     $largechunk = 200;
     $offset = 0;
 
-    fwrite($stream, $input);
-    rewind($stream);
+    $stream = $this->buildStream($input);
+    $reader = $this->buildInstance($stream);
+
 
     $result = $reader->read($smallchunk, $read);
     $this->assertSame(substr($input, $offset, $smallchunk), $result);
@@ -359,14 +344,12 @@ abstract class StreamReaderTestTemplate extends Test
    */
   public function testPeekToEOF()
   {
-    $stream = $this->buildStream();
-    $reader = $this->buildInstance($stream);
-
     $input = '0123456789abcdefghij';
     $offset = 0;
 
-    fwrite($stream, $input);
-    rewind($stream);
+    $stream = $this->buildStream($input);
+    $reader = $this->buildInstance($stream);
+
 
     $result = $reader->read(strlen($input), $read);
     $this->assertSame($input, $result);
@@ -408,15 +391,13 @@ abstract class StreamReaderTestTemplate extends Test
    */
   public function testSkipSingleCharacter()
   {
-    $stream = $this->buildStream();
-    $reader = $this->buildInstance($stream);
-
     $input = str_repeat('0123456789abcdefghij', 5);
     $chunksize = 1;
     $offset = 0;
 
-    fwrite($stream, $input);
-    rewind($stream);
+    $stream = $this->buildStream($input);
+    $reader = $this->buildInstance($stream);
+
 
     for ($i = 0; $i < 10; ++$i) {
       $expected = substr($input, $offset + $chunksize, $chunksize);
@@ -437,14 +418,12 @@ abstract class StreamReaderTestTemplate extends Test
    */
   public function testSkipMultipleCharacters()
   {
-    $stream = $this->buildStream();
-    $reader = $this->buildInstance($stream);
-
     $input = str_repeat('0123456789abcdefghij', 5);
     $offset = 0;
 
-    fwrite($stream, $input);
-    rewind($stream);
+    $stream = $this->buildStream($input);
+    $reader = $this->buildInstance($stream);
+
 
     for ($i = 0; $i < 10; ++$i) {
       $chunksize = mt_rand(3, 9);
@@ -466,16 +445,14 @@ abstract class StreamReaderTestTemplate extends Test
    */
   public function testSkipLargeChunk()
   {
-    $stream = $this->buildStream();
-    $reader = $this->buildInstance($stream);
-
     $input = str_repeat('0123456789abcdefghij', 50);
     $smallchunk = 20;
     $largechunk = 200;
     $offset = 0;
 
-    fwrite($stream, $input);
-    rewind($stream);
+    $stream = $this->buildStream($input);
+    $reader = $this->buildInstance($stream);
+
 
     $result = $reader->read($smallchunk, $read);
     $this->assertSame(substr($input, $offset, $smallchunk), $result);
@@ -499,14 +476,12 @@ abstract class StreamReaderTestTemplate extends Test
    */
   public function testSkipToEOF()
   {
-    $stream = $this->buildStream();
-    $reader = $this->buildInstance($stream);
-
     $input = '0123456789abcdefghij';
     $offset = 0;
 
-    fwrite($stream, $input);
-    rewind($stream);
+    $stream = $this->buildStream($input);
+    $reader = $this->buildInstance($stream);
+
 
     $result = $reader->skip(strlen($input), $read);
     $this->assertTrue($result);
@@ -570,13 +545,10 @@ abstract class StreamReaderTestTemplate extends Test
    */
   public function testIsEOF()
   {
-    $stream = $this->buildStream();
-    $reader = $this->buildInstance($stream);
-
     $input = str_repeat('0123456789abcdefghij', 5);
 
-    fwrite($stream, $input);
-    rewind($stream);
+    $stream = $this->buildStream($input);
+    $reader = $this->buildInstance($stream);
 
     // Initially, nothing should be available, as there hasn't been a reason to buffer any data.
     // After a one char/byte read operation, there should be /something/ available.
@@ -741,14 +713,12 @@ abstract class StreamReaderTestTemplate extends Test
    */
   public function testRewindNoMark()
   {
-    $stream = $this->buildStream();
-    $reader = $this->buildInstance($stream);
-
     $input = str_repeat('0123456789abcdefghij', 5);
     $offset = 0;
 
-    fwrite($stream, $input);
-    rewind($stream);
+    $stream = $this->buildStream($input);
+    $reader = $this->buildInstance($stream);
+
 
     if (!$reader->canRewind()) {
       $this->setExpectedException('RuntimeException');
@@ -786,14 +756,12 @@ abstract class StreamReaderTestTemplate extends Test
    */
   public function testRewindWithMark()
   {
-    $stream = $this->buildStream();
-    $reader = $this->buildInstance($stream);
-
     $input = str_repeat('0123456789abcdefghij', 5);
     $offset = 0;
 
-    fwrite($stream, $input);
-    rewind($stream);
+    $stream = $this->buildStream($input);
+    $reader = $this->buildInstance($stream);
+
 
     if (!$reader->canRewind() || !$reader->canMark()) {
       $this->setExpectedException('RuntimeException');
