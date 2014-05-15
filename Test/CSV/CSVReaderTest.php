@@ -211,7 +211,7 @@ class CSVReaderTest extends Test
    *
    * @covers ::isEOF
    */
-  public function testIsEOF()
+  public function testIsEOFNoData()
   {
     $stream = $this->buildStream(null);
     $reader = $this->buildCSVReader($stream);
@@ -224,10 +224,33 @@ class CSVReaderTest extends Test
 
     $result = $reader->isEOF();
     $this->assertTrue($result);
-
-
   }
 
+  /**
+   * @test
+   *
+   * @covers ::isEOF
+   */
+  public function testIsEOFWithData()
+  {
+    $stream = $this->buildStream('test, data');
+    $reader = $this->buildCSVReader($stream);
+
+    $result = $reader->isEOF();
+    $this->assertFalse($result);
+
+    $result = $reader->readValue();
+    $this->assertNotFalse($result);
+
+    $result = $reader->isEOF();
+    $this->assertFalse($result);
+
+    $result = $reader->readValue();
+    $this->assertNotFalse($result);
+
+    $result = $reader->isEOF();
+    $this->assertTrue($result);
+  }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -273,8 +296,44 @@ class CSVReaderTest extends Test
     ];
   }
 
-  // @todo:
-  // Add test for consecutive reads
+  /**
+   * @test
+   * @dataProvider dataForConsecutiveValueReads
+   *
+   * @covers ::readValue
+   */
+  public function testConsecutiveValueReads($data, array $expected, $exception)
+  {
+    if (!empty($exception)) {
+      $this->setExpectedException($exception);
+    }
+
+    $stream = $this->buildStream($data);
+    $reader = $this->buildCSVReader($stream);
+
+    foreach ($expected as $value) {
+      $result = $reader->readValue();
+      $this->assertSame($value, $result);
+    }
+  }
+
+  /**
+   * Data provider for the consecutive readValue test.
+   *
+   * @return array
+   */
+  public function dataForConsecutiveValueReads()
+  {
+    return [
+      [null, [false, false, false], null],
+      ['v1', ['v1', false, false, false], null],
+      ['v1, v2, v3', ['v1', 'v2', 'v3', false, false, false], null],
+      ["v1, v2, v3\r\nv4, v5, v6\r\n", ['v1', 'v2', 'v3', 'v4', 'v5', 'v6', false, false, false], null],
+      ["v1, \"v\r\n2\", v3", ['v1', "v\r\n2", 'v3'], null],
+      ["v1, \"v\r\n2\", v3\r\nv4, \"v\r\n5\", v6", ['v1', "v\r\n2", 'v3', 'v4', "v\r\n5", 'v6'], null],
+    ];
+  }
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -317,9 +376,43 @@ class CSVReaderTest extends Test
     ];
   }
 
-  // @todo:
-  // Add test for consecutive reads
+  /**
+   * @test
+   * @dataProvider dataForConsecutiveRowReads
+   *
+   * @covers ::readValue
+   */
+  public function testConsecutiveRowReads($data, array $expected, $exception)
+  {
+    if (!empty($exception)) {
+      $this->setExpectedException($exception);
+    }
 
+    $stream = $this->buildStream($data);
+    $reader = $this->buildCSVReader($stream);
+
+    foreach ($expected as $row) {
+      $result = $reader->readRow();
+      $this->assertSame($row, $result);
+    }
+  }
+
+  /**
+   * Data provider for the consecutive readRow test.
+   *
+   * @return array
+   */
+  public function dataForConsecutiveRowReads()
+  {
+    return [
+      [null, [false, false, false], null],
+      ['v1', [['v1'], false, false, false], null],
+      ['v1, v2, v3', [['v1', 'v2', 'v3'], false, false, false], null],
+      ["v1, v2, v3\r\nv4, v5, v6\r\n", [['v1', 'v2', 'v3'], ['v4', 'v5', 'v6'], false, false, false], null],
+      ["v1, \"v\r\n2\", v3", [['v1', "v\r\n2", 'v3']], null],
+      ["v1, \"v\r\n2\", v3\r\nv4, \"v\r\n5\", v6", [['v1', "v\r\n2", 'v3'], ['v4', "v\r\n5", 'v6']], null],
+    ];
+  }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 }
