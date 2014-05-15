@@ -82,6 +82,14 @@ class BufferedStreamReader implements StreamReader
    */
   protected $read;
 
+  /**
+   * Whether or not we're at our simulated EOF. Should only be set after a read, peek or skip has
+   * been attempted and has either failed or read into EOF.
+   *
+   * @var boolean
+   */
+  protected $eof;
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
   /**
@@ -129,6 +137,7 @@ class BufferedStreamReader implements StreamReader
     $this->length = 0;
     $this->offset = 0;
     $this->read   = 0;
+    $this->eof    = false;
 
     return $this;
   }
@@ -244,7 +253,7 @@ class BufferedStreamReader implements StreamReader
       throw new RuntimeException('This stream has been closed.');
     }
 
-    return !($this->length - $this->offset) && feof($this->stream);
+    return feof($this->stream) && !($this->length - $this->offset) && $this->eof;
   }
 
   /**
@@ -282,6 +291,7 @@ class BufferedStreamReader implements StreamReader
       if ($available < 1) {
         // Try to fill the buffer, breaking if we fail to do so.
         if (!$this->fillBuffer($remain)) {
+          $this->eof = true;
           break; // Uh oh.
         }
 
@@ -325,6 +335,7 @@ class BufferedStreamReader implements StreamReader
       if ($available < 1) {
         // Try to fill the buffer, breaking if we fail to do so.
         if (!$this->fillBuffer($count)) {
+          $this->eof = true;
           break; // Uh oh.
         }
 
@@ -369,6 +380,7 @@ class BufferedStreamReader implements StreamReader
       if ($available < 1) {
         // Try to fill the buffer, breaking if we fail to do so.
         if (!$this->fillBuffer($remain)) {
+          $this->eof = true;
           break; // Uh oh.
         }
 
@@ -458,6 +470,7 @@ class BufferedStreamReader implements StreamReader
 
       $this->read -= $diff;
       $this->offset = $this->mark;
+      $this->eof = false;
 
       $result = true;
     } else {

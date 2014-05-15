@@ -545,19 +545,23 @@ abstract class StreamReaderTestTemplate extends Test
    */
   public function testIsEOF()
   {
-    $input = str_repeat('0123456789abcdefghij', 5);
+    $input = str_repeat('1', 256);
 
     $stream = $this->buildStream($input);
     $reader = $this->buildInstance($stream);
 
-    // Initially, nothing should be available, as there hasn't been a reason to buffer any data.
-    // After a one char/byte read operation, there should be /something/ available.
 
     $result = $reader->isEOF();
     $this->assertFalse($result);
 
     $result = $reader->read(strlen($input));
     $this->assertSame($input, $result);
+
+    $result = $reader->isEOF();
+    $this->assertFalse($result);
+
+    $result = $reader->read(1);
+    $this->assertFalse($result);
 
     $result = $reader->isEOF();
     $this->assertTrue($result);
