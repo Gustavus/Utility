@@ -8,7 +8,8 @@ namespace Gustavus\Utility\Test;
 
 use Gustavus\Utility\File,
   Gustavus\Test\Test,
-  Gustavus\Test\TestObject;
+  Gustavus\Test\TestObject,
+  Gustavus\GACCache\GlobalCache;
 
 /**
  * @package Utility
@@ -265,5 +266,141 @@ class FileTest extends Test
     $this->init();
     $expected = '/cis/lib/Gustavus/Utility/Test/site_nav_test.php';
     $this->assertSame($expected, $this->file->find('/cis/lib/Gustavus/Utility/Test/some/random/directory/that/is/above/five/levels/deep/', false, 10)->getValue());
+  }
+
+  /**
+   * @test
+   */
+  public function ViewUsingVnsprintf()
+  {
+    $vnsValues = [
+      'name'      => 'Santa Claus',
+      'adjective' => 'jolly',
+      'noun'      => 'man',
+      'percent'   => 99,
+    ];
+
+    $vnsExpecting = 'Santa Claus is a jolly man 99% of the time.';
+
+    $file = new File(__DIR__ . '/views/vnsprintf.view.html');
+
+    $result = $file->renderAsPView($vnsValues, true);
+    $this->assertInstanceOf('\\Gustavus\\Utility\\String', $result);
+    $this->assertSame($vnsExpecting, $result->getValue());
+  }
+
+  /**
+   * @test
+   */
+  public function ViewUsingVnsprintfAndEvaluatingView()
+  {
+    $vnsValues = [
+      'name'      => 'Santa Claus',
+      'adjective' => 'jolly',
+      'noun'      => 'man',
+      'percent'   => 99,
+    ];
+
+    $vnsExpecting = 'Santa Claus is a jolly man 99% of the time.';
+
+    $file = new File(__DIR__ . '/views/vnsprintf.view.php');
+
+    $result = $file->renderAsPView($vnsValues, true, true);
+    $this->assertInstanceOf('\\Gustavus\\Utility\\String', $result);
+    $this->assertSame($vnsExpecting, $result->getValue());
+  }
+
+  /**
+   * @test
+   */
+  public function ViewUsingVsprintf()
+  {
+    $vnsValues = [
+      'name'      => 'Santa Claus',
+      'adjective' => 'jolly',
+      'noun'      => 'man',
+      'percent'   => 99,
+      'dummy'     => 1,
+    ];
+
+    $vnsExpecting = 'Santa Claus is a jolly man 99% of the time.';
+
+    $file = new File(__DIR__ . '/views/vsprintf.view.html');
+
+    $result = $file->renderAsPView($vnsValues);
+    $this->assertInstanceOf('\\Gustavus\\Utility\\String', $result);
+    $this->assertSame($vnsExpecting, $result->getValue());
+  }
+
+  /**
+   * @test
+   */
+  public function ViewUsingVsprintfAndEvaluatingView()
+  {
+    $vnsValues = [
+      'name'      => 'Santa Claus',
+      'adjective' => 'jolly',
+      'noun'      => 'man',
+      'percent'   => 99,
+      'dummy'     => 2,
+    ];
+
+    $vnsExpecting = 'Santa Claus is a jolly man 99% of the time.';
+
+    $file = new File(__DIR__ . '/views/vsprintf.view.php');
+
+    $result = $file->renderAsPView($vnsValues, false, true);
+    $this->assertInstanceOf('\\Gustavus\\Utility\\String', $result);
+    $this->assertSame($vnsExpecting, $result->getValue());
+  }
+
+  /**
+   * @test
+   * @expectedException RuntimeException
+   */
+  public function ViewWithNonexistentView()
+  {
+    $vnsValues = [
+      'name'      => 'Santa Claus',
+      'adjective' => 'jolly',
+      'noun'      => 'man',
+      'percent'   => 99,
+      'dummy'     => 3,
+    ];
+
+    $vnsExpecting = 'Santa Claus is a jolly man 99% of the time.';
+
+    $file = new File('view/that/does/not/exist.html');
+
+    $file->renderAsPView(array('test'));
+  }
+
+  /**
+   * @test
+   */
+  public function ViewWithCachedResult()
+  {
+    $vnsValues = [
+      'name'      => 'Santa Claus',
+      'adjective' => 'jolly',
+      'noun'      => 'man',
+      'percent'   => 99,
+      'dummy'     => 4,
+    ];
+
+    $vnsExpecting = 'Santa Claus is a jolly man 99% of the time.';
+
+    $datastore = GlobalCache::getGlobalDataStore();
+    $datastore->clearAllValues();
+
+    $file = new File(__DIR__ . '/views/vnsprintf.view.html');
+
+    $result = $file->renderAsPView($vnsValues, true);
+    $this->assertInstanceOf('\\Gustavus\\Utility\\String', $result);
+    $this->assertSame($vnsExpecting, $result->getValue());
+
+    $result = $file->renderAsPView($vnsValues, true);
+    $this->assertInstanceOf('\\Gustavus\\Utility\\String', $result);
+    $this->assertSame($vnsExpecting, $result->getValue());
   }
 }
