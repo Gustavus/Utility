@@ -185,6 +185,9 @@ class PageUtil
   {
     // we don't want the auxbox to be displayed
     $GLOBALS['templatePreferences']['auxBox'] = false;
+    if (!defined('GUSTAVUS_AUTO_CORRECT_REQUESTED_PAGE')) {
+      define('GUSTAVUS_AUTO_CORRECT_REQUESTED_PAGE', false);
+    }
     header('HTTP/1.0 404 Not Found');
     ob_start();
 
@@ -209,7 +212,11 @@ class PageUtil
    */
   public static function renderBadRequest($returnPage = false)
   {
+    // we don't want the auxbox to be displayed
     $GLOBALS['templatePreferences']['auxBox'] = false;
+    if (!defined('GUSTAVUS_AUTO_CORRECT_REQUESTED_PAGE')) {
+      define('GUSTAVUS_AUTO_CORRECT_REQUESTED_PAGE', false);
+    }
     header('HTTP/1.0 400 Bad Request');
     ob_start();
 
