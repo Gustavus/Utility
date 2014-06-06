@@ -27,7 +27,7 @@ class MimeUtil
    *
    * @var string
    */
-  const DEFAULT_MIMETYPE_WHITELIST = '/\\/(?:csv|html|g?zip|gif|jpe?g|png|pdf|msword|vnd\\.ms-(?:excel|powerpoint))\\z/i';
+  const DEFAULT_MIMETYPE_WHITELIST = '/\\/(?:csv|html|g?zip|gif|jpe?g|png|pdf|msword|vnd\\.(?:ms-(?:excel|powerpoint)|openxml.+))\\z/i';
 
   /**
    * The default blacklist to use when validating MIME types if no blacklist is provided.
