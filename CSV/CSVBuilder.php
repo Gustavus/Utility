@@ -151,5 +151,7 @@ class CSVBuilder
   // get value (x, y)
   // set value (x, y, value)
 
+  // crop(rows, cols, x, y)
+
   // clear
 }

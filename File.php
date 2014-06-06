@@ -236,6 +236,11 @@ class File extends Base
    *  <em>Optional</em>.
    *  The name to use when serving the file. If omitted, the basename of the file will be used.
    *
+   * @param string $mime
+   *  <em>Optional</em>.
+   *  The MIME type to use for this file. If omitted, the MIME will be detected from the contents of
+   *  the file.
+   *
    * @param string $whitelist
    *  <em>Optional</em>.
    *  A regular expression specifying an expression the file's MIME type must match to be served. If
@@ -247,19 +252,27 @@ class File extends Base
    *  served. If omitted, the default MIME type blacklist will be used.
    *
    * @throws InvalidArgumentException
-   *  if $name is provided, but is empty or not a string, or either $whitelist or $blacklist are
-   *  provided, but are empty, not strings or not valid regular expressions.
+   *  if $name is provided, but is empty or not a string, $mime is provided, but is empty or not a
+   *  string, or either $whitelist or $blacklist are provided, but are empty, not strings or not
+   *  valid regular expressions.
    *
    * @return void
    */
-  public function serve($name = null, $whitelist = null, $blacklist = null)
+  public function serve($name = null, $mime = null, $whitelist = null, $blacklist = null)
   {
     if (isset($name) && (empty($name) || !is_string($name))) {
       throw new InvalidArgumentException('$name is provided, but is empty or not a string.');
     }
 
+    if (isset($mime) && (empty($mime) || !is_string($mime))) {
+      throw new InvalidArgumentException('$mime is provided, but is empty or not a string.');
+    }
+
+    if (!isset($mime)) {
+      $mime = $mu->getMimeType($this->value);
+    }
+
     $mu = $this->getMimeUtil();
-    $mime = $mu->getMimeType($this->value);
     $serve = $mu->validateMimeType($mime, $whitelist, $blacklist);
 
     if ($serve && $mime) {
