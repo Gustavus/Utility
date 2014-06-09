@@ -1204,4 +1204,236 @@ class StringTest extends Test
     $this->assertFalse($this->string->extractFirstImage());
 
   }
+
+  /**
+   * @test
+   */
+  public function Vnsprintf()
+  {
+    $vnsFormat = '%name$s is a %adjective$s %noun$s %percent$d%% of the time.';
+    $vnsValues = [
+      'name'      => 'Santa Claus',
+      'adjective' => 'jolly',
+      'noun'      => 'man',
+      'percent'   => 99,
+    ];
+
+    $vnsExpecting = 'Santa Claus is a jolly man 99% of the time.';
+
+    $result = String::vnsprintf($vnsFormat, $vnsValues);
+    $this->assertInstanceOf('\\Gustavus\\Utility\\String', $result);
+    $this->assertSame($vnsExpecting, $result->getValue());
+  }
+
+  /**
+   * @test
+   */
+  public function VnsprintfWithNoData()
+  {
+    $vnsFormat = '%name$s is a %adjective$s %noun$s %percent$d%% of the time.';
+
+    $result = String::vnsprintf($vnsFormat, []);
+    $this->assertInstanceOf('\\Gustavus\\Utility\\String', $result);
+    $this->assertSame($vnsFormat, $result->getValue());
+  }
+
+
+  /**
+   * @test
+   */
+  public function testExpand()
+  {
+    $vnsFormat = '%name$s is a %adjective$s %noun$s %percent$d%% of the time.';
+    $vnsValues = [
+      'name'      => 'Santa Claus',
+      'adjective' => 'jolly',
+      'noun'      => 'man',
+      'percent'   => 99,
+    ];
+
+    $vnsExpecting = 'Santa Claus is a jolly man 99% of the time.';
+
+    $result = (new String($vnsFormat))->expand($vnsValues);
+    $this->assertInstanceOf('\\Gustavus\\Utility\\String', $result);
+    $this->assertSame($vnsExpecting, $result->getValue());
+  }
+
+  /**
+   * @test
+   */
+  public function testExpandWithNoData()
+  {
+    $vnsFormat = '%name$s is a %adjective$s %noun$s %percent$d%% of the time.';
+
+    $result = (new String($vnsFormat))->expand([]);
+    $this->assertInstanceOf('\\Gustavus\\Utility\\String', $result);
+    $this->assertSame($vnsFormat, $result->getValue());
+  }
+
+  /**
+   * @test
+   */
+  public function YesNo()
+  {
+    // $this->assertSame('Yes', (new String(1))->yesNo());
+    // $this->assertSame('Yes', (new String(true))->yesNo());
+    $this->assertSame('Yes', (new String('yes'))->yesNo());
+    $this->assertSame('Yes', (new String('y'))->yesNo());
+    $this->assertSame('Yes', (new String('ye'))->yesNo());
+    $this->assertSame('Yes', (new String('1'))->yesNo());
+    $this->assertSame('Yes', (new String('true'))->yesNo());
+    // $this->assertSame('Yes', (new String(2))->yesNo());
+    // $this->assertSame('Yes', (new String(-1))->yesNo());
+
+    // $this->assertSame('No', (new String(0))->yesNo());
+    // $this->assertSame('No', (new String(false))->yesNo());
+    $this->assertSame('No', (new String('no'))->yesNo());
+    $this->assertSame('No', (new String('n'))->yesNo());
+    $this->assertSame('No', (new String('0'))->yesNo());
+    $this->assertSame('No', (new String('false'))->yesNo());
+  }
+
+  /**
+   * @test
+   */
+  public function testClean()
+  {
+    // Note:
+    // To avoid encoding issues, we have to reference the characters with hex codes directly. If you
+    // can't convert hex to decimal in your head, these represent charcodes 130-159, excluding
+    // 141-144, 157 and 158.
+    // More info can be found here: http://www.cs.tut.fi/~jkorpela/www/windows-chars.html
+    $input    = "\x82\x83\x84\x85\x86\x87\x88\x89\x8A\x8B\x8C\x91\x92\x93\x94\x95\x96\x97\x98\x99\x9A\x9B\x9C\x9F";
+    $expected = "'\x83\"...\x86\x87^\x89\x8A<\x8C''\"\"----~(tm)\x9A>\x9C\x9F";
+
+    $string = new String($input);
+    $this->assertSame($input, $string->getValue());
+
+    $result = $string->clean();
+    $this->assertSame($string, $result);
+    $this->assertSame($expected, $string->getValue());
+  }
+
+  /**
+   * @test
+   * @dataProvider dataForHighlight
+   */
+  public function Highlight($input, $highlight, $ignore, $expected)
+  {
+    $string = new String($input);
+
+    $result = $string->highlight($highlight, $ignore);
+    $this->assertSame($string, $result);
+    $this->assertSame($expected, $string->getValue());
+  }
+
+  /**
+   * Data provider for the Highlight test.
+   *
+   * @return array
+   */
+  public function dataForHighlight()
+  {
+    return [
+      ['This is a test.', 'test', '', 'This is a <b>test</b>.'],
+      ['This <a href="test">is</a> a test.', 'test', '', 'This <a href="test">is</a> a <b>test</b>.'],
+      ['This is a test.', array('this', 'test'), '', '<b>This</b> is a <b>test</b>.'],
+      ['This is a test.', array('a/b|c\d\'e"f`g^h\$i', 'is'), '', 'This <b>is</b> a test.'],
+      ['This is a test.', 'is|a', '', 'This is a test.'],
+
+      ['Testing i.g.n.o.r.e.d. characters.', 'ignored', '', 'Testing i.g.n.o.r.e.d. characters.'],
+      ['Testing i.g.n.o.r.e.d. characters.', 'ignored', '.', 'Testing <b>i.g.n.o.r.e.d</b>. characters.'],
+      ['Testing i.g.n.o,r.e.d. characters.', 'ignored', '.,', 'Testing <b>i.g.n.o,r.e.d</b>. characters.'],
+    ];
+  }
+
+
+
+  /**
+   * @test
+   * @dataProvider dataForAddress
+   */
+  public function Address($expected, $company, $streetAddress, $city, $state, $zip, $country = null, $lineBreak = "<br/>\n")
+  {
+    $string = String::address($company, $streetAddress, $city, $state, $zip, $country, $lineBreak);
+    $this->assertInstanceOf('\\Gustavus\\Utility\\String', $string);
+    $this->assertSame($expected, $string->getValue());
+  }
+
+  /**
+   * Data provider for the address test.
+   *
+   * @return array
+   */
+  public function dataForAddress()
+  {
+    return [
+      ["1234 Test Rd.<br/>\nSt. Peter, MN 56082", null, '1234 Test Rd.', 'St. Peter', 'MN', '56082'],
+      ["Gustavus Adolphus College<br/>\n1234 Test Rd.<br/>\nSt. Peter, MN 56082", 'Gustavus Adolphus College', '1234 Test Rd.', 'St. Peter', 'MN', '56082'],
+      ["Gustavus Adolphus College<br/>\n1234 Test Rd.<br/>\nSt. Peter, 56082", 'Gustavus Adolphus College', '1234 Test Rd.', 'St. Peter', '', '56082'],
+      ["Gustavus Adolphus College<br/>\n1234 Test Rd.<br/>\nSt. Peter", 'Gustavus Adolphus College', '1234 Test Rd.', 'St. Peter', '', ''],
+      ["Gustavus Adolphus College<br/>\n1234 Test Rd.<br/>\nSt. Peter, 56082<br/>\nUnited States of America", 'Gustavus Adolphus College', '1234 Test Rd.', 'St. Peter', '', '56082', 'United States of America'],
+      ['', '', '', '', '', ''],
+    ];
+  }
+
+
+  /**
+   * @test
+   * @dataProvider dataForAddressLine
+   */
+  public function AddressLine($expected, $input)
+  {
+    $string = new String($input);
+
+    $result = $string->addressLine();
+    $this->assertSame($string, $result);
+    $this->assertSame($expected, $string->getValue());
+  }
+
+  /**
+   * Data provider for the address test.
+   *
+   * @return array
+   */
+  public function dataForAddressLine()
+  {
+    return [
+      ['800 West College Avenue', '800 W. College Ave.'],
+      ['Lane Lane Lane Lane Lane, Lane,', 'ln LN Ln. ln. ln, ln.,'],
+      ["President's House", "President's House"],
+      ['South Bend, OR', 'S. Bend, OR'],
+    ];
+  }
+
+  /**
+   * @test
+   * @dataProvider dataForParagraphs
+   */
+  public function testParagraphs($input, $preserveNewLines, $expected)
+  {
+    $string = new String($input);
+
+    $result = $string->paragraphs($preserveNewLines);
+    $this->assertSame($string, $result);
+    $this->assertSame($expected, $result->getValue());
+  }
+
+  /**
+   * Data provider for the paragraphs test.
+   *
+   * @return array
+   */
+  public function dataForParagraphs()
+  {
+    return [
+      ['test', true, '<p>test</p>'],
+      ["test\ntest\n\ntest", true, "<p>test<br />\ntest</p>\n<p>test</p>"],
+      ["test\n<a href=\"test\">test</a>\n\n<h2>test</h2>\n\n<p>test</p>", true, "<p>test<br />\n<a href=\"test\">test</a></p>\n<h2>test</h2>\n<p>test</p>"],
+      ["test\n\n<object>\n\n<param test/>\n\n</object>\n\ntest", true, "<p>test</p>\n<p><object><param test/></object></p>\n<p>test</p>"],
+      ["test\n\n<pre>\n\ntest\n\n</pre>\n\ntest", true, "<p>test</p>\n<pre>\n\ntest\n</pre>\n<p>test</p>"],
+      ["test\n\n<script type=\"text/javascript\">function gogogo() {\nalert(\"going!\");\n}</script><pre>\n\ntest\n\n</pre>\n\ntest", true, "<p>test</p>\n<p><script type=\"text/javascript\">function gogogo() {\nalert(\"going!\");\n}</script>\n<pre>\n\ntest\n</pre>\n<p>test</p>"],
+    ];
+  }
+
 }

@@ -8,8 +8,9 @@
 
 namespace Gustavus\Utility\Test;
 use Gustavus\Utility,
-  Gustavus\Test\Test,
-  Gustavus\Test\TestObject;
+    Gustavus\Utility\DateTime,
+    Gustavus\Test\Test,
+    Gustavus\Test\TestObject;
 
 /**
  * @package Utility
@@ -476,6 +477,67 @@ class DateTimeTest extends Test
       [$timea, '1-1-2000 00:00:60', false],
       [$timea, '1-1-2000 00:01:00', false],
       [$timea, '1-1-2000 01:00:00', false],
+    ];
+  }
+
+
+
+  /**
+   * @test
+   * @dataProvider dataForChooseByTimeOfDay
+   */
+  public function testChooseByTimeOfDay($time, $expected, $morningValue, $afternoonValue, $eveningValue, $nightValue)
+  {
+    $dt = new DateTime($time);
+
+    $result = $dt->chooseByTimeOfDay($morningValue, $afternoonValue, $eveningValue, $nightValue);
+    $this->assertSame($expected, $result);
+  }
+
+  /**
+   * @test
+   * @dataProvider dataForChooseByTimeOfDay
+   */
+  public function testGetGreeting($time, $expected, $morningGreeting, $afternoonGreeting, $eveningGreeting, $nightGreeting)
+  {
+    $dt = new DateTime($time);
+
+    $result = $dt->getGreeting($morningGreeting, $afternoonGreeting, $eveningGreeting, $nightGreeting);
+    $this->assertSame($expected, $result);
+  }
+
+  /**
+   * Data for the chooseByTimeOfDay and getGreeting tests.
+   *
+   * @return array
+   */
+  public function dataForChooseByTimeOfDay()
+  {
+    return [
+      [strtotime('12 am'), 'v4', 'v1', 'v2', 'v3', 'v4'],
+      [strtotime('1 am'),  'v4', 'v1', 'v2', 'v3', 'v4'],
+      [strtotime('2 am'),  'v4', 'v1', 'v2', 'v3', 'v4'],
+      [strtotime('3 am'),  'v4', 'v1', 'v2', 'v3', 'v4'],
+      [strtotime('4 am'),  'v1', 'v1', 'v2', 'v3', 'v4'],
+      [strtotime('5 am'),  'v1', 'v1', 'v2', 'v3', 'v4'],
+      [strtotime('6 am'),  'v1', 'v1', 'v2', 'v3', 'v4'],
+      [strtotime('7 am'),  'v1', 'v1', 'v2', 'v3', 'v4'],
+      [strtotime('8 am'),  'v1', 'v1', 'v2', 'v3', 'v4'],
+      [strtotime('9 am'),  'v1', 'v1', 'v2', 'v3', 'v4'],
+      [strtotime('10 am'), 'v1', 'v1', 'v2', 'v3', 'v4'],
+      [strtotime('11 am'), 'v1', 'v1', 'v2', 'v3', 'v4'],
+      [strtotime('12 pm'), 'v2', 'v1', 'v2', 'v3', 'v4'],
+      [strtotime('1 pm'),  'v2', 'v1', 'v2', 'v3', 'v4'],
+      [strtotime('2 pm'),  'v2', 'v1', 'v2', 'v3', 'v4'],
+      [strtotime('3 pm'),  'v2', 'v1', 'v2', 'v3', 'v4'],
+      [strtotime('4 pm'),  'v2', 'v1', 'v2', 'v3', 'v4'],
+      [strtotime('5 pm'),  'v2', 'v1', 'v2', 'v3', 'v4'],
+      [strtotime('6 pm'),  'v3', 'v1', 'v2', 'v3', 'v4'],
+      [strtotime('7 pm'),  'v3', 'v1', 'v2', 'v3', 'v4'],
+      [strtotime('8 pm'),  'v3', 'v1', 'v2', 'v3', 'v4'],
+      [strtotime('9 pm'),  'v3', 'v1', 'v2', 'v3', 'v4'],
+      [strtotime('10 pm'), 'v4', 'v1', 'v2', 'v3', 'v4'],
+      [strtotime('11 pm'), 'v4', 'v1', 'v2', 'v3', 'v4'],
     ];
   }
 
