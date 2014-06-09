@@ -13,10 +13,11 @@ use DateTime as PHPDateTime,
 /**
  * Object for working with DateTimes
  * <p/>
- * <i><b>WARNING:</b> This class makes use of the PHP DateInterval object. When working with
- * negative intervals (such as 61 days into the past), months are not mapped to calendar months, but
- * instead use a constant 31-day month. As a result, when specifying a durations, the number of
- * actual months may not match up with the number of months in the interval.
+ * <i><strong>Warning:</strong>
+ *  This class makes use of the PHP DateInterval object. When working with negative intervals (such
+ *  as 61 days into the past), months are not mapped to calendar months, but instead use a constant
+ *  31-day month. As a result, when specifying a durations, the number of actual months may not
+ *  match up with the number of months in the interval.
  *
  * @package Utility
  * @author  Billy Visto
@@ -40,7 +41,7 @@ class DateTime extends Base
    * Calls parent setValue with value converted to a DateTime object
    *
    * @param string|integer $value
-   * @return  void
+   * @return void
    */
   public function setValue($value)
   {
@@ -316,7 +317,7 @@ class DateTime extends Base
    */
   public function adjustYearsIfNeeded(&$firstDate, &$endDate)
   {
-    $endDateTime   = $endDate->format('U');
+    $endDateTime = $endDate->format('U');
     if ($firstDate->format('U') > $endDateTime) {
       // endDateTime should be after first date time
       // we need to adjust years
@@ -355,5 +356,73 @@ class DateTime extends Base
     $endDate   = $endDate->format('U');
     $date      = $this->value->format('U');
     return ($firstDate <= $date && $date <= $endDate);
+  }
+
+
+  /**
+   * Chooses a value from the four input values based on the relative time-of-day represented by
+   * this DateTime object.
+   *
+   * @param mixed $morningValue;
+   *  The value to return if this DateTime represents a time in the morning (4-12am).
+   *
+   * @param mixed $afternoonValue;
+   *  The value to return if this DateTime represents a time in the afternoon (12-6pm).
+   *
+   * @param mixed $eveningValue;
+   *  The value to return if this DateTime represents a time in the evening (6-10pm).
+   *
+   * @param mixed $nightValue;
+   *  The value to return if this DateTime represents a time in the night (10pm-4am).
+   *
+   * @return mixed
+   *  The value chosen based on the relative time-of-day.
+   */
+  public function chooseByTimeOfDay($morningValue = null, $afternoonValue = null, $eveningValue = null, $nightValue = null)
+  {
+    $result = null;
+
+    if ($this->isMorning()) {
+      $result = $morningValue;
+    } else if ($this->isAfternoon()) {
+      $result = $afternoonValue;
+    } else if ($this->isEvening()) {
+      $result = $eveningValue;
+    } else {
+      $result = $nightValue;
+    }
+
+    return $result;
+  }
+
+  /**
+   * Chooses a greeting based on the relative time-of-day represented by this DateTime instance.
+   *
+   * @param string $morningValue;
+   *  <em>Optional</em>
+   *  The value to return if this DateTime represents a time in the morning (4-12am). Defaults to
+   *  "Good morning".
+   *
+   * @param string $afternoonValue;
+   *  <em>Optional</em>
+   *  The value to return if this DateTime represents a time in the afternoon (12-6pm). Defaults to
+   *  "Good afternoon".
+   *
+   * @param string $eveningValue;
+   *  <em>Optional</em>
+   *  The value to return if this DateTime represents a time in the evening (6-10pm). Defaults to
+   *  "Good evening".
+   *
+   * @param string $nightValue;
+   *  <em>Optional</em>
+   *  The value to return if this DateTime represents a time in the night (10pm-4am). Defaults to
+   *  "Good night".
+   *
+   * @return string
+   *  The greeting chosen based on the relative time-of-day.
+   */
+  public function getGreeting($morningGreeting = 'Good morning', $afternoonGreeting = 'Good afternoon', $eveningGreeting = 'Good evening', $nightGreeting = 'Good night')
+  {
+    return $this->chooseByTimeOfDay($morningGreeting, $afternoonGreeting, $eveningGreeting, $nightGreeting);
   }
 }

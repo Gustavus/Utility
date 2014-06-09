@@ -6,7 +6,8 @@
  */
 namespace Gustavus\Utility;
 
-use InvalidArgumentException;
+use InvalidArgumentException,
+    Gustavus\GACCache\GlobalCache;
 
 
 /**
@@ -18,6 +19,12 @@ use InvalidArgumentException;
  */
 class File extends Base
 {
+  /**
+   * Number of seconds to cache a view
+   * @var integer
+   */
+  const VIEW_TTL    = 86400; // 60 * 60 * 24
+
   /**
    * Retrieves the MIME util instance to use for performing MIME type checks and operations.
    *
@@ -229,6 +236,11 @@ class File extends Base
    *  <em>Optional</em>.
    *  The name to use when serving the file. If omitted, the basename of the file will be used.
    *
+   * @param string $mime
+   *  <em>Optional</em>.
+   *  The MIME type to use for this file. If omitted, the MIME will be detected from the contents of
+   *  the file.
+   *
    * @param string $whitelist
    *  <em>Optional</em>.
    *  A regular expression specifying an expression the file's MIME type must match to be served. If
@@ -240,19 +252,29 @@ class File extends Base
    *  served. If omitted, the default MIME type blacklist will be used.
    *
    * @throws InvalidArgumentException
-   *  if $name is provided, but is empty or not a string, or either $whitelist or $blacklist are
-   *  provided, but are empty, not strings or not valid regular expressions.
+   *  if $name is provided, but is empty or not a string, $mime is provided, but is empty or not a
+   *  string, or either $whitelist or $blacklist are provided, but are empty, not strings or not
+   *  valid regular expressions.
    *
    * @return void
    */
-  public function serve($name = null, $whitelist = null, $blacklist = null)
+  public function serve($name = null, $mime = null, $whitelist = null, $blacklist = null)
   {
     if (isset($name) && (empty($name) || !is_string($name))) {
       throw new InvalidArgumentException('$name is provided, but is empty or not a string.');
     }
 
+    if (isset($mime) && (empty($mime) || !is_string($mime))) {
+      throw new InvalidArgumentException('$mime is provided, but is empty or not a string.');
+    }
+
+
     $mu = $this->getMimeUtil();
-    $mime = $mu->getMimeType($this->value);
+
+    if (!isset($mime)) {
+      $mime = $mu->getMimeType($this->value);
+    }
+
     $serve = $mu->validateMimeType($mime, $whitelist, $blacklist);
 
     if ($serve && $mime) {
@@ -265,7 +287,7 @@ class File extends Base
       header("Pragma: public"); // required
       header("Expires: 0");
       header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-      header("Cache-Control: private",false); // required for certain browsers
+      header("Cache-Control: private", false); // required for certain browsers
       header("Content-Type: {$mime}");
       header("Content-Disposition: filename=\"{$name}\";" ); // Will this require urlencoding...?
       header("Content-Transfer-Encoding: binary");
@@ -277,5 +299,52 @@ class File extends Base
     }
 
     exit;
+  }
+
+  /**
+   * Renders the contents of this file as a p-view (extended printf-formatted view).
+   *
+   * @param array $data
+   *  Data to use in view
+   *
+   * @param boolean $useVnsprintf
+   *  If true, will use String::vnsprintf() for formatting, otherwise will use vsprintf() for
+   *  formatting.
+   *
+   * @param boolean $evaluateView
+   *  If true, will evaluate any PHP in the view
+   *
+   * @return String
+   *  A String instance containing the rendered view.
+   */
+  public function renderAsPView(array $data, $useVnsprintf = false, $evaluateView = false)
+  {
+    $fullPath = $this->exists(true);
+
+    if ($fullPath === false) {
+      throw new \RuntimeException("Requested view cannot be found: {$this->value}");
+    }
+
+    $viewModifiedOn = filemtime($fullPath);
+    $key = 'pview_' . hash('md4', "{$useVnsprintf}-{$fullPath}-{$viewModifiedOn}-" . json_encode($data));
+
+    $datastore = GlobalCache::getGlobalDataStore();
+    $r = $datastore->getValue($key, $incache);
+
+    if (!$incache) {
+      $view = $evaluateView ? $this->loadAndEvaluate() : file_get_contents($fullPath);
+
+      if ($useVnsprintf) {
+        $r = String::vnsprintf($view, $data);
+      } else {
+        $r = new String(vsprintf($view, $data));
+      }
+
+      $datastore->setValue($key, $r->getValue(), static::VIEW_TTL);
+    } else {
+      $r = new String($r);
+    }
+
+    return $r;
   }
 }

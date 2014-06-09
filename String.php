@@ -728,6 +728,61 @@ class String extends Base implements ArrayAccess
 
 
   /**
+   * Converts this string to an internationalized phone number.
+   *
+   * @param string $internationalCode
+   * @param string $areaCode
+   * @param string $prefix
+   * @param string $number
+   *
+   * @return String
+   *  This String instance.
+   */
+  public function internationalizePhone($internationalCode = '1', $areaCode = '507', $prefix = '933', $number = '8000')
+  {
+    assert('is_string($internationalCode)');
+    assert('is_string($areaCode)');
+    assert('is_string($prefix)');
+    assert('is_string($number)');
+
+    $phone = preg_replace('`\D`', '', $this->value);
+
+    $lengths = array(
+      strlen($phone),
+      strlen($internationalCode),
+      strlen($areaCode),
+      strlen($prefix),
+      strlen($number),
+    );
+
+    switch ($lengths[0]) {
+      case ($lengths[1] + $lengths[2] + $lengths[3] + $lengths[4]):
+          break;
+      case ($lengths[2] + $lengths[3] + $lengths[4]):
+        $phone = "$internationalCode$phone";
+          break;
+      case ($lengths[3] + $lengths[4]):
+        $phone = "$internationalCode$areaCode$phone";
+          break;
+      case $lengths[4]:
+        $phone = "$internationalCode$areaCode$prefix$phone";
+          break;
+      default:
+        return $this;
+    }
+
+    $this->setValue(sprintf(
+        '+%d-%d-%d-%d',
+        substr($phone, 0, $lengths[1]),
+        substr($phone, $lengths[1], $lengths[2]),
+        substr($phone, $lengths[1] + $lengths[2], $lengths[3]),
+        substr($phone, $lengths[1] + $lengths[2] + $lengths[3], $lengths[4])
+    ));
+
+    return $this;
+  }
+
+  /**
    * Format a phone number
    *
    * @param string $format Format type
@@ -1000,13 +1055,13 @@ class String extends Base implements ArrayAccess
       case 'full':
         $f  = ($first != '') ? $first : $preferred;
         if ($middle != '') {
-          $f  .= " $middle";
+          $f  .= " {$middle}";
         }
           break;
 
       case 'verbose':
         if ($first != '' && $preferred != '') {
-          $f  = "$first \"$preferred\"";
+          $f  = "{$first} \"{$preferred}\"";
         } else if ($first != '') {
           $f  = $first;
         } else {
@@ -1014,7 +1069,7 @@ class String extends Base implements ArrayAccess
         }
 
         if ($middle != '') {
-          $f  .= " $middle";
+          $f  .= " {$middle}";
         }
           break;
 
@@ -1032,7 +1087,7 @@ class String extends Base implements ArrayAccess
     }
 
     $name = $f;
-    $name = ($lastNameFirst) ? "$last, $name" : "$name $last";
+    $name = ($lastNameFirst) ? "{$last}, {$name}" : "{$name} {$last}";
 
     $year = (new Number($graduationYear))->shortYear()->getValue();
 
@@ -1041,7 +1096,7 @@ class String extends Base implements ArrayAccess
     }
 
     if (!empty($maiden)) {
-      $name .= " $beforeMaiden$f $maiden$afterMaiden";
+      $name .= " {$beforeMaiden}{$f} {$maiden}{$afterMaiden}";
     }
 
     $this->setValue(trim($name));
@@ -1139,5 +1194,416 @@ class String extends Base implements ArrayAccess
     } else {
       return false;
     }
+  }
+
+  /**
+   * Creates a new String instance containing the expanded result of the printf-like formatted data.
+   * The printf implementation used by this method allows for named placeholders in addition to the
+   * traditional placeholders.
+   *
+   * <strong>Note:</strong>
+   *  This is a port of the Format::vnsprintf function.
+   *
+   * @param string $format
+   *  The formatted string to expand.
+   *
+   * @param array $data
+   *  The data with which to expand the formatted string.
+   *
+   * @throws InvalidArgumentException
+   *  if $format is not a string.
+   *
+   * @return String
+   *  A new String instance containing the expanded string.
+   */
+  public static function vnsprintf($format, array $data)
+  {
+    if (!is_string($format)) {
+      throw new InvalidArgumentException('$format is not a string.');
+    }
+
+    return (new String($format))->expand($data);
+  }
+
+  /**
+   * Expands this string using the specified data. The expansion is performed using an extended
+   * printf-like format which allows named placeholders in addition to the traditional placeholders.
+   *
+   * <strong>Note:</strong>
+   *  This is a port/adaptation of the Format::vnsprintf function.
+   *
+   * @param array $data
+   *  The data with which to expand this string.
+   *
+   * @return String
+   *  This String instance.
+   */
+  public function expand(array $data)
+  {
+    $format = $this->value;
+    $match  = array();
+
+    preg_match_all('/ (?<!%) % ( (?: [[:alpha:]_-][[:alnum:]_-]* | ([-+])? [0-9]+ (?(2) (?:\.[0-9]+)? | \.[0-9]+ ) ) ) \$ [-+]? \'? .? -? [0-9]* (\.[0-9]+)? \w/x', $format, $match, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
+    $offset = 0;
+    $keys = array_keys($data);
+
+    foreach ($match as &$value) {
+      if (($key = array_search($value[1][0], $keys, true)) !== false || (is_numeric($value[1][0]) && ($key = array_search((integer) $value[1][0], $keys, true)) !== false)) {
+        $len    = strlen($value[1][0]);
+        $format = substr_replace($format, strval(1 + (integer) $key), $offset + (integer) $value[1][1], $len);
+        $offset -= $len - strlen(strval(1 + (integer) $key));
+      }
+    }
+
+    if (!empty($format) && !empty($data) && is_array($data) && count($data) > 0) {
+      $this->setValue(vsprintf($format, $data));
+    } else {
+      $this->setValue($format);
+    }
+
+    return $this;
+  }
+
+  /**
+   * Interprets this String as either "Yes" or "No"
+   *
+   * Example:
+   * <code>
+   * $string = new String(0);
+   * echo $string->yesNo();
+   * // Outputs: No
+   *
+   * $string = new String('y');
+   * echo $string->yesNo();
+   * // Outputs: Yes
+   * </code>
+   *
+   * <strong>Note:</strong>
+   *  This is a port of the Format::yesNo function.
+   *
+   * @param mixed $yesNo
+   * @return string "Yes" or "No"
+   */
+  public function yesNo()
+  {
+    $yesNo = $this->value;
+
+    if (is_string($yesNo)) {
+      $yesNo = preg_replace('`[^a-zA-Z0-9]`', '', strtolower(trim((string) $yesNo)));
+    }
+
+    if (strval(intval($yesNo)) == $yesNo && $yesNo != 0) {
+      $yesNo = true;
+    }
+
+    if (in_array($yesNo, array('y', 'ye', 'yes', '1', 1, true, 'true'), true)) {
+      return 'Yes';
+    } else {
+      return 'No';
+    }
+  }
+
+  /**
+   * Replaces commonly used characters in the upper portion of the Windows character set to "safe"
+   * equivalents. The characters converted fall in the 130-159 range. For details on why these
+   * characters were selected, see the page linked below.
+   *
+   * <strong>Note:</strong>
+   *  This is a (relative) port of the Format::cleanString function.
+   *
+   * @return String
+   *  This String instance.
+   *
+   * @link
+   *  http://www.cs.tut.fi/~jkorpela/www/windows-chars.html
+   */
+  public function clean()
+  {
+    $r = $this->value;
+
+    // Convert smart quotes (double and single) into standard quotes.
+    $r = str_replace(["\x82", "\x91", "\x92"], '\'', $r);
+    $r = str_replace(["\x84", "\x93", "\x94"], '"', $r);
+
+    // Convert bullet, en-dash and em-dash to a standard hyphen (or two, in the case of em-dash).
+    $r = str_replace(["\x95", "\x96"], '-', $r);
+    $r = str_replace("\x97", '--', $r);
+
+    // Ellipsis
+    $r = str_replace("\x85", '...', $r);
+
+    // Tilde accent
+    $r = str_replace("\x98", '~', $r);
+
+    // trademark
+    $r = str_replace("\x99", '(tm)', $r);
+
+    // Circumflex accent
+    $r = str_replace("\x88", '^', $r);
+
+    // Guillemets
+    $r = str_replace("\x8B", '<', $r);
+    $r = str_replace("\x9B", '>', $r);
+
+    $this->setValue($r);
+
+    return $this;
+  }
+
+  /**
+   * Converts this string to a UTF-8 string as simplified ASCII text, with similar ASCII characters
+   * substituted in for smart UTF-8 ones
+   *
+   * <strong>Note:</strong>
+   *  This is a port of the Format::simplifyUTF8 function.
+   *
+   * @return String
+   *  This String instance.
+   */
+  public static function simplifyUTF8()
+  {
+    $value = trim(iconv("UTF-8", "ASCII//TRANSLIT", $this->value));
+    $this->setValue($value);
+
+    return $this;
+  }
+
+  /**
+   * Highlights words in content. Based on a regular expression by Krijn Hoetmer
+   * (http://krijnhoetmer.nl/).
+   *
+   * Limitations: does not avoid text inside of HTML elements that contain content
+   * (e.g. <script>...</script> or <textarea>...</textarea>)
+   *
+   * <strong>Note:</strong>
+   *  This is a port of the Format::highlight function.
+   *
+   * @param string|array $words
+   * @param string $ignoredCharacters
+   * @param string $before
+   * @return String
+   *  This String instance.
+   *
+   * @link http://krijnhoetmer.nl/stuff/php/word-highlighter/
+   */
+  public function highlight($words, $ignoredCharacters = '', $before = '<b>', $after = '</b>')
+  {
+    assert('is_string($words) || is_array($words)');
+    assert('is_string($ignoredCharacters)');
+    assert('is_string($before)');
+    assert('is_string($after)');
+
+    $highlightArgs = [
+      'words'             => $words,
+      'ignoredCharacters' => preg_quote($ignoredCharacters, '/'),
+      'before'            => $before,
+      'after'             => $after,
+    ];
+
+    $escaper = function($value) use (&$highlightArgs) {
+      if (!empty($highlightArgs['ignoredCharacters'])) {
+        // Step through each character and convert to a safe partial regex.
+        $len = mb_strlen($value, 'UTF-8');
+        $chunks = [];
+
+        for ($i = 0; $i < $len; ++$i) {
+          $c = mb_substr($value, $i, 1, 'UTF-8');
+          $chunks[] = sprintf('%s[%s]?', preg_quote($c, '/'), $highlightArgs['ignoredCharacters']);
+        }
+
+        return implode('', $chunks);
+      } else {
+        return preg_quote($value, '/');
+      }
+    };
+
+    $r = preg_replace_callback("/(>|^)([^<]+)(?=<|$)/sx", function($matches) use (&$escaper, &$highlightArgs) {
+      if (is_array($highlightArgs['words'])) {
+        $words = array_map($escaper, $highlightArgs['words']);
+        $words = implode('|', $words);
+      } else {
+        $words = $escaper($highlightArgs['words']);
+      }
+
+      $pattern = "/(\s|\b)($words)\b/i";
+      $replace = sprintf('$1%s$2%s', $highlightArgs['before'], $highlightArgs['after']);
+      return $matches[1] . preg_replace($pattern, $replace, $matches[2]);
+    }, $this->value);
+
+    $this->setValue($r);
+    return $this;
+  }
+
+
+  /**
+   * Generates a new String instance formatted for the specified address components.
+   *
+   * <strong>Note:</strong>
+   *  This is a port of the Format::address function.
+   *
+   * @param string $company
+   * @param string $streetAddress
+   * @param string $city
+   * @param string $state
+   * @param string $zip
+   * @param string $country
+   * @param string $lineBreak
+   *
+   * @return String
+   *  This String instance.
+   */
+  public static function address($company, $streetAddress, $city, $state, $zip, $country = null, $lineBreak = "<br/>\n")
+  {
+    assert('is_string($company) || is_null($company)');
+    assert('is_string($streetAddress) || is_null($streetAddress)');
+    assert('is_string($city) || is_null($city)');
+    assert('is_string($state) || is_null($state)');
+    assert('is_string($zip) || is_null($zip)');
+    assert('is_string($country) || is_null($country)');
+    assert('is_string($lineBreak)');
+
+    $r = array();
+
+    if (!empty($company)) {
+      $r[] = $company;
+    }
+
+    if (!empty($streetAddress)) {
+      $r[] = $streetAddress;
+    }
+
+    $cityLine = '';
+
+    if (!empty($city)) {
+      $cityLine .= $city;
+    }
+
+    if (!empty($state) || !empty($zip)) {
+      $cityLine .= ', ';
+    }
+
+    if (!empty($state)) {
+      $cityLine .= $state . ' ';
+    }
+
+    if (!empty($zip)) {
+      $cityLine .= $zip;
+    }
+
+    if (!empty($cityLine)) {
+      $r[] = $cityLine;
+    }
+
+    if (!empty($country)) {
+      $r[] = $country;
+    }
+
+    return new String(implode($lineBreak, $r));
+  }
+
+  /**
+   * Format this string as an address line (i.e. Address1, Address2).
+   *
+   * <strong>Note:</strong>
+   *  This is a port of the Format::addressLine function.
+   *
+   * @return String
+   *  This String instance.
+   */
+  public function addressLine()
+  {
+    $address = $this->value;
+
+    $abbreviations  = array(
+      '$1Lane'      => '`(?:(^|\s)Ln)(?:\.|\b)`i',
+      '$1Street'    => '`(?:(^|\s)St)(?:\.|\b)`i',
+      '$1Avenue'    => '`(?:(^|\s)Ave)(?:\.|\b)`i',
+      '$1Road'      => '`(?:(^|\s)Rd)(?:\.|\b)`i',
+      '$1Boulevard' => '`(?:(^|\s)Blvd)(?:\.|\b)`i',
+      '$1Park'      => '`(?:(^|\s)Pk)(?:\.|\b)`i',
+      '$1Drive'     => '`(?:(^|\s)Dr)(?:\.|\b)`i',
+      '$1Court'     => '`(?:(^|\s)Ct)(?:\.|\b)`i',
+      '$1Trail'     => '`(?:(^|\s)Tr)(?:\.|\b)`i',
+      '$1West'      => '`(?:(^|\s)W)(?:\.|\b)`i',
+      '$1North'     => '`(?:(^|\s)N)(?:\.|\b)`i',
+      '$1East'      => '`(?:(^|\s)E)(?:\.|\b)`i',
+      '$1South'     => '`(?:(^|\s)S)(?:\.|\b)`i',
+    );
+
+    $address = preg_replace($abbreviations, array_keys($abbreviations), $address);
+    $this->setValue($address);
+
+    return $this;
+  }
+
+
+
+
+  /**
+   * Formats this string as HTML paragraphs while maintaining any desired markup.
+   *
+   * Adapted from WordPress wpautop
+   *
+   * <strong>Note:</strong>
+   *  This is a port of the Format::paragraphs function.
+   *
+   * @param boolean $preserveNewLines
+   *  <em>Optional</em>
+   *  Whether or not to preserve new lines within WordPress. Defaults to true.
+   *
+   * @return String
+   *  This String instance.
+   */
+  public function paragraphs($preserveNewLines = true)
+  {
+    $pee = $this->value;
+
+    $pee = $pee . "\n"; // just to make things a little easier, pad the end
+    $pee = preg_replace('|<br />\s*<br />|', "\n\n", $pee);
+    // Space things out a little
+    $allblocks = '(?:table|thead|tfoot|caption|colgroup|tbody|tr|td|th|div|dl|dd|dt|ul|ol|li|pre|select|form|map|area|blockquote|address|math|style|input|p|h[1-6]|hr)';
+    $pee = preg_replace('!(<' . $allblocks . '[^>]*>)!', "\n$1", $pee);
+    $pee = preg_replace('!(</' . $allblocks . '>)!', "$1\n\n", $pee);
+    $pee = str_replace(array("\r\n", "\r"), "\n", $pee); // cross-platform newlines
+    if ( strpos($pee, '<object') !== false ) {
+      $pee = preg_replace('|\s*<param([^>]*)>\s*|', "<param$1>", $pee); // no pee inside object/embed
+      $pee = preg_replace('|\s*</embed>\s*|', '</embed>', $pee);
+    }
+    $pee = preg_replace("/\n\n+/", "\n\n", $pee); // take care of duplicates
+    $pee = preg_replace('/\n?(.+?)(?:\n\s*\n|\z)/s', "<p>$1</p>\n", $pee); // make paragraphs, including one at the end
+    $pee = preg_replace('|<p>\s*?</p>|', '', $pee); // under certain strange conditions it could create a P of entirely whitespace
+    $pee = preg_replace('!<p>([^<]+)\s*?(</(?:div|address|form)[^>]*>)!', "<p>$1</p>$2", $pee);
+    $pee = preg_replace('|<p>|', "$1<p>", $pee);
+    $pee = preg_replace('!<p>\s*(</?' . $allblocks . '[^>]*>)\s*</p>!', "$1", $pee); // don't pee all over a tag
+    $pee = preg_replace("|<p>(<li.+?)</p>|", "$1", $pee); // problem with nested lists
+    $pee = preg_replace('|<p><blockquote([^>]*)>|i', "<blockquote$1><p>", $pee);
+    $pee = str_replace('</blockquote></p>', '</p></blockquote>', $pee);
+    $pee = preg_replace('!<p>\s*(</?' . $allblocks . '[^>]*>)!', "$1", $pee);
+    $pee = preg_replace('!(</?' . $allblocks . '[^>]*>)\s*</p>!', "$1", $pee);
+
+    if ($preserveNewLines) {
+      $pee = preg_replace_callback('/<(script|style).*?<\/\\1>/s', function($matches) {
+        return str_replace("\n", "<WPPreserveNewline />", $matches[0]);
+      }, $pee);
+
+      $pee = preg_replace('|(?<!<br />)\s*\n|', "<br />\n", $pee); // optionally make line breaks
+      $pee = str_replace('<WPPreserveNewline />', "\n", $pee);
+    }
+
+    $pee = preg_replace('!(</?' . $allblocks . '[^>]*>)\s*<br />!', "$1", $pee);
+    $pee = preg_replace('!<br />(\s*</?(?:p|li|div|dl|dd|dt|th|pre|td|ul|ol)[^>]*>)!', '$1', $pee);
+    if (strpos($pee, '<pre') !== false) {
+      $pee = preg_replace_callback('!(<pre.*?>)(.*?)</pre>!is', function($matches) {
+        $text = $matches[1] . $matches[2] . "</pre>";
+        $text = str_replace(['<br />', '<p>', '</p>'], ['', "\n", ''], $text);
+
+        return $text;
+      }, $pee);
+    }
+
+    $pee = trim(preg_replace("|\n</p>$|", '</p>', $pee));
+
+    $this->setValue($pee);
+    return $this;
   }
 }
