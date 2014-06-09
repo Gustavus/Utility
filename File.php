@@ -268,11 +268,13 @@ class File extends Base
       throw new InvalidArgumentException('$mime is provided, but is empty or not a string.');
     }
 
+
+    $mu = $this->getMimeUtil();
+
     if (!isset($mime)) {
       $mime = $mu->getMimeType($this->value);
     }
 
-    $mu = $this->getMimeUtil();
     $serve = $mu->validateMimeType($mime, $whitelist, $blacklist);
 
     if ($serve && $mime) {
@@ -285,7 +287,7 @@ class File extends Base
       header("Pragma: public"); // required
       header("Expires: 0");
       header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-      header("Cache-Control: private",false); // required for certain browsers
+      header("Cache-Control: private", false); // required for certain browsers
       header("Content-Type: {$mime}");
       header("Content-Disposition: filename=\"{$name}\";" ); // Will this require urlencoding...?
       header("Content-Transfer-Encoding: binary");
