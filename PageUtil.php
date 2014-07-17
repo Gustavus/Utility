@@ -79,6 +79,7 @@ class PageUtil
   {
     self::startSessionIfNeeded();
     $location = self::buildMessageKey($location);
+
     if ($isError) {
       $_SESSION['errorMessages'][$location] = $message;
     } else {
@@ -96,13 +97,17 @@ class PageUtil
   private static function buildMessageKey($location = null)
   {
     if ($location === null) {
-      $location = $_SERVER['SCRIPT_NAME'];
-    } else {
-      $parsed   = parse_url($location);
-      $location = $parsed['path'];
-      if (!strpos($location, '.php')) {
-        $location = (str_replace('//', '/', $location . '/index.php'));
-      }
+      $location = $_SERVER['REQUEST_URI'];
+    }
+
+    $parsed   = parse_url($location);
+    $location = $parsed['path'];
+    if (!strpos($location, '.php')) {
+      // we want to be as specific as possible, so if there isn't a php in the location, we need to add it in.
+      $location = (str_replace('//', '/', $location . '/index.php'));
+    }
+    if (isset($parsed['query'])) {
+      $location .= sprintf('?%s', $parsed['query']);
     }
     return hash('md4', $location);
   }

@@ -41,7 +41,7 @@ class PageUtilTest extends Test
    */
   public function setUp()
   {
-    $_SERVER['SCRIPT_NAME'] = '/billy/index.php';
+    $_SERVER['REQUEST_URI'] = '/billy/index.php';
   }
 
   /**
@@ -96,10 +96,24 @@ class PageUtilTest extends Test
   /**
    * @test
    */
+  public function buildMessageKeySpecifiedVsNotSpecified()
+  {
+    $_SERVER['REQUEST_URI'] = '/billy/test/index.php?concert=save';
+
+    $keyOne = $this->call('\Gustavus\Utility\PageUtil', 'buildMessageKey', array($_SERVER['REQUEST_URI']));
+
+    $keyTwo = $this->call('\Gustavus\Utility\PageUtil', 'buildMessageKey');
+
+    $this->assertSame($keyOne, $keyTwo);
+  }
+
+  /**
+   * @test
+   */
   public function setSessionMessage()
   {
     PageUtil::setSessionMessage('TestMessage');
-    $this->assertSame('TestMessage', $_SESSION['messages'][hash('md4', $_SERVER['SCRIPT_NAME'])]);
+    $this->assertSame('TestMessage', $_SESSION['messages'][hash('md4', $_SERVER['REQUEST_URI'])]);
   }
 
   /**
@@ -108,7 +122,7 @@ class PageUtilTest extends Test
   public function setSessionErrorMessage()
   {
     PageUtil::setSessionMessage('TestErrorMessage', true);
-    $this->assertSame('TestErrorMessage', $_SESSION['errorMessages'][hash('md4', $_SERVER['SCRIPT_NAME'])]);
+    $this->assertSame('TestErrorMessage', $_SESSION['errorMessages'][hash('md4', $_SERVER['REQUEST_URI'])]);
   }
 
   /**
@@ -116,10 +130,10 @@ class PageUtilTest extends Test
    */
   public function getSessionMessage()
   {
-    $_SERVER['SCRIPT_NAME'] = '/arst/arst.php';
+    $_SERVER['REQUEST_URI'] = '/arst/arst.php';
     PageUtil::setSessionMessage('TestMessage', false, '/arst/arst.php');
     $this->assertSame('TestMessage', PageUtil::getSessionMessage());
-    $this->assertFalse(isset($_SESSION['messages'][hash('md4', $_SERVER['SCRIPT_NAME'])]));
+    $this->assertFalse(isset($_SESSION['messages'][hash('md4', $_SERVER['REQUEST_URI'])]));
   }
 
   /**
@@ -127,10 +141,10 @@ class PageUtilTest extends Test
    */
   public function getSessionErrorMessage()
   {
-    $_SERVER['SCRIPT_NAME'] = '/arst/arst.php';
+    $_SERVER['REQUEST_URI'] = '/arst/arst.php';
     PageUtil::setSessionMessage('TestErrorMessage', true, '/arst/arst.php');
     $this->assertSame('TestErrorMessage', PageUtil::getSessionErrorMessage());
-    $this->assertFalse(isset($_SESSION['errorMessages'][hash('md4', $_SERVER['SCRIPT_NAME'])]));
+    $this->assertFalse(isset($_SESSION['errorMessages'][hash('md4', $_SERVER['REQUEST_URI'])]));
   }
 
   /**
@@ -139,7 +153,7 @@ class PageUtilTest extends Test
   public function getSessionMessageNull()
   {
     PageUtil::setSessionMessage('TestMessage', false, '/arst/arst.php');
-    $this->assertFalse(isset($_SESSION['messages'][hash('md4', $_SERVER['SCRIPT_NAME'])]));
+    $this->assertFalse(isset($_SESSION['messages'][hash('md4', $_SERVER['REQUEST_URI'])]));
     $this->assertNull(PageUtil::getSessionMessage());
   }
 
@@ -149,7 +163,7 @@ class PageUtilTest extends Test
   public function getSessionErrorMessageNull()
   {
     PageUtil::setSessionMessage('TestErrorMessage', true, '/arst/arst.php');
-    $this->assertFalse(isset($_SESSION['errorMessages'][hash('md4', $_SERVER['SCRIPT_NAME'])]));
+    $this->assertFalse(isset($_SESSION['errorMessages'][hash('md4', $_SERVER['REQUEST_URI'])]));
     $this->assertNull(PageUtil::getSessionErrorMessage());
   }
 
@@ -158,7 +172,7 @@ class PageUtilTest extends Test
    */
   public function getSessionMessageSingleAccessPoint()
   {
-    $_SERVER['SCRIPT_NAME'] = '/arst/arst.php';
+    $_SERVER['REQUEST_URI'] = '/arst/arst.php';
     PageUtil::setSessionMessage('TestMessage', false, '/arst/test/test');
     $this->assertSame('TestMessage', PageUtil::getSessionMessage('/arst/test/test'));
     $this->assertFalse(isset($_SESSION['messages'][hash('md4', '/arst/test/test/index.php')]));
@@ -169,7 +183,7 @@ class PageUtilTest extends Test
    */
   public function getSessionErrorMessageSingleAccessPoint()
   {
-    $_SERVER['SCRIPT_NAME'] = '/arst/arst.php';
+    $_SERVER['REQUEST_URI'] = '/arst/arst.php';
     PageUtil::setSessionMessage('TestErrorMessage', true, '/arst/test/test');
     $this->assertSame('TestErrorMessage', PageUtil::getSessionErrorMessage('/arst/test/test'));
     $this->assertFalse(isset($_SESSION['messages'][hash('md4', '/arst/test/test/index.php')]));
