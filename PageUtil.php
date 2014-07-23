@@ -79,6 +79,7 @@ class PageUtil
   {
     self::startSessionIfNeeded();
     $location = self::buildMessageKey($location);
+
     if ($isError) {
       $_SESSION['errorMessages'][$location] = $message;
     } else {
@@ -90,19 +91,23 @@ class PageUtil
    * Builds the key to use in the session messages for the requested page
    *   Uses then current page if no location is specified
    *
-   * @param  string $location Location of the requested page. Uses $_SERVER['SCRIPT_NAME'] if nothing set.
+   * @param  string $location Location of the requested page. Uses $_SERVER['REQUEST_URI'] then $_SERVER['SCRIPT_NAME'] if nothing set.
    * @return string
    */
   private static function buildMessageKey($location = null)
   {
     if ($location === null) {
-      $location = $_SERVER['SCRIPT_NAME'];
-    } else {
-      $parsed   = parse_url($location);
-      $location = $parsed['path'];
-      if (!strpos($location, '.php')) {
-        $location = (str_replace('//', '/', $location . '/index.php'));
-      }
+      $location = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : $_SERVER['SCRIPT_NAME'];
+    }
+
+    $parsed   = parse_url($location);
+    $location = $parsed['path'];
+    if (!strpos($location, '.php')) {
+      // we want to be as specific as possible, so if there isn't a php in the location, we need to add it in.
+      $location = (str_replace('//', '/', $location . '/index.php'));
+    }
+    if (isset($parsed['query'])) {
+      $location .= sprintf('?%s', $parsed['query']);
     }
     return hash('md4', $location);
   }
