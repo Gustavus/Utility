@@ -91,13 +91,13 @@ class PageUtil
    * Builds the key to use in the session messages for the requested page
    *   Uses then current page if no location is specified
    *
-   * @param  string $location Location of the requested page. Uses $_SERVER['SCRIPT_NAME'] if nothing set.
+   * @param  string $location Location of the requested page. Uses $_SERVER['REQUEST_URI'] then $_SERVER['SCRIPT_NAME'] if nothing set.
    * @return string
    */
   private static function buildMessageKey($location = null)
   {
     if ($location === null) {
-      $location = $_SERVER['REQUEST_URI'];
+      $location = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : $_SERVER['SCRIPT_NAME'];
     }
 
     $parsed   = parse_url($location);
