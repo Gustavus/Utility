@@ -121,8 +121,10 @@ class PageUtilTest extends Test
    */
   public function setSessionErrorMessage()
   {
+    unset($_SERVER['REQUEST_URI']);
+    $_SERVER['SCRIPT_NAME'] = '/billy/index.php';
     PageUtil::setSessionMessage('TestErrorMessage', true);
-    $this->assertSame('TestErrorMessage', $_SESSION['errorMessages'][hash('md4', $_SERVER['REQUEST_URI'])]);
+    $this->assertSame('TestErrorMessage', $_SESSION['errorMessages'][hash('md4', $_SERVER['SCRIPT_NAME'])]);
   }
 
   /**
