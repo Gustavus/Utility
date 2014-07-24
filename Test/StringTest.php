@@ -502,10 +502,10 @@ class StringTest extends Test
    * @test
    * @dataProvider queryStringData
    */
-  public function splitQueryString($expected, $value)
+  public function splitQueryString($expected, $value, $stripEmptyValues = false)
   {
     $this->string->setValue($value);
-    $this->assertSame($expected, $this->string->splitQueryString()->getValue());
+    $this->assertSame($expected, $this->string->splitQueryString($stripEmptyValues)->getValue());
   }
 
   /**
@@ -514,16 +514,17 @@ class StringTest extends Test
   public static function queryStringData()
   {
     return [
+      [['login' => ''], '?login'],
       [['revisionNumber' => '1', 'oldestRevision' => '0'], '&revisionNumber=1&oldestRevision=0'],
       [['revisionNumber' => '1', 'oldestRevision' => '0'], '?revisionNumber=1&oldestRevision=0'],
-      [['revisionNumber' => '1'], '?revisionNumber=1&oldestRevision='],
-      [['revisionNumber' => '1'], '?revisionNumber=1&oldestRevision'],
+      [['revisionNumber' => '1'], '?revisionNumber=1&oldestRevision=', true],
+      [['revisionNumber' => '1'], '?revisionNumber=1&oldestRevision', true],
+      [['revisionNumber' => '1', 'oldestRevision' => ''], '?revisionNumber=1&oldestRevision='],
+      [['revisionNumber' => '1', 'oldestRevision' => ''], '?revisionNumber=1&oldestRevision'],
       [['revisionNumber' => '1', 'oldestRevision' => '0'], 'revisionNumber=1&oldestRevision=0'],
       [['revisionNumbers' => ['1', '2']], '?revisionNumbers[]=1&revisionNumbers[]=2'],
     ];
   }
-
-
 
   /**
    * @test
