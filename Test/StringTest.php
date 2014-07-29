@@ -331,6 +331,33 @@ class StringTest extends Test
 
   /**
    * @test
+   * @dataProvider removeQueryStringParamsData
+   */
+  public function removeQueryStringParams($expected, $url, $queryParams = [])
+  {
+    $this->string->setValue($url);
+    $this->assertSame($expected, $this->string->removeQueryStringParams($queryParams)->getValue());
+  }
+
+  /**
+   * Data for removeQueryStringParams
+   * @return array
+   */
+  public function removeQueryStringParamsData()
+  {
+    return [
+      ['/arst/','/arst/'],
+      ['/arst/?barebones=1', '/arst/?barebones=1'],
+      ['/arst/', '/arst/?barebones=1', ['barebones']],
+      ['/arst/', '/arst/?action=test', ['action']],
+      ['/arst/?barebones=1', '/arst/?barebones=1&action=test', ['action']],
+      ['/arst/?barebones=1', '/arst/?barebones=1&action=test&more=true', ['action', 'more']],
+      ['gustavus.edu/arst/', 'gustavus.edu/arst/', ['action', 'more']],
+    ];
+  }
+
+  /**
+   * @test
    * @dataProvider emailData
    */
   public function email($expected, $email)
@@ -502,10 +529,10 @@ class StringTest extends Test
    * @test
    * @dataProvider queryStringData
    */
-  public function splitQueryString($expected, $value)
+  public function splitQueryString($expected, $value, $stripEmptyValues = false)
   {
     $this->string->setValue($value);
-    $this->assertSame($expected, $this->string->splitQueryString()->getValue());
+    $this->assertSame($expected, $this->string->splitQueryString($stripEmptyValues)->getValue());
   }
 
   /**
@@ -514,16 +541,17 @@ class StringTest extends Test
   public static function queryStringData()
   {
     return [
+      [['login' => ''], '?login'],
       [['revisionNumber' => '1', 'oldestRevision' => '0'], '&revisionNumber=1&oldestRevision=0'],
       [['revisionNumber' => '1', 'oldestRevision' => '0'], '?revisionNumber=1&oldestRevision=0'],
-      [['revisionNumber' => '1'], '?revisionNumber=1&oldestRevision='],
-      [['revisionNumber' => '1'], '?revisionNumber=1&oldestRevision'],
+      [['revisionNumber' => '1'], '?revisionNumber=1&oldestRevision=', true],
+      [['revisionNumber' => '1'], '?revisionNumber=1&oldestRevision', true],
+      [['revisionNumber' => '1', 'oldestRevision' => ''], '?revisionNumber=1&oldestRevision='],
+      [['revisionNumber' => '1', 'oldestRevision' => ''], '?revisionNumber=1&oldestRevision'],
       [['revisionNumber' => '1', 'oldestRevision' => '0'], 'revisionNumber=1&oldestRevision=0'],
       [['revisionNumbers' => ['1', '2']], '?revisionNumbers[]=1&revisionNumbers[]=2'],
     ];
   }
-
-
 
   /**
    * @test

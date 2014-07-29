@@ -279,26 +279,36 @@ class String extends Base implements ArrayAccess
 
   /**
    * Splits a query string into an associative array
+   *
+   * @param  boolean $stripEmptyValues Whether we want to strip empty values out. Otherwise, it will set them to an empty string.
    * @return Set
    */
-  public function splitQueryString()
+  public function splitQueryString($stripEmptyValues = false)
   {
-    $split = preg_split('`\&|\?|\=`', $this->value, null, PREG_SPLIT_NO_EMPTY|PREG_SPLIT_DELIM_CAPTURE);
+    $split = preg_split('`\&|\?`', $this->value, null, PREG_SPLIT_NO_EMPTY|PREG_SPLIT_DELIM_CAPTURE);
     $set = new Set(array());
-    for ($i = 0; $i + 1 < count($split); $i += 2) {
-      if (isset($split[$i + 1], $split[$i])) {
-        if (strpos($split[$i], '[]') !== false) {
-          // query param has multiple values, so it needs to be an array
-          $index = substr($split[$i], 0, strlen($split[$i]) - 2);
-          if ($set->offsetExists($index)) {
-            $oldVal = $set->offsetGet($index);
-          } else {
-            $oldVal = [];
-          }
-          $set->offsetSet($index, array_merge($oldVal, [$split[$i + 1]]));
+
+    foreach ($split as $splitPiece) {
+      $splitArr = explode('=', $splitPiece);
+
+      if (!isset($splitArr[1])) {
+        // make sure our split param has a value
+        $splitArr[1] = '';
+      }
+
+      if ($stripEmptyValues && empty($splitArr[1])) {
+        continue;
+      }
+
+      if (strpos($splitArr[0], '[]') !== false) {
+        $index = substr($splitArr[0], 0, strlen($splitArr[0]) - 2);
+        if ($set->offsetExists($index)) {
+          $set->offsetSet($index, array_merge($set->offsetGet($index), [$splitArr[1]]));
         } else {
-          $set->offsetSet($split[$i], $split[$i + 1]);
+          $set->offsetSet($index, [$splitArr[1]]);
         }
+      } else {
+        $set->offsetSet($splitArr[0], $splitArr[1]);
       }
     }
     return $set;
@@ -327,6 +337,42 @@ class String extends Base implements ArrayAccess
       }
       $path .= $urlParts['path'];
       $this->value = sprintf('%s?%s', $path, http_build_query($queryParams));
+    }
+    return $this;
+  }
+
+  /**
+   * Makes a url removing the queryParams specified
+   *
+   * @param  array  $queryParams Array of parameters to remove
+   * @return String
+   */
+  public function removeQueryStringParams(array $queryParams = array())
+  {
+    if (!empty($queryParams)) {
+      $urlParts = parse_url($this->value);
+
+      if (isset($urlParts['query'])) {
+        // we might have things to remove
+        $query = (new String($urlParts['query']))->splitQueryString()->getValue();
+        $queryKeysToRemove = array_intersect(array_keys($query), $queryParams);
+        // remove all keys we need to remove
+        foreach ($queryKeysToRemove as $removal) {
+          unset($query[$removal]);
+        }
+      } else {
+        $query = [];
+      }
+      $path = '';
+      if (isset($urlParts['host'])) {
+        $path = $urlParts['host'];
+      }
+      $path .= $urlParts['path'];
+      if (empty($query)) {
+        $this->value = $path;
+      } else {
+        $this->value = sprintf('%s?%s', $path, http_build_query($query));
+      }
     }
     return $this;
   }
