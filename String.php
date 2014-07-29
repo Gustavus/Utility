@@ -353,9 +353,8 @@ class String extends Base implements ArrayAccess
       $urlParts = parse_url($this->value);
 
       if (isset($urlParts['query'])) {
+        // we might have things to remove
         $query = (new String($urlParts['query']))->splitQueryString()->getValue();
-        // we have url parts to remove.
-        $oldQueryParams = $queryParams;
         $queryKeysToRemove = array_intersect(array_keys($query), $queryParams);
         // remove all keys we need to remove
         foreach ($queryKeysToRemove as $removal) {
