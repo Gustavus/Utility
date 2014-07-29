@@ -151,9 +151,10 @@ class PageUtil
   }
 
   /**
-   * Checks HTTP_ORIGIN and HTTP_REFERER and returns value
+   * Gets the referer for the current request
+   *   Checks HTTP_REFERER and then HTTP_ORIGIN
    *
-   * @return string Returns the refer or null if no refer is set.
+   * @return string Returns the referer or null if no referer is set.
    */
   public static function getReferer()
   {
@@ -167,9 +168,10 @@ class PageUtil
   }
 
   /**
-   * Checks HTTP_ORIGIN and HTTP_REFERER and returns value
+   * Gets the origin for the current request
+   *   Checks HTTP_ORIGIN and then HTTP_REFERER
    *
-   * @return string Returns the refer or null if no refer is set.
+   * @return string Returns the origin or null if no origin is set.
    */
   public static function getOrigin()
   {
