@@ -331,6 +331,33 @@ class StringTest extends Test
 
   /**
    * @test
+   * @dataProvider removeQueryStringParamsData
+   */
+  public function removeQueryStringParams($expected, $url, $queryParams = [])
+  {
+    $this->string->setValue($url);
+    $this->assertSame($expected, $this->string->removeQueryStringParams($queryParams)->getValue());
+  }
+
+  /**
+   * Data for removeQueryStringParams
+   * @return array
+   */
+  public function removeQueryStringParamsData()
+  {
+    return [
+      ['/arst/','/arst/'],
+      ['/arst/?barebones=1', '/arst/?barebones=1'],
+      ['/arst/', '/arst/?barebones=1', ['barebones']],
+      ['/arst/', '/arst/?action=test', ['action']],
+      ['/arst/?barebones=1', '/arst/?barebones=1&action=test', ['action']],
+      ['/arst/?barebones=1', '/arst/?barebones=1&action=test&more=true', ['action', 'more']],
+      ['gustavus.edu/arst/', 'gustavus.edu/arst/', ['action', 'more']],
+    ];
+  }
+
+  /**
+   * @test
    * @dataProvider emailData
    */
   public function email($expected, $email)

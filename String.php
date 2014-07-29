@@ -342,6 +342,43 @@ class String extends Base implements ArrayAccess
   }
 
   /**
+   * Makes a url removing the queryParams specified
+   *
+   * @param  array  $queryParams Array of parameters to remove
+   * @return String
+   */
+  public function removeQueryStringParams(array $queryParams = array())
+  {
+    if (!empty($queryParams)) {
+      $urlParts = parse_url($this->value);
+
+      if (isset($urlParts['query'])) {
+        $query = (new String($urlParts['query']))->splitQueryString()->getValue();
+        // we have url parts to remove.
+        $oldQueryParams = $queryParams;
+        $queryKeysToRemove = array_intersect(array_keys($query), $queryParams);
+        // remove all keys we need to remove
+        foreach ($queryKeysToRemove as $removal) {
+          unset($query[$removal]);
+        }
+      } else {
+        $query = [];
+      }
+      $path = '';
+      if (isset($urlParts['host'])) {
+        $path = $urlParts['host'];
+      }
+      $path .= $urlParts['path'];
+      if (empty($query)) {
+        $this->value = $path;
+      } else {
+        $this->value = sprintf('%s?%s', $path, http_build_query($query));
+      }
+    }
+    return $this;
+  }
+
+  /**
    * Fixes up sloppy e-mail addresses so they are correctly and uniformly formatted
    *
    * Usage:
