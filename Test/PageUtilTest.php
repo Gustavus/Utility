@@ -222,6 +222,8 @@ class PageUtilTest extends Test
    */
   public function getReferer()
   {
+    $origOrigin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : null;
+    $origReferer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : null;
 
     $_SERVER['HTTP_ORIGIN'] = null;
     $_SERVER['HTTP_REFERER'] = null;
@@ -234,6 +236,39 @@ class PageUtilTest extends Test
     $_SERVER['HTTP_REFERER'] = 'google.com';
     $this->assertEquals('google.com', PageUtil::getReferer());
 
+    $_SERVER['HTTP_ORIGIN'] = 'gustavus.edu';
+    $_SERVER['HTTP_REFERER'] = 'google.com';
+    $this->assertEquals('google.com', PageUtil::getReferer());
+
+    $_SERVER['HTTP_ORIGIN'] = $origOrigin;
+    $_SERVER['HTTP_REFERER'] = $origReferer;
+  }
+
+  /**
+   * @test
+   */
+  public function getOrigin()
+  {
+    $origOrigin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : null;
+    $origReferer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : null;
+
+    $_SERVER['HTTP_ORIGIN'] = null;
+    $_SERVER['HTTP_REFERER'] = null;
+    $this->assertNull(PageUtil::getOrigin());
+
+    $_SERVER['HTTP_ORIGIN'] = 'blog.gustavus.edu';
+    $this->assertEquals('blog.gustavus.edu', PageUtil::getOrigin());
+
+    $_SERVER['HTTP_ORIGIN'] = null;
+    $_SERVER['HTTP_REFERER'] = 'google.com';
+    $this->assertEquals('google.com', PageUtil::getOrigin());
+
+    $_SERVER['HTTP_ORIGIN'] = 'gustavus.edu';
+    $_SERVER['HTTP_REFERER'] = 'google.com';
+    $this->assertEquals('gustavus.edu', PageUtil::getOrigin());
+
+    $_SERVER['HTTP_ORIGIN'] = $origOrigin;
+    $_SERVER['HTTP_REFERER'] = $origReferer;
   }
 
   /**
@@ -241,6 +276,8 @@ class PageUtilTest extends Test
    */
   public function hasInternalOrigin()
   {
+    $origOrigin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : null;
+    $origReferer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : null;
 
     $_SERVER['HTTP_ORIGIN'] = null;
     $_SERVER['HTTP_REFERER'] = null;
@@ -254,6 +291,9 @@ class PageUtilTest extends Test
 
     $_SERVER['HTTP_ORIGIN'] = 'gts.gac.edu';
     $this->assertTrue(PageUtil::hasInternalOrigin());
+
+    $_SERVER['HTTP_ORIGIN'] = $origOrigin;
+    $_SERVER['HTTP_REFERER'] = $origReferer;
   }
 
   /**

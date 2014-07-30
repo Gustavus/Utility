@@ -151,11 +151,29 @@ class PageUtil
   }
 
   /**
-   * Checks HTTP_ORIGIN and HTTP_REFERER and returns value
+   * Gets the referer for the current request
+   *   Checks HTTP_REFERER and then HTTP_ORIGIN
    *
-   * @return string Returns the refer or null if no refer is set.
+   * @return string Returns the referer or null if no referer is set.
    */
   public static function getReferer()
+  {
+    if (isset($_SERVER['HTTP_REFERER'])) {
+      return $_SERVER['HTTP_REFERER'];
+    } else if (isset($_SERVER['HTTP_ORIGIN'])) {
+      return $_SERVER['HTTP_ORIGIN'];
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * Gets the origin for the current request
+   *   Checks HTTP_ORIGIN and then HTTP_REFERER
+   *
+   * @return string Returns the origin or null if no origin is set.
+   */
+  public static function getOrigin()
   {
     if (isset($_SERVER['HTTP_ORIGIN'])) {
       return $_SERVER['HTTP_ORIGIN'];
@@ -176,7 +194,7 @@ class PageUtil
    */
   public static function hasInternalOrigin()
   {
-    $refer = static::getReferer();
+    $refer = static::getOrigin();
     return empty($refer) || strpos($refer, 'gustavus.edu') !== false || strpos($refer, 'gac.edu') !== false;
   }
 
