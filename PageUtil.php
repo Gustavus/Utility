@@ -101,7 +101,7 @@ class PageUtil
     }
 
     $parsed   = parse_url($location);
-    $location = $parsed['path'];
+    $location = isset($parsed['path']) ? $parsed['path'] : '/';
     if (!strpos($location, '.php')) {
       // we want to be as specific as possible, so if there isn't a php in the location, we need to add it in.
       $location = (str_replace('//', '/', $location . '/index.php'));
