@@ -251,6 +251,10 @@ class File extends Base
    *  A regular expression specifying an expression the file's MIME type must not match to be
    *  served. If omitted, the default MIME type blacklist will be used.
    *
+   * @param boolean $forDownload
+   *  <em>Optional</em>.
+   *  Whether we want to force the current file to be downloaded or not.
+   *
    * @throws InvalidArgumentException
    *  if $name is provided, but is empty or not a string, $mime is provided, but is empty or not a
    *  string, or either $whitelist or $blacklist are provided, but are empty, not strings or not
@@ -258,7 +262,7 @@ class File extends Base
    *
    * @return void
    */
-  public function serve($name = null, $mime = null, $whitelist = null, $blacklist = null)
+  public function serve($name = null, $mime = null, $whitelist = null, $blacklist = null, $forDownload = false)
   {
     if (isset($name) && (empty($name) || !is_string($name))) {
       throw new InvalidArgumentException('$name is provided, but is empty or not a string.');
@@ -284,12 +288,18 @@ class File extends Base
         $name = basename($this->value);
       }
 
+      if ($forDownload) {
+        $contentDispositionAdditions = 'attachment;';
+      } else {
+        $contentDispositionAdditions = '';
+      }
+
       header("Pragma: public"); // required
       header("Expires: 0");
       header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
       header("Cache-Control: private", false); // required for certain browsers
       header("Content-Type: {$mime}");
-      header("Content-Disposition: filename=\"{$name}\";" ); // Will this require urlencoding...?
+      header("Content-Disposition: {$contentDispositionAdditions}filename=\"{$name}\";" ); // Will this require urlencoding...?
       header("Content-Transfer-Encoding: binary");
       header("Content-Length: {$size}");
 
