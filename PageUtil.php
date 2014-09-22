@@ -22,7 +22,7 @@ class PageUtil
    */
   public static function redirect($path = '/', $statusCode = 303)
   {
-    $_POST = null;
+    $_POST = [];
     header('Location: ' . $path, true, $statusCode);
     exit;
   }
