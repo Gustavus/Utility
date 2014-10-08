@@ -5,7 +5,11 @@
  */
 namespace Gustavus\Utility;
 
-use Gustavus\Regex\Regex;
+use Gustavus\Regex\Regex,
+
+    InvalidArgumentException,
+    RuntimeException,
+    Exception;
 
 /**
  * Retrieves files from external servers and stores a local copy of the file.
@@ -25,6 +29,11 @@ class FileGrabber
    * Web access point for cached files
    */
   const FILE_GRABBER_WEB_ACCESS = '/filegrabber/';
+
+  /**
+   * How many tries to make before giving up.
+   */
+  const ATTEMPT_LIMIT = 5;
 
   /**
    * CURL request class
@@ -91,7 +100,7 @@ class FileGrabber
   /**
    * Sets up FileGrabber
    *
-   * @param string|array $url Enques an URL or multiple URLs.
+   * @param string|array $url Enqueues an URL or multiple URLs.
    */
   public function __construct($url = null)
   {
@@ -125,7 +134,7 @@ class FileGrabber
    * Gets the file from either the cache or directly from the remote server.
    *
    * @param  string  $url       URL to retrieve
-   * @param  boolean $useCache  If true will atempt to pull file from cache, otherwise it will get a copy from the server.
+   * @param  boolean $useCache  If true will attempt to pull file from cache, otherwise it will get a copy from the server.
    * @return string             Returns the file contents. Returns null if unable to get the file.
    */
   public function getFile($url, $useCache = true)
@@ -141,7 +150,7 @@ class FileGrabber
    * Delays grabbing a file from the remote server.
    *
    * @param  string         $url URL to retrieve.
-   * @return string|boolean      Returns the future local url of the file or false if can't queue file.
+   * @return string|boolean      Returns the future local URL of the file or false if can't queue file.
    */
   public function grabFile($url)
   {
@@ -177,7 +186,7 @@ class FileGrabber
   }
 
   /**
-   * Retuns a list of domains FileGrabber can pull from
+   * Returns a list of domains FileGrabber can pull from
    *
    * @return array
    */
@@ -187,7 +196,7 @@ class FileGrabber
   }
 
   /**
-   * Checks that file is comming from an allow domain.
+   * Checks that file is coming from an allow domain.
    *
    * @param  string  $url URL to check.
    * @return boolean      Returns true if file passes check.
@@ -209,7 +218,7 @@ class FileGrabber
    * **Requires that the file already be cached.**
    *
    * @param  string           $url  URL to check.
-   * @throws \RuntimeException      If FileInfo can't load.
+   * @throws RuntimeException       If FileInfo can't load.
    * @return boolean                Returns true if file passes check. Will return false if unable to preform check.
    */
   public function isAllowedMime($url)
@@ -217,7 +226,7 @@ class FileGrabber
     if ($this->isGrabbed($url)) {
       $finfo = new \finfo(FILEINFO_MIME_TYPE);
       if (!$finfo) {
-        throw new \RuntimeException('Opening fileinfo database failed');
+        throw new RuntimeException('Opening fileinfo database failed');
       }
       $mime = $finfo->file($this->localPath($url));
       return in_array($mime, $this->mimeTypes);
@@ -240,10 +249,10 @@ class FileGrabber
   /**
    * Checks that the file on the external server is readable
    *
-   * _Note: Serveral sites don't set the 404 status code on 404 pages._
+   * _Note: Several sites don't set the 404 status code on 404 pages._
    *
    * @param  string                    $url URL to check if is external
-   * @throws \InvalidArgumentException      If url is not valid.
+   * @throws InvalidArgumentException       If URL is not valid.
    * @return boolean                        Returns true if readable.
    */
   public function isReadable($url)
@@ -265,7 +274,7 @@ class FileGrabber
       }
 
     } else {
-      throw new \InvalidArgumentException("\"{$url}\" is not a valid url.");
+      throw new InvalidArgumentException("\"{$url}\" is not a valid url.");
     }
   }
 
@@ -302,7 +311,7 @@ class FileGrabber
    * Adds an items to the download queue.
    *
    * @param  string                     $url  URL to download.
-   * @throws \InvalidArgumentException        If url is not a valid url.
+   * @throws InvalidArgumentException         If URL is not a valid URL.
    * @return FileGrabber                      Returns $this.
    */
   public function enqueue($url)
@@ -347,7 +356,7 @@ class FileGrabber
   /**
    * Downloads all of the files in the queue.
    *
-   * @return boolean|array Returns true if successful, otherwise returns an array of failed urls and errors.
+   * @return boolean|array Returns true if successful, otherwise returns an array of failed URLs and errors.
    */
   public function processQueue()
   {
@@ -355,7 +364,7 @@ class FileGrabber
     foreach ($this->queue as $url) {
       try {
         $this->fetchFileFromServer($url);
-      } catch (\Exception $e) {
+      } catch (Exception $e) {
         $errors[] = array(
           'url' => $url,
           'error' => $e
@@ -390,15 +399,24 @@ class FileGrabber
   /**
    * Fetches the files from a remote server
    * @param  string             $url URL to pull file from.
-   * @throws \RuntimeException       If directory does not exist.
-   * @throws \RuntimeException       If URL is invalid.
-   * @throws \RuntimeException       If remote file isn't an accepted mime type.
-   * @return string                  Returns the contentents of the file.
+   * @throws RuntimeException        If URL can't be retrieved.
+   * @throws RuntimeException        If URL is invalid.
+   * @throws RuntimeException        If remote file isn't an accepted mime type.
+   * @return string                  Returns the contents of the file.
    */
   private function fetchFileFromServer($url)
   {
     if (preg_match(Regex::url(), $url) && $this->isAllowedDomain($url) && $this->isReadable($url)) {
-      $file = static::$curl->execute($url);
+      $attempt = 0;
+
+      do {
+        ++$attempt;
+        $file = static::$curl->execute($url);
+      } while (static::$curl->getLastErrorNumber() == CURLE_OPERATION_TIMEOUTED && $attempt < static::ATTEMPT_LIMIT); // Retry if timed out
+
+      if ($file === false || empty($file) || $attempt >= static::ATTEMPT_LIMIT) {
+        throw new RuntimeException("Unable to fetch \"{$url}\".");
+      }
       if (!is_dir(static::FILE_GRABBER_FS_STORAGE)) {
         mkdir(static::FILE_GRABBER_FS_STORAGE, 0775, true);
       }
@@ -407,10 +425,10 @@ class FileGrabber
         return $file;
       } else {
         unlink($this->localPath($url));
-        throw new \RuntimeException("\"{$url}\" is not a valid mime type.");
+        throw new RuntimeException("\"{$url}\" is not a valid mime type.");
       }
     } else {
-      throw new \RuntimeException("\"{$url}\" is not from a valid domain.");
+      throw new RuntimeException("\"{$url}\" is not from a valid domain.");
     }
   }
 
