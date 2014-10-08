@@ -400,6 +400,7 @@ class FileGrabber
    * Fetches the files from a remote server
    * @param  string             $url URL to pull file from.
    * @throws RuntimeException        If URL can't be retrieved.
+   * @throws RuntimeException        If remote file can't be saved.
    * @throws RuntimeException        If URL is invalid.
    * @throws RuntimeException        If remote file isn't an accepted mime type.
    * @return string                  Returns the contents of the file.
@@ -420,7 +421,9 @@ class FileGrabber
       if (!is_dir(static::FILE_GRABBER_FS_STORAGE)) {
         mkdir(static::FILE_GRABBER_FS_STORAGE, 0775, true);
       }
-      file_put_contents($this->localPath($url), $file);
+      if (file_put_contents($this->localPath($url), $file) === false) {
+        throw new RuntimeException(sprintf('We were unable to save the file from "%s" to "%s"', $url, $this->localPath($url)));
+      }
       if ($this->isAllowedMime($url)) {
         return $file;
       } else {
