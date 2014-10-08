@@ -413,7 +413,9 @@ class FileGrabber
       do {
         ++$attempt;
         $file = static::$curl->execute($url);
-      } while (static::$curl->getLastErrorNumber() == CURLE_OPERATION_TIMEOUTED && $attempt < static::ATTEMPT_LIMIT); // Retry if timed out
+
+        // Retry if timed out
+      } while (static::$curl->getLastErrorNumber() == CURLE_OPERATION_TIMEOUTED && $attempt < static::ATTEMPT_LIMIT);
 
       if ($file === false || empty($file) || $attempt >= static::ATTEMPT_LIMIT) {
         throw new RuntimeException("Unable to fetch \"{$url}\".");
