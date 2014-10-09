@@ -1464,4 +1464,29 @@ class StringTest extends Test
     ];
   }
 
+  /**
+   * @test
+   * @dataProvider correctIndefiniteArticlesData
+   */
+  public function correctIndefiniteArticles($expected, $value)
+  {
+    $string = new String($value);
+
+    $result = $string->correctIndefiniteArticles();
+    $this->assertSame($expected, $string->getValue());
+  }
+
+  /**
+   * Data provider for correctIndefiniteArticles
+   *
+   * @return array
+   */
+  public function correctIndefiniteArticlesData()
+  {
+    return [
+      ['this is an employee and a temporary employee and an elephant.', 'this is a employee and a temporary employee and a elephant.'],
+      ['this is an employee and a temporary employee and an elephant.', 'this is a employee and an temporary employee and an elephant.'],
+      ['this is an employee and a temporary employee and an elephant.', 'this is an employee and a temporary employee and an elephant.'],
+    ];
+  }
 }

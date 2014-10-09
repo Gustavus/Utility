@@ -548,6 +548,19 @@ class String extends Base implements ArrayAccess
   }
 
   /**
+   * Corrects indefinite articles for the current string
+   *   Converts 'a employee' to 'an employee' and 'an temporary employee' to 'a temporary employee'
+   *
+   * @return $this
+   */
+  public function correctIndefiniteArticles()
+  {
+    $this->value = preg_replace('`((?:^| )a) ([aeiou])`i', '$1n $2', $this->value);
+    $this->value = preg_replace('`((?:^| )a)n ([^aeiou\W])`i', '$1 $2', $this->value);
+    return $this;
+  }
+
+  /**
    * Takes a state, province, or territory and abreviates it.
    *
    * @return $this Abbreviation of the state, province or territory.
