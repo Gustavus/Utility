@@ -2,6 +2,7 @@
 /**
  * @package Utility
  * @subpackage Test
+ * @author  Billy Visto
  */
 
 namespace Gustavus\Utility\Test;
@@ -14,6 +15,7 @@ use Gustavus\Utility\Set,
 /**
  * @package Utility
  * @subpackage Test
+ * @author  Billy Visto
  */
 class SetTest extends Test
 {
@@ -446,5 +448,34 @@ class SetTest extends Test
         'one two and three four five and six seven eight and nine ',
         (new Set($test))->format('%s %s and %s ', array(0, 1, 2))->getValue()
     );
+  }
+
+  /**
+   * @test
+   * @dataProvider buildURLData
+   */
+  public function buildURL($url)
+  {
+    $urlData = parse_url($url);
+    $result = (new Set($urlData))->buildURL()->getValue();
+    $this->assertSame($url, $result);
+  }
+
+  /**
+   * DataProvider for buildURL
+   * @return array
+   */
+  public function buildURLData()
+  {
+    return [
+      ['https://gustavus.edu:80/arst?hello=test#here'],
+      ['https://gustavus.edu/arst?hello=test#here'],
+      ['https://gustavus.edu:80/arst?hello=test'],
+      ['https://gustavus.edu:80/arst'],
+      ['https://gustavus.edu:80/'],
+      ['https://gustavus.edu/'],
+      ['arst?hello=test#here'],
+      ['arst'],
+    ];
   }
 }
