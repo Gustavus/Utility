@@ -367,10 +367,10 @@ class Set extends Base implements ArrayAccess
   {
     $url = '';
     if (isset($this->value['host'])) {
-      if (!isset($this->value['scheme'])) {
-        $this->value['scheme'] = 'https';
+      if (isset($this->value['scheme'])) {
+        $url .= sprintf('%s://', $this->value['scheme']);
       }
-      $url .= sprintf('%s://%s', $this->value['scheme'], $this->value['host']);
+      $url .= $this->value['host'];
       if (isset($this->value['port'])) {
         $url .= sprintf(':%s', $this->value['port']);
       }

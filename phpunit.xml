@@ -21,8 +21,8 @@
     </whitelist>
   </filter>
 
-  <logging>
+  <!-- <logging>
     <log type="coverage-html" target="/cis/www/tests/reports/projects/utility" charset="UTF-8"/>
-  </logging>
+  </logging> -->
 </phpunit>
 

@@ -326,6 +326,7 @@ class StringTest extends Test
       ['/arst/?barebones=1&action=test&more=1', '/arst/?barebones=1&action=test', ['action' => 'test', 'more' => true]],
       ['gustavus.edu/arst/?barebones=1&action=test&more=1', 'gustavus.edu/arst/?barebones=1&action=test', ['action' => 'test', 'more' => true]],
       ['www.youtube.com/embed/dl29EnvXCSo?list=PLFCOQw8uiAWOx2iZ7UdX2ldm6gWr28sRV&index=1&rel=0&theme=light', '//www.youtube.com/embed/dl29EnvXCSo', ['list' => 'PLFCOQw8uiAWOx2iZ7UdX2ldm6gWr28sRV', 'index' => 1, 'rel' => 0, 'theme' => 'light']],
+      ['https://gustavus.edu/arst/?barebones=1&action=test', 'https://gustavus.edu/arst/?barebones=1&action=test', ['action' => 'test']],
     ];
   }
 
@@ -353,6 +354,7 @@ class StringTest extends Test
       ['/arst/?barebones=1', '/arst/?barebones=1&action=test', ['action']],
       ['/arst/?barebones=1', '/arst/?barebones=1&action=test&more=true', ['action', 'more']],
       ['gustavus.edu/arst/', 'gustavus.edu/arst/', ['action', 'more']],
+      ['https://gustavus.edu/arst/', 'https://gustavus.edu/arst/?test=true', ['test']],
     ];
   }
 

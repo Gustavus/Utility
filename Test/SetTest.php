@@ -474,6 +474,7 @@ class SetTest extends Test
       ['https://gustavus.edu:80/arst'],
       ['https://gustavus.edu:80/'],
       ['https://gustavus.edu/'],
+      ['gustavus.edu/arst'],
       ['arst?hello=test#here'],
       ['arst'],
     ];
