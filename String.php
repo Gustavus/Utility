@@ -331,12 +331,9 @@ class String extends Base implements ArrayAccess
         $queryParts  = $this->splitQueryString()->getValue();
         $queryParams = array_merge($queryParts, $queryParams);
       }
-      $path = '';
-      if (isset($urlParts['host'])) {
-        $path = $urlParts['host'];
-      }
-      $path .= $urlParts['path'];
-      $this->value = sprintf('%s?%s', $path, http_build_query($queryParams));
+      $urlParts['query'] = http_build_query($queryParams);
+
+      $this->value = (new Set($urlParts))->buildURL()->getValue();
     }
     return $this;
   }
@@ -360,19 +357,13 @@ class String extends Base implements ArrayAccess
         foreach ($queryKeysToRemove as $removal) {
           unset($query[$removal]);
         }
-      } else {
-        $query = [];
+        if (empty($query)) {
+          unset($urlParts['query']);
+        } else {
+          $urlParts['query'] = http_build_query($query);
+        }
       }
-      $path = '';
-      if (isset($urlParts['host'])) {
-        $path = $urlParts['host'];
-      }
-      $path .= $urlParts['path'];
-      if (empty($query)) {
-        $this->value = $path;
-      } else {
-        $this->value = sprintf('%s?%s', $path, http_build_query($query));
-      }
+      $this->value = (new Set($urlParts))->buildURL()->getValue();
     }
     return $this;
   }

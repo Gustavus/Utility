@@ -347,4 +347,44 @@ class Set extends Base implements ArrayAccess
 
     return new String($r);
   }
+
+  /**
+   * Builds a url from the current associative array.
+   *   Supports arrays returned by parse_url.
+   *   Array can have keys of:
+   *   <ul>
+   *     <li>host</li>
+   *     <li>scheme</li>
+   *     <li>port</li>
+   *     <li>path</li>
+   *     <li>query</li>
+   *     <li>fragment</li>
+   *   </ul>
+   *
+   * @return String
+   */
+  public function buildURL()
+  {
+    $url = '';
+    if (isset($this->value['host'])) {
+      if (isset($this->value['scheme'])) {
+        $url .= sprintf('%s://', $this->value['scheme']);
+      }
+      $url .= $this->value['host'];
+      if (isset($this->value['port'])) {
+        $url .= sprintf(':%s', $this->value['port']);
+      }
+    }
+
+    if (isset($this->value['path'])) {
+      $url .= $this->value['path'];
+    }
+    if (isset($this->value['query'])) {
+      $url .= sprintf('?%s', $this->value['query']);
+    }
+    if (isset($this->value['fragment'])) {
+      $url .= sprintf('#%s', $this->value['fragment']);
+    }
+    return new String($url);
+  }
 }
