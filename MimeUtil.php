@@ -5,6 +5,7 @@
  * @package Utility
  *
  * @author Chris Rog <crog@gustavus.edu>
+ * @author Justin Holcomb <jholcom2@gustavus.edu>
  */
 namespace Gustavus\Utility;
 
@@ -19,6 +20,7 @@ use InvalidArgumentException;
  * @package Utility
  *
  * @author Chris Rog <crog@gustavus.edu>
+ * @author Justin Holcomb <jholcom2@gustavus.edu>
  */
 class MimeUtil
 {
@@ -36,7 +38,14 @@ class MimeUtil
    */
   const DEFAULT_MIMETYPE_BLACKLIST = '/\\/(?:(?:x-)?(?:httpd-)?php(?:-source)?)\\z/i';
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
+  /**
+   * The default error message to use for an invalid MIME type.
+   *
+   * @var string
+   */
+  const DEFAULT_MIMETYPE_ERROR = 'Unaccepted MIME type.';
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////
 
   /**
    * Retrieves the file's MIME type. If the file does not exist, is not a file or cannot be read,
