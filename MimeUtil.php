@@ -43,7 +43,7 @@ class MimeUtil
    *
    * @var string
    */
-  const DEFAULT_MIMETYPE_ERROR = 'Unaccepted MIME type.';
+  const DEFAULT_MIMETYPE_ERROR = 'Unaccepted file type.';
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
 
