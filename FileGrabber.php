@@ -16,6 +16,7 @@ use Gustavus\Regex\Regex,
  *
  * @package Utility
  * @author Nicholas Dobie <ndobie@gustavus.edu>
+ * @author Billy Visto
  */
 class FileGrabber
 {
@@ -107,6 +108,8 @@ class FileGrabber
 
     if (!isset(static::$curl)) {
       static::$curl = new CURLRequest();
+      static::$curl->setOption(CURLOPT_ENCODING, '');
+      static::$curl->setOption(CURLOPT_FOLLOWLOCATION, true);
     }
 
     if (!empty($url)) {
