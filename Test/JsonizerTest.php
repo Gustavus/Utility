@@ -27,21 +27,27 @@ class JsonizerTest extends Test
   public $headerSent;
   public $lastHeader = null;
 
-  function setUp()
+  public function setUp()
   {
+
+    $_SERVER['REQUEST_METHOD'] = 'GET';
 
     $this->overrides = [];
 
     $test = $this;
 
-    $this->overrides[] = override_function('headers_sent', function () use (&$test) { return $test->headerSent; });
+    $this->overrides[] = override_function('headers_sent', function () use (&$test) {
+      return $test->headerSent;
+    });
 
-    $this->overrides[] = override_function('header', function ($header) use (&$test) {$test->lastHeader = $header; });
+    $this->overrides[] = override_function('header', function ($header) use (&$test) {
+      $test->lastHeader = $header;
+    });
 
     $this->headerSent = true;
   }
 
-  function tearDown()
+  public function tearDown()
   {
     unset($this->overrides);
   }
@@ -49,7 +55,7 @@ class JsonizerTest extends Test
   /**
    * @test
    */
-  function picksUpOnJsonpRequest()
+  public function picksUpOnJsonpRequest()
   {
 
     $_GET['callback'] = 'jQuery';
@@ -61,17 +67,19 @@ class JsonizerTest extends Test
   /**
    * @test
    */
-  function picksUpOnJsonRequest()
+  public function picksUpOnJsonRequest()
   {
     $this->assertFalse($this->call($this->namespace, 'isJSONP'));
     $_GET['somethingElse'] = 'jQuery';
+    $this->assertFalse($this->call($this->namespace, 'isJSONP'));
+    $_SERVER['REQUEST_METHOD'] = 'POST';
     $this->assertFalse($this->call($this->namespace, 'isJSONP'));
   }
 
   /**
    * @test
    */
-  function refusesNonGustavusDomains()
+  public function refusesNonGustavusDomains()
   {
     $array = array('success' => false);
     $_SERVER['HTTP_REFERER'] = 'http://nickdobie.com/';
@@ -79,10 +87,10 @@ class JsonizerTest extends Test
     $results = $this->call($this->namespace, 'checkOrigin', array($array));
 
     $this->assertThat(
-      $results,
-      $this->logicalNot(
-        $this->equalTo($array)
-      )
+        $results,
+        $this->logicalNot(
+            $this->equalTo($array)
+        )
     );
   }
 
@@ -90,7 +98,7 @@ class JsonizerTest extends Test
    * @test
    * @dataProvider AllowsGustavusDomainsProvider
    */
-  function allowsGustavusDomains($domain)
+  public function allowsGustavusDomains($domain)
   {
 
     $array = array('success' => false);
@@ -99,15 +107,15 @@ class JsonizerTest extends Test
     $results = $this->call($this->namespace, 'checkOrigin', array($array));
 
     $this->assertThat(
-      $results,
-      $this->equalTo($array)
+        $results,
+        $this->equalTo($array)
     );
   }
 
   /**
    * Data provider for AllowsGustavusDomains
    */
-  function allowsGustavusDomainsProvider()
+  public function allowsGustavusDomainsProvider()
   {
     return [
       ['http://gustavus.edu'],
@@ -121,7 +129,7 @@ class JsonizerTest extends Test
    * @test
    * @dataProvider CheckJsonFormatProvider
    */
-  function checkJsonFormat($raw, $compiled)
+  public function checkJsonFormat($raw, $compiled)
   {
     $this->assertJsonStringEqualsJsonString(Jsonizer::toJSON($raw), $compiled);
   }
@@ -130,7 +138,7 @@ class JsonizerTest extends Test
    * @test
    * @dataProvider CheckJsonFormatProvider
    */
-  function checkJsonpFormat($raw, $compiled)
+  public function checkJsonpFormat($raw, $compiled)
   {
     $_GET['callback'] = 'jQuery_1234';
 
@@ -141,7 +149,7 @@ class JsonizerTest extends Test
   /**
    * Data provider for CheckJsonFormat and CheckJsonpFormat
    */
-  function checkJsonFormatProvider()
+  public function checkJsonFormatProvider()
   {
     return [
       [
@@ -166,7 +174,7 @@ class JsonizerTest extends Test
   /**
    * @test
    */
-  function dontSendHeadersIfAlreadySent()
+  public function dontSendHeadersIfAlreadySent()
   {
 
     $this->call($this->namespace, 'setHeaders');
@@ -177,7 +185,7 @@ class JsonizerTest extends Test
   /**
    * @test
    */
-  function setJsonpHeaders()
+  public function setJsonpHeaders()
   {
 
     $this->headerSent = false;
@@ -192,7 +200,7 @@ class JsonizerTest extends Test
   /**
    * @test
    */
-  function setJsonHeaders()
+  public function setJsonHeaders()
   {
 
     $this->headerSent = false;

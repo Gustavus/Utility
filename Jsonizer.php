@@ -21,7 +21,7 @@ class Jsonizer
    */
   private static function isJSONP()
   {
-    return !empty($_GET['callback']);
+    return !empty($_GET['callback']) && $_SERVER['REQUEST_METHOD'] === 'GET';
   }
 
   /**
