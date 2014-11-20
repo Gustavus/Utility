@@ -94,7 +94,7 @@ class PageUtil
    * @param  string $location Location of the requested page. Uses $_SERVER['REQUEST_URI'] then $_SERVER['SCRIPT_NAME'] if nothing set.
    * @return string
    */
-  private static function buildMessageKey($location = null)
+  public static function buildMessageKey($location = null)
   {
     if ($location === null) {
       $location = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : $_SERVER['SCRIPT_NAME'];
