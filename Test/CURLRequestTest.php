@@ -309,9 +309,12 @@ class CURLRequestTest extends \Gustavus\Test\Test
       'upload_content_length'     => -1.0,
       'starttransfer_time'        => 0.0,
       'redirect_time'             => 0.0,
-      'certinfo'                  => [],
+      'redirect_url'              => '',
       'primary_ip'                => '',
-      'redirect_url'              => ''
+      'certinfo'                  => [],
+      'primary_port'              => 0,
+      'local_ip'                  => '',
+      'local_port'                => 0
     ];
 
     return [
