@@ -228,7 +228,7 @@ class FileGrabber
    *
    * @return boolean
    */
-  private static function imagePassesSizeRestrictions($imagePath, $minimumWidth, $minimumHeight)
+  private function imagePassesSizeRestrictions($imagePath, $minimumWidth, $minimumHeight)
   {
     if ($minimumWidth === null && $minimumHeight === null) {
       return true;
