@@ -1,7 +1,9 @@
 <?php
 /**
  * @package Utility
+ *
  * @author Nicholas Dobie <ndobie@gustavus.edu>
+ * @author Justin Holcomb <jholcom2@gustavus.edu>
  */
 namespace Gustavus\Utility;
 
@@ -15,8 +17,10 @@ use Gustavus\Regex\Regex,
  * Retrieves files from external servers and stores a local copy of the file.
  *
  * @package Utility
+ *
  * @author Nicholas Dobie <ndobie@gustavus.edu>
  * @author Billy Visto
+ * @author Justin Holcomb <jholcom2@gustavus.edu>
  */
 class FileGrabber
 {
@@ -93,7 +97,6 @@ class FileGrabber
 
   /**
    * Stores URL for grabbing later.
-   *
    * @var array
    */
   private $queue = array();
@@ -161,9 +164,143 @@ class FileGrabber
       if (!$this->isGrabbed($url)) {
         $this->enqueue($url);
       }
-      return $this->localPath($url);
+      return $this->localURL($url);
     } else {
       return false;
+    }
+  }
+
+  /**
+   * Trys to grab first image from content.
+   *
+   * @param string $content
+   * @param integer $minimumWidth
+   * @param integer $minimumHeight
+   *
+   * @return string
+   *  Local URL or false if there is no image in content
+   */
+  public function grabFirstImageFromContent($content, $minimumWidth = null, $minimumHeight = null)
+  {
+    $image = null;
+    $position = 0;
+
+    do {
+      ++$position;
+      $image = $this->grabImageFromContent($content, $position);
+
+      if ($image === false) {
+        return false;
+      } else if (!$this->imagePassesSizeRestrictions($image, $minimumWidth, $minimumHeight)) {
+        $image  = null;
+      }
+    } while ($image === null);
+
+    return $image;
+  }
+
+  /**
+   * Trys to grab image from content.
+   *
+   * @param string $content
+   * @param integer $imagePosition
+   *
+   * @return string
+   *  Local URL or false if there is no image in content
+   */
+  private function grabImageFromContent($content, $imagePosition)
+  {
+    $image = $this->extractImageFromContent($content, $imagePosition);
+
+    if ($image) {
+      return $this->grabFile($image);
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * Checks to see if image is within a certain size range.
+   *
+   * @param string $imagePath
+   * @param integer $minimumWidth
+   * @param integer $minimumHeight
+   *
+   * @return boolean
+   */
+  private static function imagePassesSizeRestrictions($imagePath, $minimumWidth, $minimumHeight)
+  {
+    if ($minimumWidth === null && $minimumHeight === null) {
+      return true;
+    }
+
+    $fullPath = ltrim($_SERVER['DOCUMENT_ROOT']) . '/' . $imagePath;
+
+    if (!file_exists($fullPath)) {
+      $this->processQueue();
+    }
+
+    if (!file_exists($fullPath)) {
+      return false;
+    }
+
+    if (filesize($fullPath) === 0) {
+      return false;
+    }
+
+    $fhandle  = finfo_open(FILEINFO_MIME);
+    $fileType = finfo_file($fhandle, $fullPath);
+    if (strpos($fileType, 'image') === false) {
+      // need to check if the file is an image otherwise getimagesize will throw a notice
+      return false;
+    }
+
+    $size = getimagesize($fullPath);
+
+    if ($minimumWidth !== null && $minimumWidth > $size[0]) {
+      return false;
+    } else if ($minimumHeight !== null && $minimumHeight > $size[1]) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  /**
+   * Get urls of images from the content.
+   *
+   * Get an array of all the images:
+   * <code>
+   * $images = FileGrabber->extractImageFromContent($content);
+   * </code>
+   *
+   * Get first image
+   * <code>
+   * $firstImage = FileGrabberextractImageFromContent($content, 1);
+   * </code>
+   *
+   * @param string $content
+   * @param integer $imagePosition
+   *
+   * @return string|array|boolean
+   *  False if content does not contain an image in the requested position
+   */
+  public function extractImageFromContent($content, $imagePosition = null)
+  {
+    $hasImage = preg_match_all(
+        '`<img\b(?>[^>]*?src=)([\'"])(.+?)\1`i',
+        $content,
+        $image
+    );
+
+    if ($imagePosition !== null) {
+      if ($hasImage >= $imagePosition) {
+        return $image[2][$imagePosition - 1];
+      } else {
+        return false;
+      }
+    } else {
+      return $image[2];
     }
   }
 
@@ -275,7 +412,6 @@ class FileGrabber
       } else {
         return substr($content, 9, 3) === '200';
       }
-
     } else {
       throw new InvalidArgumentException("\"{$url}\" is not a valid url.");
     }

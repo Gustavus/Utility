@@ -110,7 +110,7 @@ class FileGrabberTest extends Test
 
     $file = $this->fg->grabFile($url);
 
-    $this->assertEquals($this->fg->localPath($url), $file);
+    $this->assertEquals($this->fg->localURL($url), $file);
 
     $this->assertEquals(array($url), $this->fg->getQueue());
 
