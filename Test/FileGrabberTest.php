@@ -113,8 +113,6 @@ class FileGrabberTest extends Test
     $this->assertEquals($this->fg->localURL($url), $file);
 
     $this->assertEquals(array($url), $this->fg->getQueue());
-
-    $this->assertFalse($this->fg->grabFile($url . '2'));
   }
 
   ////////////////////////////////////////////////////////////////////////
@@ -130,8 +128,6 @@ class FileGrabberTest extends Test
     $url = 'http://beta.gac.edu/test.jpg';
 
     @unlink($this->fg->localPath($url));
-
-    $this->assertFalse($this->fg->isAllowed($url . '2'));
 
     $this->assertTrue($this->fg->isAllowed($url));
 
@@ -220,28 +216,6 @@ class FileGrabberTest extends Test
 
   }
 
-  /**
-   * @test
-   */
-  public function isReadable()
-  {
-    $this->assertTrue($this->fg->isReadable('https://gustavus.edu/'));
-    $this->assertTrue($this->fg->isReadable('http://gustavus.edu/'));
-    $this->assertFalse($this->fg->isReadable('https://gustavus.edu/404'));
-    $this->assertFalse($this->fg->isReadable('http://gustavus.edu/404'));
-    $this->assertTrue($this->fg->isReadable('http://google.com/'));
-    $this->assertFalse($this->fg->isReadable('http://google.com/404'));
-  }
-
-  /**
-   * @test
-   * @expectedException InvalidArgumentException
-   */
-  public function isReadableException()
-  {
-    $this->fg->isReadable('malformed_url');
-  }
-
   ////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////
@@ -319,8 +293,8 @@ class FileGrabberTest extends Test
     @unlink($this->fg->localPath('https://beta.gac.edu/test.jpg'));
 
     $this->fg->bulkEnqueue(array(
-      'https://beta.gac.edu/test.jpg',
-      'https://beta.gac.edu/test.mp4'
+        'https://beta.gac.edu/test.jpg',
+        'https://beta.gac.edu/test.mp4'
     ));
 
     $files = $this->fg->processQueue();

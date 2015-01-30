@@ -319,10 +319,9 @@ class FileGrabber
   public function isAllowed($url)
   {
     $domain   = $this->isAllowedDomain($url);
-    $readable = $this->isReadable($url);
     $grabbed  = $this->isGrabbed($url);
     $mime     = $this->isAllowedMime($url);
-    return ($domain && $readable && (!$grabbed || ($grabbed && $mime)));
+    return ($domain && (!$grabbed || ($grabbed && $mime)));
   }
 
   /**
@@ -384,37 +383,6 @@ class FileGrabber
   public function isGrabbed($url)
   {
     return file_exists($this->localPath($url));
-  }
-
-  /**
-   * Checks that the file on the external server is readable
-   *
-   * _Note: Several sites don't set the 404 status code on 404 pages._
-   *
-   * @param  string                    $url URL to check if is external
-   * @throws InvalidArgumentException       If URL is not valid.
-   * @return boolean                        Returns true if readable.
-   */
-  public function isReadable($url)
-  {
-    if (preg_match(Regex::url(), $url)) {
-      static::$curl->setOption(CURLOPT_HEADER, true);
-      static::$curl->setOption(CURLOPT_NOBODY, true);
-
-      $content = static::$curl->execute($url);
-
-      static::$curl->setOption(CURLOPT_HEADER, false);
-      static::$curl->setOption(CURLOPT_NOBODY, false);
-
-      if (preg_match('/Location: ([^\r\n]*)/i', $content, $match)) {
-        // Follow redirects
-        return $this->isReadable($match[1]);
-      } else {
-        return substr($content, 9, 3) === '200';
-      }
-    } else {
-      throw new InvalidArgumentException("\"{$url}\" is not a valid url.");
-    }
   }
 
   /**
@@ -546,17 +514,18 @@ class FileGrabber
    */
   private function fetchFileFromServer($url)
   {
-    if (preg_match(Regex::url(), $url) && $this->isAllowedDomain($url) && $this->isReadable($url)) {
+    if (preg_match(Regex::url(), $url) && $this->isAllowedDomain($url)) {
       $attempt = 0;
 
       do {
         ++$attempt;
         $file = static::$curl->execute($url);
-
         // Retry if timed out
       } while (static::$curl->getLastErrorNumber() == CURLE_OPERATION_TIMEOUTED && $attempt < static::ATTEMPT_LIMIT);
 
-      if ($file === false || empty($file) || $attempt >= static::ATTEMPT_LIMIT) {
+      $resultCode = static::$curl->getInfo(CURLINFO_HTTP_CODE);
+
+      if ($file === false || empty($file) || $attempt >= static::ATTEMPT_LIMIT || $resultCode != '200') {
         throw new RuntimeException("Unable to fetch \"{$url}\".");
       }
       if (!is_dir(static::FILE_GRABBER_FS_STORAGE)) {
