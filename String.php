@@ -1137,7 +1137,9 @@ class String extends Base implements ArrayAccess
     }
 
     $name = $f;
-    $name = ($lastNameFirst) ? "{$last}, {$name}" : "{$name} {$last}";
+    if (!empty($last)) {
+      $name = ($lastNameFirst) ? "{$last}, {$name}" : "{$name} {$last}";
+    }
 
     $year = (new Number($graduationYear))->shortYear()->getValue();
 
