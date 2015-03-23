@@ -366,6 +366,27 @@ class DebugTest extends Test
       [null,        5,  "(null)\n",                     null],
     ];
   }
+
+  /**
+   * @test
+   */
+  public function dumpWithSensitiveKeys()
+  {
+    $dummyClass = new DummyClass();
+    $dummyClass->var = 'test';
+
+    $result = Debug::dump($dummyClass, true, ['sensitiveKeys' => ['var']]);
+    $this->assertNotContains('test', $result);
+    $this->assertContains('******', $result);
+
+    $dummyArray = [
+      'var' => 'test',
+    ];
+
+    $result = Debug::dump($dummyArray, true, ['sensitiveKeys' => ['var']]);
+    $this->assertNotContains('test', $result);
+    $this->assertContains('******', $result);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
