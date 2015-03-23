@@ -110,6 +110,13 @@ class Debug
     $maxdepth = (isset($options['maxdepth']) && is_numeric($options['maxdepth'])) ? (int) $options['maxdepth'] : static::DUMP_DEFAULT_MAX_TRAVERSAL_DEPTH;
     $maxstrlen = (isset($options['maxstrlen']) && is_numeric($options['maxstrlen'])) ? (int) $options['maxstrlen'] : static::DUMP_DEFAULT_MAX_STRING_LENGTH;
 
+    if (isset($options['sensitiveKeys']) && is_array($options['sensitiveKeys'])) {
+      $sensitiveKeys = $options['sensitiveKeys'];
+    } else {
+      $sensitiveKeys = [];
+    }
+
+
     // Used to detect recursion in arrays and objects
     $reckey = '__recursion_key-' . time();
     $reclevel = 0;
@@ -119,7 +126,12 @@ class Debug
     static $insmap = [];
 
     // Formatter which does all the work of actually formatting data...
-    $formatter = function ($indent, $capture, $key, &$value) use (&$formatter, &$maxdepth, &$maxstrlen, &$reckey, &$reclevel, &$recmap, &$insmap) {
+    $formatter = function ($indent, $capture, $key, &$value) use (&$formatter, &$maxdepth, &$maxstrlen, &$reckey, &$reclevel, &$recmap, &$insmap, $sensitiveKeys) {
+      if (in_array($key, $sensitiveKeys)) {
+        // we want our value protected for sensitive keys.
+        $value = '********';
+      }
+
       $padding = str_repeat(' ', $indent);
       $buffer = $padding;
 
