@@ -64,7 +64,13 @@ class CURLRequest
   {
     assert('extension_loaded(\'curl\')');
 
-    $this->handle = curl_init($url);
+    //NULL parms no longer allowed in CURL Set Opts, etc.
+    if (empty($url)) {
+      $this->handle = curl_init();
+    } else {
+      $this->handle = curl_init($url);
+    }
+
     $this->setOptions($this->curlDefaults + $options, true);
   }
 
