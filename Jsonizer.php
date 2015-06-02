@@ -62,9 +62,8 @@ class Jsonizer
     if (Jsonizer::isJSONP()) {
       header('Content-Type: application/javascript; charset=utf-8');
     } else {
-      header('Content-Type: application/json; charset=utf-8');
+      header('Content-Type: application/json');
     }
-
   }
 
   /**

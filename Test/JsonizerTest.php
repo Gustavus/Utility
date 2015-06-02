@@ -208,7 +208,7 @@ class JsonizerTest extends Test
 
     $this->call($this->namespace, 'setHeaders');
 
-    $this->assertEquals('Content-Type: application/json; charset=utf-8', $this->lastHeader);
+    $this->assertEquals('Content-Type: application/json', $this->lastHeader);
   }
 
 }
