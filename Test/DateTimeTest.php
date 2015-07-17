@@ -577,6 +577,11 @@ class DateTimeTest extends Test
     $dateb  = mktime(12, 0, 0, 5, 10, date('Y')+1);
     $dt = new DateTime($datea);
     $this->assertSame('Apr' . $dt::NON_BREAKING_SPACE_CHARACTER . '10, ' . (date('Y')-1) . ' to May 10, ' . (date('Y')+1), $dt->dateSpan($dateb, null, false));
+
+    $datea  = mktime(12, 0, 0, 4, 10, date('Y')-1);
+    $dateb  = mktime(12, 0, 0, 5, 10, date('Y'));
+    $dt = new DateTime($datea);
+    $this->assertSame('<a href="testlink1">Apr' . $dt::NON_BREAKING_SPACE_CHARACTER . '10, ' . (date('Y')-1) . '</a> to <a href="testlink2">May' . $dt::NON_BREAKING_SPACE_CHARACTER . '10</a>', $dt->dateSpan($dateb, null, false, 'testlink1', 'testlink2'));
   }
 
   /**
@@ -619,6 +624,16 @@ class DateTimeTest extends Test
     $dateb  = mktime(9, 30, 0, 4, 24, 2010);
     $dt = new DateTime($datea);
     $this->assertSame('8' . $dt::NDASH_CHARACTER . '9:30' . $dt::NON_BREAKING_SPACE_CHARACTER . 'a.m.', $dt->timeSpan($dateb));
+
+    $datea  = mktime(8, 0, 0, 4, 24, 2010);
+    $dateb  = mktime(9, 30, 0, 4, 24, 2010);
+    $dt = new DateTime($datea);
+    $this->assertSame('8' . $dt::NDASH_CHARACTER . '9:30' . $dt::NON_BREAKING_SPACE_CHARACTER . 'a.m.', $dt->timeSpan($dateb, false, true, 'testlink1', 'testlink2'));
+
+    $datea  = mktime(8, 0, 0, 4, 24, 2010);
+    $dateb  = mktime(9, 30, 0, 4, 25, 2010);
+    $dt = new DateTime($datea);
+    $this->assertSame('<a href="testlink1">Apr 24, 2010</a> at 8' . $dt::NON_BREAKING_SPACE_CHARACTER . 'a.m. to <a href="testlink2">Apr 25, 2010</a> at 9:30' . $dt::NON_BREAKING_SPACE_CHARACTER . 'a.m.' , $dt->timeSpan($dateb, false, true, 'testlink1', 'testlink2'));
   }
 
   /**
