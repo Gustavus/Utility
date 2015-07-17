@@ -3,6 +3,7 @@
  * @package Utility
  * @author  Billy Visto
  * @author  Joe Lencioni
+ * @author  Justin Holcomb
  */
 namespace Gustavus\Utility;
 
@@ -22,9 +23,14 @@ use DateTime as PHPDateTime,
  * @package Utility
  * @author  Billy Visto
  * @author  Joe Lencioni
+ * @author  Justin Holcomb
  */
 class DateTime extends Base
 {
+  // Unicode characters to use in spans (instead of HTML entities)
+  const NDASH_CHARACTER = '&ndash';
+  const NON_BREAKING_SPACE_CHARACTER = '&nbsp;';
+
   /**
    * Function to overide abstract function in base to make sure the value is valid
    *
@@ -41,7 +47,7 @@ class DateTime extends Base
    * Calls parent setValue with value converted to a DateTime object
    *
    * @param string|integer $value
-   * @return void
+   * @return DateTime
    */
   public function setValue($value)
   {
@@ -126,7 +132,7 @@ class DateTime extends Base
    * Determines if $this->value and $endTime are intended to represent the notion of "all day"
    *
    * @param mixed $endTime End time
-   * @return bool
+   * @return boolean
    */
   public function isAllDay($endTime)
   {
@@ -137,7 +143,7 @@ class DateTime extends Base
    * Determines if $this->value and the $endTime spans multiple days
    *
    * @param mixed $endTime End time
-   * @return bool
+   * @return boolean
    */
   public function isMultipleDays($endTime)
   {
@@ -148,7 +154,7 @@ class DateTime extends Base
    * Figures out the class name based off of the DateInterval
    *
    * @param integer|string $now time to get relative time against
-   * @return String
+   * @return string
    */
   public function toRelativeClassName($now = null)
   {
@@ -259,7 +265,7 @@ class DateTime extends Base
    *
    * @param integer|string $now Time to get relative time against
    * @param boolean $beSpecific whether to output the greatest time measurement, or to be as specific as possible
-   * @return String
+   * @return string
    */
   public function toRelative($now = null, $beSpecific = false)
   {
@@ -315,7 +321,7 @@ class DateTime extends Base
    * @param  \DateTime &$endDate
    * @return void
    */
-  public function adjustYearsIfNeeded(&$firstDate, &$endDate)
+  public function adjustYearsIfNeeded(\DateTime &$firstDate, \DateTime &$endDate)
   {
     $endDateTime = $endDate->format('U');
     if ($firstDate->format('U') > $endDateTime) {
@@ -363,16 +369,16 @@ class DateTime extends Base
    * Chooses a value from the four input values based on the relative time-of-day represented by
    * this DateTime object.
    *
-   * @param mixed $morningValue;
+   * @param mixed $morningValue
    *  The value to return if this DateTime represents a time in the morning (4-12am).
    *
-   * @param mixed $afternoonValue;
+   * @param mixed $afternoonValue
    *  The value to return if this DateTime represents a time in the afternoon (12-6pm).
    *
-   * @param mixed $eveningValue;
+   * @param mixed $eveningValue
    *  The value to return if this DateTime represents a time in the evening (6-10pm).
    *
-   * @param mixed $nightValue;
+   * @param mixed $nightValue
    *  The value to return if this DateTime represents a time in the night (10pm-4am).
    *
    * @return mixed
@@ -398,22 +404,22 @@ class DateTime extends Base
   /**
    * Chooses a greeting based on the relative time-of-day represented by this DateTime instance.
    *
-   * @param string $morningValue;
+   * @param string $morningGreeting
    *  <em>Optional</em>
    *  The value to return if this DateTime represents a time in the morning (4-12am). Defaults to
    *  "Good morning".
    *
-   * @param string $afternoonValue;
+   * @param string $afternoonGreeting
    *  <em>Optional</em>
    *  The value to return if this DateTime represents a time in the afternoon (12-6pm). Defaults to
    *  "Good afternoon".
    *
-   * @param string $eveningValue;
+   * @param string $eveningGreeting
    *  <em>Optional</em>
    *  The value to return if this DateTime represents a time in the evening (6-10pm). Defaults to
    *  "Good evening".
    *
-   * @param string $nightValue;
+   * @param string $nightGreeting
    *  <em>Optional</em>
    *  The value to return if this DateTime represents a time in the night (10pm-4am). Defaults to
    *  "Good night".
@@ -424,5 +430,279 @@ class DateTime extends Base
   public function getGreeting($morningGreeting = 'Good morning', $afternoonGreeting = 'Good afternoon', $eveningGreeting = 'Good evening', $nightGreeting = 'Good night')
   {
     return $this->chooseByTimeOfDay($morningGreeting, $afternoonGreeting, $eveningGreeting, $nightGreeting);
+  }
+
+  /**
+   * Formats a span of datetimes
+   *
+   * @param integer|string|\DateTime $e End time
+   * @param boolean $long
+   * @param boolean $relative
+   * @param string $firstDateLink
+   * @param string $secondDateLink
+   * @return string Formatted span of dates and times (e.g. "May 4 at 3-5 pm")
+   */
+  public function dateTimeSpan($e, $long = false, $relative = true, $firstDateLink = '', $secondDateLink = '')
+  {
+    assert('is_int($e) || is_string($e) || $e instanceOf \DateTime');
+    assert('is_bool($long)');
+    assert('is_bool($relative)');
+    assert('is_string($firstDateLink)');
+    assert('is_string($secondDateLink)');
+
+    $end = $this->makeDateTime($e);
+
+    $isMultiple = $this->isMultipleDays($end);
+    $isAllDay = $this->isAllDay($end);
+
+    $r  = '';
+    if (($isMultiple && $isAllDay) || !$isMultiple) {
+      $r .= $this->dateSpan($e, $long, $relative, $firstDateLink, $secondDateLink);
+    }
+
+    if (!$isMultiple && !$isAllDay) {
+      $r .= ' at ';
+    }
+
+    $r .= $this->timeSpan($e, $long, $relative, $firstDateLink, $secondDateLink);
+
+    return $r;
+  }
+
+  /**
+   * Formats a span of dates
+   *
+   * @param integer|string|\DateTime $e End time
+   * @param boolean $long Month length (if true, display full month, otherwise abbreviation)
+   * @param boolean $relative
+   * @param string $firstDateLink
+   * @param string $secondDateLink
+   * @return string Formatted span of dates (e.g. "May 4-5")
+   */
+  public function dateSpan($e, $long = false, $relative = true, $firstDateLink = '', $secondDateLink = '')
+  {
+    assert('is_int($e) || is_string($e) || $e instanceOf \DateTime');
+    assert('is_bool($long) || is_null($long)');
+    assert('is_bool($relative)');
+    assert('is_string($firstDateLink)');
+    assert('is_string($secondDateLink)');
+
+    $s = $this->value;
+    $end = $this->makeDateTime($e);
+
+    if ($s > $end) {
+      $end = $s;
+    }
+
+    $monthForm  = ($long) ? 'F' : 'M';
+    $tests      = $s->format('M j, Y');
+    $teste      = $end->format('M j, Y');
+    $today      = date('M j, Y');
+    $tomorrow   = date('M j, Y', strtotime('tomorrow'));
+    $yesterday  = date('M j, Y', strtotime('yesterday'));
+    $thismonth  = date($monthForm);
+    $thisyear   = date('Y');
+
+    $result   = '';
+
+    $wrapper  = array('', '', '', '');
+    if (!empty($firstDateLink)) {
+      $wrapper[0] = "<a href=\"$firstDateLink\">";
+      $wrapper[1] = '</a>';
+    }
+
+    if (!empty($secondDateLink)) {
+      $wrapper[2] = "<a href=\"$secondDateLink\">";
+      $wrapper[3] = '</a>';
+    }
+
+    if ($relative) {
+      if ($tests === $today) {
+        $result = 'Today';
+      } else if ($tests === $tomorrow) {
+        $result = 'Tomorrow';
+      } else if ($tests === $yesterday) {
+        $result = 'Yesterday';
+      }
+    }
+
+    // if the start and end dates are the same
+    // return the date that the event happens on
+    if (!$this->isMultipleDays($end)) {
+      if (!empty($result)) {
+        return $wrapper[0] . $result . $wrapper[1];
+      } else if ($s->format('Y') == $thisyear) {
+        return $wrapper[0] . $s->format($monthForm . ' j') . $wrapper[1]; // This year, so we leave out the year
+      } else {
+        return $wrapper[0] . $s->format($monthForm . ' j, Y') . $wrapper[1];
+      }
+    }
+
+    // the start and end dates are not the same
+    // so we need to figure out how to format the date span
+
+    if (empty($result)) {
+      // start by putting the month and date in the string
+      $result = $s->format($monthForm) . self::NON_BREAKING_SPACE_CHARACTER . $s->format('j');
+
+      // if the start and end dates are not in the same year
+      // add the year of the start date to the string
+      if ($s->format('Y') != $end->format('Y')) {
+        $result .= $s->format(', Y');
+      }
+    }
+
+    $result = $wrapper[0] . $result . $wrapper[1];
+
+    // end of start date formatting, begin end date formatting
+
+    // if the start and end dates are not in the same month and year
+    // add the month to the string
+    if ($s->format($monthForm . ' Y') !== $end->format($monthForm . ' Y')) {
+      $result .= ' to ';
+      /* This was doubling up the month
+      if ($tests != $today && $tests != $tomorrow && $tests != $yesterday)
+        $result .= date($monthForm, $e) . '&nbsp;';
+      */
+    } else {
+      $result .= self::NDASH_CHARACTER . '<wbr />';
+    }
+
+    // finally, add the date and year of the end date to the string
+
+    $result .= $wrapper[2];
+
+    if ($relative && $teste === $today) {
+      $result .= 'Today';
+    } else if ($relative && $teste === $tomorrow) {
+      $result .= 'Tomorrow';
+    } else if ($relative && $teste === $yesterday) {
+      $result .= 'Yesterday';
+    } else if ($relative && ($tests === $today || $tests === $tomorrow || $tests === $yesterday)) {
+      if ($end->format('Y') === $thisyear) {
+        $result .= $end->format($monthForm) . self::NON_BREAKING_SPACE_CHARACTER . $end->format('j');
+      } else {
+        $result .= $end->format($monthForm . ' j, Y');
+      }
+    } else {
+      if ($end->format($monthForm) === $thismonth && $s->format($monthForm) === $end->format($monthForm) && $end-format('Y') === $thisyear) {
+        $result .= $end->format('j');
+      } else if ($end->format('Y') === $thisyear) {
+        if ($end->format($monthForm) !== $s->format($monthForm)) {
+          $result .= $end->format($monthForm) . self::NON_BREAKING_SPACE_CHARACTER;
+        }
+        $result .= $end->format('j');
+      } else {
+        if ($end->format($monthForm) !== $s->format($monthForm)) {
+          $result .= $end->format($monthForm) . ' ';
+        }
+        $result .= $end->format('j, Y');
+      }
+    } // if
+
+    $result .= $wrapper[3];
+
+    return $result;
+  }
+
+  /**
+   * Formats a span of times
+   *
+   * @param integer|string|\DateTime $e End time
+   * @param boolean $hCalendar If true will output in hCalendar format
+   * @param boolean $relative
+   * @param string $firstDateLink
+   * @param string $secondDateLink
+   * @return string If $s and $e are on the same day, will return formatted span of times (e.g. "6-8 pm")
+   */
+  public function timeSpan($e, $hCalendar = false, $relative = true, $firstDateLink = '', $secondDateLink = '')
+  {
+    assert('is_int($e) || is_string($e) || $e instanceOf \DateTime');
+    assert('is_bool($hCalendar)');
+    assert('is_bool($relative)');
+    assert('is_string($firstDateLink)');
+    assert('is_string($secondDateLink)');
+
+    $s = $this->value;
+    $end = $this->makeDateTime($e);
+
+    if ($this->isAllDay($end)) {
+      if ($hCalendar) {
+        return ' <abbr style="display:none;" class="dtstart" title="' . $s->format('Y-m-d') . '">All day</abbr>';
+      } else {
+        return '';
+      }
+    }
+
+    $isMultipleDays = $this->isMultipleDays($end);
+
+    $r = '';
+
+    if ($hCalendar) {
+      $r .= '<abbr class="dtstart" title="' . $s->format('Y-m-d\TH:i:s') . $s->format('P') . '">';
+    }
+
+    if ($isMultipleDays) {
+      $r .= $this->dateSpan($s, false, $relative, $firstDateLink) . ' at ';
+    }
+
+    if ($s->format('H:i:s') === '00:00:00') {
+      $r .= 'midnight ';
+    } else if ($s->format('H:i:s') === '12:00:00') {
+      $r .= 'noon ';
+    } else {
+      $r .= $s->format('g');
+
+      if ($s->format('i') !== '00') {
+        $r .= $s->format(':i');
+      }
+
+      if ($isMultipleDays || $s->format('a') !== $end->format('a') || $end->format('H:i:s') === '00:00:00' || $end->format('H:i:s') === '12:00:00' || $end <= $s) {
+        $r .= self::NON_BREAKING_SPACE_CHARACTER . $s->format('a ');
+      }
+    }
+
+    if ($hCalendar) {
+      $r .= '</abbr>';
+    }
+
+    if ($end > $s && $end->format('H:i:s') !== '00:00:00') {
+      if ($isMultipleDays || $s->format('a') !== $end->format('a') || $s->format('H:i:s') === '00:00:00' || $s->format('H:i:s') === '00:00:00' || $s->format('H:i:s') === '12:00:00' || $end->format('H:i:s') === '00:00:00' || $end->format('H:i:s') === '12:00:00') {
+        $r .= 'to ';
+      } else {
+        $r .= self::NDASH_CHARACTER;
+      }
+
+      if ($hCalendar) {
+        $r .= '<abbr class="dtend" title="' . $end->format('Y-m-d\TH:i:s') . $end->format('P') . '">';
+      }
+
+      if ($isMultipleDays) {
+        $this->setValue($end);
+        $r .= $this->dateSpan($end, false, $relative, $secondDateLink) . ' at ';
+        $this->setValue($s);
+      }
+
+      if ($end->format('H:i:s') === '11:59:59') {
+        $r .= 'midnight';
+      } else if ($end->format('H:i:s') === '12:00:00') {
+        $r .= 'noon';
+      } else {
+        $r .= $end->format('g');
+
+        if ($end->format('i') !== '00' || ($end->format('i') !== '00') && $s->format('a') === $end->format('a')) {
+          $r .= $end->format(':i');
+        }
+
+        $r .= self::NON_BREAKING_SPACE_CHARACTER . $end->format('a');
+      }
+
+      if ($hCalendar) {
+        $r .= '</abbr>';
+      }
+    }
+
+    //replace am or pm with a.m. and p.m. then return
+    return str_replace(array('am','pm'), array('a.m.','p.m.'), $r);
   }
 }
