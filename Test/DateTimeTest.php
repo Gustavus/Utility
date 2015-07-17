@@ -4,6 +4,7 @@
  * @subpackage Test
  * @author  Billy Visto
  * @author  Joe Lencioni
+ * @author  Justin Holcomb
  */
 
 namespace Gustavus\Utility\Test;
@@ -17,6 +18,7 @@ use Gustavus\Utility,
  * @subpackage Test
  * @author  Billy Visto
  * @author  Joe Lencioni
+ * @author  Justin Holcomb
  */
 class DateTimeTest extends Test
 {
@@ -541,4 +543,97 @@ class DateTimeTest extends Test
     ];
   }
 
+  /**
+   * @test
+   */
+  public function DateSpan()
+  {
+    $datea  = mktime(12, 0, 0, 4, 10, date('Y'));
+    $dateb  = mktime(12, 0, 0, 4, 10, date('Y'));
+    $dt = new DateTime($datea);
+    $this->assertSame('Apr 10', $dt->dateSpan($dateb, null, false));
+
+    $datea  = mktime(12, 0, 0, 4, 10, date('Y'));
+    $dateb  = mktime(12, 0, 0, 4, 11, date('Y'));
+    $dt = new DateTime($datea);
+    $this->assertSame('Apr' . $dt::NON_BREAKING_SPACE_CHARACTER . '10' . $dt::NDASH_CHARACTER . '<wbr />11', $dt->dateSpan($dateb, null, false));
+
+    $datea  = mktime(12, 0, 0, 4, 10, date('Y'));
+    $dateb  = mktime(12, 0, 0, 5, 10, date('Y'));
+    $dt = new DateTime($datea);
+    $this->assertSame('Apr' . $dt::NON_BREAKING_SPACE_CHARACTER . '10 to May' . $dt::NON_BREAKING_SPACE_CHARACTER . '10', $dt->dateSpan($dateb, null, false));
+
+    $datea  = mktime(12, 0, 0, 4, 10, date('Y')-1);
+    $dateb  = mktime(12, 0, 0, 5, 10, date('Y')-1);
+    $dt = new DateTime($datea);
+    $this->assertSame('Apr' . $dt::NON_BREAKING_SPACE_CHARACTER . '10 to May 10, ' . (date('Y')-1), $dt->dateSpan($dateb, null, false));
+
+    $datea  = mktime(12, 0, 0, 4, 10, date('Y')-1);
+    $dateb  = mktime(12, 0, 0, 5, 10, date('Y'));
+    $dt = new DateTime($datea);
+    $this->assertSame('Apr' . $dt::NON_BREAKING_SPACE_CHARACTER . '10, ' . (date('Y')-1) . ' to May' . $dt::NON_BREAKING_SPACE_CHARACTER . '10', $dt->dateSpan($dateb, null, false));
+
+    $datea  = mktime(12, 0, 0, 4, 10, date('Y')-1);
+    $dateb  = mktime(12, 0, 0, 5, 10, date('Y')+1);
+    $dt = new DateTime($datea);
+    $this->assertSame('Apr' . $dt::NON_BREAKING_SPACE_CHARACTER . '10, ' . (date('Y')-1) . ' to May 10, ' . (date('Y')+1), $dt->dateSpan($dateb, null, false));
+  }
+
+  /**
+   * @test
+   */
+  public function DateSpanVeryOldDate()
+  {
+    $datea  = mktime(12, 0, 0, 4, 10, 1401);
+    $dateb  = mktime(12, 0, 0, 5, 10, 1401);
+    $dt = new DateTime($datea);
+    $this->assertSame('Apr' . $dt::NON_BREAKING_SPACE_CHARACTER . '10 to May 10, 1401', $dt->dateSpan($dateb));
+  }
+
+  /**
+   * @test
+   */
+  public function TimeSpan()
+  {
+    $datea  = mktime(12, 0, 0, 4, 24, 2010);
+    $dateb  = mktime(13, 0, 0, 4, 24, 2010);
+    $dt = new DateTime($datea);
+    $this->assertSame('noon to 1' . $dt::NON_BREAKING_SPACE_CHARACTER . 'p.m.', $dt->timeSpan($dateb));
+
+    $datea  = mktime(11, 0, 0, 4, 24, 2010);
+    $dateb  = mktime(13, 0, 0, 4, 24, 2010);
+    $dt = new DateTime($datea);
+    $this->assertSame('11' . $dt::NON_BREAKING_SPACE_CHARACTER . 'a.m. to 1' . $dt::NON_BREAKING_SPACE_CHARACTER . 'p.m.', $dt->timeSpan($dateb));
+
+    $datea  = mktime(11, 30, 0, 4, 24, 2010);
+    $dateb  = mktime(13, 0, 0, 4, 24, 2010);
+    $dt = new DateTime($datea);
+    $this->assertSame('11:30' . $dt::NON_BREAKING_SPACE_CHARACTER . 'a.m. to 1' . $dt::NON_BREAKING_SPACE_CHARACTER . 'p.m.', $dt->timeSpan($dateb));
+
+    $datea  = mktime(0, 0, 0, 4, 24, 2010);
+    $dateb  = mktime(13, 0, 0, 4, 24, 2010);
+    $dt = new DateTime($datea);
+    $this->assertSame('midnight to 1' . $dt::NON_BREAKING_SPACE_CHARACTER . 'p.m.', $dt->timeSpan($dateb));
+
+    $datea  = mktime(8, 0, 0, 4, 24, 2010);
+    $dateb  = mktime(9, 30, 0, 4, 24, 2010);
+    $dt = new DateTime($datea);
+    $this->assertSame('8' . $dt::NDASH_CHARACTER . '9:30' . $dt::NON_BREAKING_SPACE_CHARACTER . 'a.m.', $dt->timeSpan($dateb));
+  }
+
+  /**
+   * @test
+   */
+  public function DateTimeSpan()
+  {
+    $datea  = mktime(11, 30, 0, 4, 24, 2010);
+    $dateb  = mktime(13, 0, 0, 4, 24, 2011);
+    $dt = new DateTime($datea);
+    $this->assertSame('Apr 24, 2010 at 11:30' . $dt::NON_BREAKING_SPACE_CHARACTER . 'a.m. to Apr 24, 2011 at 1' . $dt::NON_BREAKING_SPACE_CHARACTER . 'p.m.', $dt->dateTimeSpan($dateb));
+
+    $datea  = mktime(0, 0, 0, 4, 24, 2010);
+    $dateb  = mktime(0, 0, 0, 4, 24, 2010);
+    $dt = new DateTime($datea);
+    $this->assertSame('Apr 24, 2010', $dt->dateTimeSpan($dateb));
+  }
 }
