@@ -161,7 +161,7 @@ class FileGrabber
   public function grabFile($url)
   {
     if ($this->isAllowed($url)) {
-      if (!$this->isGrabbed($url)) {
+      if (!$this->isGrabbed($url) || isset($_GET['refresh'])) {
         $this->enqueue($url);
       }
       return $this->localURL($url);
