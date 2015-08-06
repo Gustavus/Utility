@@ -585,8 +585,8 @@ class String extends Base implements ArrayAccess
    *  the end of the string at the offset specified. If the offset is greater than the length of the
    *  string, the length of the string will be used as the offset.
    *
-   * @param boolean $appendEllipsis
-   *  True if we should append an ellipsis in place of any removed text.
+   * @param boolean|string $appendEllipsis
+   *  True if we should append an ellipsis in place of any removed text, string of ellipsis to use, or false to not use them.
    *
    * @throws \InvalidArgumentException
    *  if $offset or $length are not integers, or $length is zero.
@@ -629,15 +629,20 @@ class String extends Base implements ArrayAccess
 
       // CHOP!
       $summary = substr($base, $start, ($end - $start));
+      if ($appendEllipsis) {
+        $ellipsis = (is_string($appendEllipsis)) ? $appendEllipsis : '...';
+      } else {
+        $ellipsis = '';
+      }
 
       if (strlen($summary) < $baseLen) {
         // Remove any leading or trailing punctuation and add our chop-chop calling card...
         if ($start != 0) {
-          $summary = ($appendEllipsis ? '...' : '') . preg_replace('/\A\s*([;:!\?\.,\/\-]|)+\s*/', '', $summary);
+          $summary = $ellipsis . preg_replace('/\A\s*([;:!\?\.,\/\-]|)+\s*/', '', $summary);
         }
 
         if ($end != $baseLen) {
-          $summary = preg_replace('/\s*([;:!\?\.,\/\-]|)+\s*\z/', '', $summary) . ($appendEllipsis ? '...' : '');
+          $summary = preg_replace('/(\s*)(&\w+;)?([;:!\?\.,\/\-]?)+\s*\z/', '$1$2', $summary) . $ellipsis;
         }
       }
 

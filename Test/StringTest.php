@@ -630,10 +630,10 @@ class StringTest extends Test
    * @test
    * @dataProvider excerptData
    */
-  public function textExcerpt($string, $length, $offset, $expected)
+  public function textExcerpt($string, $length, $offset, $expected, $appendEllipsis = true)
   {
     $this->string->setValue($string);
-    $this->string->excerpt($length, $offset);
+    $this->string->excerpt($length, $offset, $appendEllipsis);
 
     $this->assertSame($expected, $this->string->getValue());
   }
@@ -661,6 +661,8 @@ class StringTest extends Test
       // Goofy inputs...
       ['01234 56789', 10, 400, '...56789'],
       ['0123456789 012345678901234567890123456789 0123456789', 600, 400, '0123456789 012345678901234567890123456789 0123456789'],
+      ['arst arst arst arstarstarst &rdquo; arst', 33, 0, 'arst arst arst arstarstarst &rdquo;...'],
+      ['arst arst arst arstarstarst &rdquo; arst', 33, 0, 'arst arst arst arstarstarst &rdquo;[...]', '[...]'],
     ];
   }
 
