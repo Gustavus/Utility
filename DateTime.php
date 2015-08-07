@@ -154,7 +154,7 @@ class DateTime extends Base
    * Figures out the class name based off of the DateInterval
    *
    * @param integer|string $now time to get relative time against
-   * @return string
+   * @return String
    */
   public function toRelativeClassName($now = null)
   {
@@ -265,7 +265,7 @@ class DateTime extends Base
    *
    * @param integer|string $now Time to get relative time against
    * @param boolean $beSpecific whether to output the greatest time measurement, or to be as specific as possible
-   * @return string
+   * @return String
    */
   public function toRelative($now = null, $beSpecific = false)
   {
@@ -369,19 +369,19 @@ class DateTime extends Base
    * Chooses a value from the four input values based on the relative time-of-day represented by
    * this DateTime object.
    *
-   * @param mixed $morningValue
+   * @param string $morningValue
    *  The value to return if this DateTime represents a time in the morning (4-12am).
    *
-   * @param mixed $afternoonValue
+   * @param string $afternoonValue
    *  The value to return if this DateTime represents a time in the afternoon (12-6pm).
    *
-   * @param mixed $eveningValue
+   * @param string $eveningValue
    *  The value to return if this DateTime represents a time in the evening (6-10pm).
    *
-   * @param mixed $nightValue
+   * @param string $nightValue
    *  The value to return if this DateTime represents a time in the night (10pm-4am).
    *
-   * @return mixed
+   * @return String
    *  The value chosen based on the relative time-of-day.
    */
   public function chooseByTimeOfDay($morningValue = null, $afternoonValue = null, $eveningValue = null, $nightValue = null)
@@ -398,7 +398,7 @@ class DateTime extends Base
       $result = $nightValue;
     }
 
-    return $result;
+    return new String($result);
   }
 
   /**
@@ -424,7 +424,7 @@ class DateTime extends Base
    *  The value to return if this DateTime represents a time in the night (10pm-4am). Defaults to
    *  "Good night".
    *
-   * @return string
+   * @return String
    *  The greeting chosen based on the relative time-of-day.
    */
   public function getGreeting($morningGreeting = 'Good morning', $afternoonGreeting = 'Good afternoon', $eveningGreeting = 'Good evening', $nightGreeting = 'Good night')
@@ -440,7 +440,7 @@ class DateTime extends Base
    * @param boolean $relative
    * @param string $firstDateLink
    * @param string $secondDateLink
-   * @return string Formatted span of dates and times (e.g. "May 4 at 3-5 pm")
+   * @return String Formatted span of dates and times (e.g. "May 4 at 3-5 pm")
    */
   public function dateTimeSpan($e, $long = false, $relative = true, $firstDateLink = '', $secondDateLink = '')
   {
@@ -457,16 +457,16 @@ class DateTime extends Base
 
     $r  = '';
     if (($isMultiple && $isAllDay) || !$isMultiple) {
-      $r .= $this->dateSpan($e, $long, $relative, $firstDateLink, $secondDateLink);
+      $r .= $this->dateSpan($e, $long, $relative, $firstDateLink, $secondDateLink)->getValue();
     }
 
     if (!$isMultiple && !$isAllDay) {
       $r .= ' at ';
     }
 
-    $r .= $this->timeSpan($e, $long, $relative, $firstDateLink, $secondDateLink);
+    $r .= $this->timeSpan($e, $long, $relative, $firstDateLink, $secondDateLink)->getValue();
 
-    return $r;
+    return new String($r);
   }
 
   /**
@@ -477,7 +477,7 @@ class DateTime extends Base
    * @param boolean $relative
    * @param string $firstDateLink
    * @param string $secondDateLink
-   * @return string Formatted span of dates (e.g. "May 4-5")
+   * @return String Formatted span of dates (e.g. "May 4-5")
    */
   public function dateSpan($e, $long = false, $relative = true, $firstDateLink = '', $secondDateLink = '')
   {
@@ -530,11 +530,11 @@ class DateTime extends Base
     // return the date that the event happens on
     if (!$this->isMultipleDays($end)) {
       if (!empty($result)) {
-        return $wrapper[0] . $result . $wrapper[1];
+        return new String($wrapper[0] . $result . $wrapper[1]);
       } else if ($s->format('Y') == $thisyear) {
-        return $wrapper[0] . $s->format($monthForm . ' j') . $wrapper[1]; // This year, so we leave out the year
+        return new String($wrapper[0] . $s->format($monthForm . ' j') . $wrapper[1]); // This year, so we leave out the year
       } else {
-        return $wrapper[0] . $s->format($monthForm . ' j, Y') . $wrapper[1];
+        return new String($wrapper[0] . $s->format($monthForm . ' j, Y') . $wrapper[1]);
       }
     }
 
@@ -602,7 +602,7 @@ class DateTime extends Base
 
     $result .= $wrapper[3];
 
-    return $result;
+    return new String($result);
   }
 
   /**
@@ -613,7 +613,7 @@ class DateTime extends Base
    * @param boolean $relative
    * @param string $firstDateLink
    * @param string $secondDateLink
-   * @return string If $s and $e are on the same day, will return formatted span of times (e.g. "6-8 pm")
+   * @return String If $s and $e are on the same day, will return formatted span of times (e.g. "6-8 pm")
    */
   public function timeSpan($e, $hCalendar = false, $relative = true, $firstDateLink = '', $secondDateLink = '')
   {
@@ -628,9 +628,9 @@ class DateTime extends Base
 
     if ($this->isAllDay($end)) {
       if ($hCalendar) {
-        return ' <abbr style="display:none;" class="dtstart" title="' . $s->format('Y-m-d') . '">All day</abbr>';
+        return new String(' <abbr style="display:none;" class="dtstart" title="' . $s->format('Y-m-d') . '">All day</abbr>');
       } else {
-        return '';
+        return new String('');
       }
     }
 
@@ -643,7 +643,7 @@ class DateTime extends Base
     }
 
     if ($isMultipleDays) {
-      $r .= $this->dateSpan($s, false, $relative, $firstDateLink) . ' at ';
+      $r .= $this->dateSpan($s, false, $relative, $firstDateLink)->getValue() . ' at ';
     }
 
     if ($s->format('H:i:s') === '00:00:00') {
@@ -679,7 +679,7 @@ class DateTime extends Base
 
       if ($isMultipleDays) {
         $this->setValue($end);
-        $r .= $this->dateSpan($end, false, $relative, $secondDateLink) . ' at ';
+        $r .= $this->dateSpan($end, false, $relative, $secondDateLink)->getValue() . ' at ';
         $this->setValue($s);
       }
 
@@ -703,6 +703,6 @@ class DateTime extends Base
     }
 
     //replace am or pm with a.m. and p.m. then return
-    return str_replace(array('am','pm'), array('a.m.','p.m.'), $r);
+    return new String(str_replace(array('am','pm'), array('a.m.','p.m.'), $r));
   }
 }
