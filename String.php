@@ -240,9 +240,10 @@ class String extends Base implements ArrayAccess
    * </code>
    *
    * @param  boolean $fromMainWebServers Whether to resolve this to our main webservers or maintain the current host
+   * @param  boolean $fromStaticServers Whether to resolve this to our static webservers or maintain the current host
    * @return $this
    */
-  public function buildUrl($fromMainWebServers = false)
+  public function buildUrl($fromMainWebServers = false, $fromStaticServers = false)
   {
     $this->value = trim($this->value);
 
@@ -258,6 +259,12 @@ class String extends Base implements ArrayAccess
         $host = 'beta.gac.edu';
       } else {
         $host = 'gustavus.edu';
+      }
+    } else if ($fromStaticServers) {
+      if (\Config::isBeta()) {
+        $host = 'static-beta2.gac.edu';
+      } else {
+        $host = 'static2.gac.edu';
       }
     } else {
       // $_SERVER variables that contain host information

@@ -270,12 +270,18 @@ class StringTest extends Test
    * @test
    * @dataProvider buildUrlData
    */
-  public function buildUrl($expected, $url, $host, $scriptName = '/test/test.php', $fromMainWebServers = false)
+  public function buildUrl($expected, $url, $host, $scriptName = '/test/test.php', $fromMainWebServers = false, $fromStaticServers = false)
   {
-    $_SERVER['HTTP_HOST']   = $host;
+    if (!empty($host)) {
+      $_SERVER['HTTP_HOST']   = $host;
+      $_SERVER['HOSTNAME'] = $host;
+      $_SERVER['HOST'] = $host;
+      $_SERVER['SERVER_NAME'] = $host;
+    }
+
     $_SERVER['SCRIPT_NAME'] = $scriptName;
     $this->string->setValue($url);
-    $this->assertSame($expected, $this->string->buildUrl($fromMainWebServers)->getValue());
+    $this->assertSame($expected, $this->string->buildUrl($fromMainWebServers, $fromStaticServers)->getValue());
   }
 
   /**
@@ -297,6 +303,9 @@ class StringTest extends Test
       array('https://blog-beta.gac.edu/admission/apply/?arst=arst', 'apply/?arst=arst', 'blog-beta.gac.edu', '/admission/index.php'),
       array('https://blog-beta.gac.edu/admission/apply/?arst=arst', 'apply/?arst=arst', 'blog-beta.gac.edu', '/admission/index.php'),
       array('https://beta.gac.edu/admission/apply/?arst=arst', 'apply/?arst=arst', 'blog-beta.gac.edu', '/admission/index.php', true),
+      array('https://gustavus.edu/admission/apply/?arst=arst', 'apply/?arst=arst', 'blog.gustavus.edu', '/admission/index.php', true),
+      array('https://static-beta2.gac.edu/admission/apply/?arst=arst', 'apply/?arst=arst', 'static-beta2.gac.edu', '/admission/index.php', false, true),
+      array('https://static2.gac.edu/admission/apply/?arst=arst', 'apply/?arst=arst', 'gustavus.edu', '/admission/index.php', false, true),
     );
   }
 
