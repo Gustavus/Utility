@@ -561,6 +561,53 @@ class StringTest extends Test
       [['revisionNumber' => '1', 'oldestRevision' => ''], '?revisionNumber=1&oldestRevision'],
       [['revisionNumber' => '1', 'oldestRevision' => '0'], 'revisionNumber=1&oldestRevision=0'],
       [['revisionNumbers' => ['1', '2']], '?revisionNumbers[]=1&revisionNumbers[]=2'],
+      [['revisionNumbers' => ['1' => 'arst', '2' => 'test']], '?revisionNumbers[1]=arst&revisionNumbers[2]=test'],
+      [['revisionNumbers' => ['1' => ['nest' => 'arst', 'test' => 'testing']]], '?revisionNumbers[1][nest]=arst&revisionNumbers[1][test]=testing'],
+      [['revisionNumbers' => ['1' => ['nest' => 'testing']]], '?revisionNumbers[1][nest]=arst&revisionNumbers[1][nest]=testing'],
+    ];
+  }
+
+  /**
+   * @test
+   * @dataProvider convertNestedQueryStringsToArrayData
+   */
+  public function convertNestedQueryStringsToArray($expected, $key, $value)
+  {
+    $actual = $this->call('\Gustavus\Utility\String', 'convertNestedQueryStringsToArray', [$key, $value]);
+    $this->assertSame($expected, $actual);
+  }
+
+  /**
+   * Data provider for convertNestedQueryStringsToArray
+   *
+   * @return array
+   */
+  public static function convertNestedQueryStringsToArrayData()
+  {
+    return [
+      [['revisionNumbers' => ['1' => 'arst']], 'revisionNumbers[1]', 'arst'],
+      [['revisionNumbers' => ['1' => ['test' => 'arst']]], 'revisionNumbers[1][test]', 'arst'],
+      [['revisionNumbers' => ['1' => ['test' => ['deeper' => 'arst']]]], 'revisionNumbers[1][test][deeper]', 'arst'],
+    ];
+  }
+
+  /**
+   * @test
+   * @dataProvider mergeQueryStringArraysData
+   */
+  public function mergeQueryStringArrays($expected, $array, $arrayTwo)
+  {
+    $actual = $this->call('\Gustavus\Utility\String', 'mergeQueryStringArrays', [$array, $arrayTwo]);
+    $this->assertSame($expected, $actual);
+  }
+
+  public static function mergeQueryStringArraysData()
+  {
+    return [
+      [['1' => 'arst', '2' => 'test'], ['1' => 'arst'], ['2' => 'test']],
+      [['1' => ['nest' => 'arst', 'test' => 'test']], ['1' => ['nest' => 'arst']], ['1' => ['test' => 'test']]],
+      [['1' => ['nest' => 'arst', 'test' => 'test'], '2' => 'two'], ['1' => ['nest' => 'arst']], ['1' => ['test' => 'test'], '2' => 'two']],
+      [['1' => ['nest' => 'testing']], ['1' => ['nest' => 'arst']], ['1' => ['nest' => 'testing']]],
     ];
   }
 
