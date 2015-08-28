@@ -270,12 +270,18 @@ class StringTest extends Test
    * @test
    * @dataProvider buildUrlData
    */
-  public function buildUrl($expected, $url, $host, $scriptName = '/test/test.php', $fromMainWebServers = false)
+  public function buildUrl($expected, $url, $host, $scriptName = '/test/test.php', $fromMainWebServers = false, $fromStaticServers = false)
   {
-    $_SERVER['HTTP_HOST']   = $host;
+    if (!empty($host)) {
+      $_SERVER['HTTP_HOST']   = $host;
+      $_SERVER['HOSTNAME'] = $host;
+      $_SERVER['HOST'] = $host;
+      $_SERVER['SERVER_NAME'] = $host;
+    }
+
     $_SERVER['SCRIPT_NAME'] = $scriptName;
     $this->string->setValue($url);
-    $this->assertSame($expected, $this->string->buildUrl($fromMainWebServers)->getValue());
+    $this->assertSame($expected, $this->string->buildUrl($fromMainWebServers, $fromStaticServers)->getValue());
   }
 
   /**
@@ -297,6 +303,9 @@ class StringTest extends Test
       array('https://blog-beta.gac.edu/admission/apply/?arst=arst', 'apply/?arst=arst', 'blog-beta.gac.edu', '/admission/index.php'),
       array('https://blog-beta.gac.edu/admission/apply/?arst=arst', 'apply/?arst=arst', 'blog-beta.gac.edu', '/admission/index.php'),
       array('https://beta.gac.edu/admission/apply/?arst=arst', 'apply/?arst=arst', 'blog-beta.gac.edu', '/admission/index.php', true),
+      array('https://gustavus.edu/admission/apply/?arst=arst', 'apply/?arst=arst', 'blog.gustavus.edu', '/admission/index.php', true),
+      array('https://static-beta2.gac.edu/admission/apply/?arst=arst', 'apply/?arst=arst', 'static-beta2.gac.edu', '/admission/index.php', false, true),
+      array('https://static2.gac.edu/admission/apply/?arst=arst', 'apply/?arst=arst', 'gustavus.edu', '/admission/index.php', false, true),
     );
   }
 
@@ -552,6 +561,53 @@ class StringTest extends Test
       [['revisionNumber' => '1', 'oldestRevision' => ''], '?revisionNumber=1&oldestRevision'],
       [['revisionNumber' => '1', 'oldestRevision' => '0'], 'revisionNumber=1&oldestRevision=0'],
       [['revisionNumbers' => ['1', '2']], '?revisionNumbers[]=1&revisionNumbers[]=2'],
+      [['revisionNumbers' => ['1' => 'arst', '2' => 'test']], '?revisionNumbers[1]=arst&revisionNumbers[2]=test'],
+      [['revisionNumbers' => ['1' => ['nest' => 'arst', 'test' => 'testing']]], '?revisionNumbers[1][nest]=arst&revisionNumbers[1][test]=testing'],
+      [['revisionNumbers' => ['1' => ['nest' => 'testing']]], '?revisionNumbers[1][nest]=arst&revisionNumbers[1][nest]=testing'],
+    ];
+  }
+
+  /**
+   * @test
+   * @dataProvider convertNestedQueryStringsToArrayData
+   */
+  public function convertNestedQueryStringsToArray($expected, $key, $value)
+  {
+    $actual = $this->call('\Gustavus\Utility\String', 'convertNestedQueryStringsToArray', [$key, $value]);
+    $this->assertSame($expected, $actual);
+  }
+
+  /**
+   * Data provider for convertNestedQueryStringsToArray
+   *
+   * @return array
+   */
+  public static function convertNestedQueryStringsToArrayData()
+  {
+    return [
+      [['revisionNumbers' => ['1' => 'arst']], 'revisionNumbers[1]', 'arst'],
+      [['revisionNumbers' => ['1' => ['test' => 'arst']]], 'revisionNumbers[1][test]', 'arst'],
+      [['revisionNumbers' => ['1' => ['test' => ['deeper' => 'arst']]]], 'revisionNumbers[1][test][deeper]', 'arst'],
+    ];
+  }
+
+  /**
+   * @test
+   * @dataProvider mergeQueryStringArraysData
+   */
+  public function mergeQueryStringArrays($expected, $array, $arrayTwo)
+  {
+    $actual = $this->call('\Gustavus\Utility\String', 'mergeQueryStringArrays', [$array, $arrayTwo]);
+    $this->assertSame($expected, $actual);
+  }
+
+  public static function mergeQueryStringArraysData()
+  {
+    return [
+      [['1' => 'arst', '2' => 'test'], ['1' => 'arst'], ['2' => 'test']],
+      [['1' => ['nest' => 'arst', 'test' => 'test']], ['1' => ['nest' => 'arst']], ['1' => ['test' => 'test']]],
+      [['1' => ['nest' => 'arst', 'test' => 'test'], '2' => 'two'], ['1' => ['nest' => 'arst']], ['1' => ['test' => 'test'], '2' => 'two']],
+      [['1' => ['nest' => 'testing']], ['1' => ['nest' => 'arst']], ['1' => ['nest' => 'testing']]],
     ];
   }
 
@@ -630,10 +686,10 @@ class StringTest extends Test
    * @test
    * @dataProvider excerptData
    */
-  public function textExcerpt($string, $length, $offset, $expected)
+  public function textExcerpt($string, $length, $offset, $expected, $appendEllipsis = true)
   {
     $this->string->setValue($string);
-    $this->string->excerpt($length, $offset);
+    $this->string->excerpt($length, $offset, $appendEllipsis);
 
     $this->assertSame($expected, $this->string->getValue());
   }
@@ -661,6 +717,8 @@ class StringTest extends Test
       // Goofy inputs...
       ['01234 56789', 10, 400, '...56789'],
       ['0123456789 012345678901234567890123456789 0123456789', 600, 400, '0123456789 012345678901234567890123456789 0123456789'],
+      ['arst arst arst arstarstarst &rdquo; arst', 33, 0, 'arst arst arst arstarstarst &rdquo;...'],
+      ['arst arst arst arstarstarst &rdquo; arst', 33, 0, 'arst arst arst arstarstarst &rdquo;[...]', '[...]'],
     ];
   }
 

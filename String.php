@@ -240,9 +240,10 @@ class String extends Base implements ArrayAccess
    * </code>
    *
    * @param  boolean $fromMainWebServers Whether to resolve this to our main webservers or maintain the current host
+   * @param  boolean $fromStaticServers Whether to resolve this to our static webservers or maintain the current host
    * @return $this
    */
-  public function buildUrl($fromMainWebServers = false)
+  public function buildUrl($fromMainWebServers = false, $fromStaticServers = false)
   {
     $this->value = trim($this->value);
 
@@ -258,6 +259,12 @@ class String extends Base implements ArrayAccess
         $host = 'beta.gac.edu';
       } else {
         $host = 'gustavus.edu';
+      }
+    } else if ($fromStaticServers) {
+      if (\Config::isBeta()) {
+        $host = 'static-beta2.gac.edu';
+      } else {
+        $host = 'static2.gac.edu';
       }
     } else {
       // $_SERVER variables that contain host information
@@ -307,11 +314,60 @@ class String extends Base implements ArrayAccess
         } else {
           $set->offsetSet($index, [$splitArr[1]]);
         }
+      } else if (strpos($splitArr[0], '[') !== false) {
+        $converted = self::convertNestedQueryStringsToArray($splitArr[0], $splitArr[1]);
+        $index = key($converted);
+
+        if ($set->offsetExists($index)) {
+          $set->offsetSet($index, self::mergeQueryStringArrays($set->offsetGet($index), current($converted)));
+        } else {
+          $set->offsetSet($index, current($converted));
+        }
       } else {
         $set->offsetSet($splitArr[0], $splitArr[1]);
       }
     }
     return $set;
+  }
+
+  /**
+   * Converts nested query strings to a nested array
+   *
+   * @param  string $key   Key we are converting
+   * @param  string|array $value Value to assign to the key
+   * @return array
+   */
+  private static function convertNestedQueryStringsToArray($key, $value)
+  {
+    preg_match('`(.+)\[([^\[]+)\]$`', $key, $keyMatches);
+    if (isset($keyMatches[1], $keyMatches[2])) {
+      return self::convertNestedQueryStringsToArray($keyMatches[1], [$keyMatches[2] => $value]);
+    } else {
+      return [$key => $value];
+    }
+  }
+
+  /**
+   * Recursively merges query string arrays maintaining keys
+   *
+   * @param  array|string $array    Array to merge onto. String for last iteration.
+   * @param  array|string $arrayTwo Array to merge. Duplicate keys will take the value from this array. String for last iteration.
+   * @return array
+   */
+  private static function mergeQueryStringArrays($array, $arrayTwo)
+  {
+    if (!is_array($array) || !is_array($arrayTwo)) {
+      return $arrayTwo;
+    }
+    $similarKeys = array_intersect(array_keys($array), array_keys($arrayTwo));
+    if (empty($similarKeys)) {
+      return $array + $arrayTwo;
+    }
+    $return = $array + $arrayTwo;
+    foreach ($similarKeys as $similarKey) {
+      $return[$similarKey] = self::mergeQueryStringArrays($array[$similarKey], $arrayTwo[$similarKey]);
+    }
+    return $return;
   }
 
   /**
@@ -585,8 +641,8 @@ class String extends Base implements ArrayAccess
    *  the end of the string at the offset specified. If the offset is greater than the length of the
    *  string, the length of the string will be used as the offset.
    *
-   * @param boolean $appendEllipsis
-   *  True if we should append an ellipsis in place of any removed text.
+   * @param boolean|string $appendEllipsis
+   *  True if we should append an ellipsis in place of any removed text, string of ellipsis to use, or false to not use them.
    *
    * @throws \InvalidArgumentException
    *  if $offset or $length are not integers, or $length is zero.
@@ -629,15 +685,20 @@ class String extends Base implements ArrayAccess
 
       // CHOP!
       $summary = substr($base, $start, ($end - $start));
+      if ($appendEllipsis) {
+        $ellipsis = (is_string($appendEllipsis)) ? $appendEllipsis : '...';
+      } else {
+        $ellipsis = '';
+      }
 
       if (strlen($summary) < $baseLen) {
         // Remove any leading or trailing punctuation and add our chop-chop calling card...
         if ($start != 0) {
-          $summary = ($appendEllipsis ? '...' : '') . preg_replace('/\A\s*([;:!\?\.,\/\-]|)+\s*/', '', $summary);
+          $summary = $ellipsis . preg_replace('/\A\s*([;:!\?\.,\/\-]|)+\s*/', '', $summary);
         }
 
         if ($end != $baseLen) {
-          $summary = preg_replace('/\s*([;:!\?\.,\/\-]|)+\s*\z/', '', $summary) . ($appendEllipsis ? '...' : '');
+          $summary = preg_replace('/(\s*)(&\w+;)?([;:!\?\.,\/\-]?)+\s*\z/', '$1$2', $summary) . $ellipsis;
         }
       }
 

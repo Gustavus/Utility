@@ -308,7 +308,7 @@ class PageUtilTest extends Test
     $this->overrideHeader();
     $result = PageUtil::renderPageNotFound(true);
     $this->assertContains('Page Not Found', $result);
-    $this->set('\Template', 'template', null);
+    $this->set('\Gustavus\Template\Template', 'template', null);
   }
 
   /**
@@ -323,7 +323,7 @@ class PageUtilTest extends Test
     $this->overrideHeader();
     $result = PageUtil::renderBadRequest(true);
     $this->assertContains('Bad Request', $result);
-    $this->set('\Template', 'template', null);
+    $this->set('\Gustavus\Template\Template', 'template', null);
   }
 
   /**
@@ -338,6 +338,6 @@ class PageUtilTest extends Test
     $this->overrideHeader();
     $result = PageUtil::renderAccessDenied(true);
     $this->assertContains('Access Denied', $result);
-    $this->set('\Template', 'template', null);
+    $this->set('\Gustavus\Template\Template', 'template', null);
   }
 }

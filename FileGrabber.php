@@ -8,6 +8,7 @@
 namespace Gustavus\Utility;
 
 use Gustavus\Regex\Regex,
+    Gustavus\Extensibility\Filters,
 
     InvalidArgumentException,
     RuntimeException,
@@ -108,12 +109,7 @@ class FileGrabber
    */
   public function __construct($url = null)
   {
-
-    if (!isset(static::$curl)) {
-      static::$curl = new CURLRequest();
-      static::$curl->setOption(CURLOPT_ENCODING, '');
-      static::$curl->setOption(CURLOPT_FOLLOWLOCATION, true);
-    }
+    $this->initCurl();
 
     if (!empty($url)) {
       if (is_array($url)) {
@@ -130,6 +126,20 @@ class FileGrabber
   public function __destruct()
   {
     $this->processQueue();
+  }
+
+  /**
+   * Initializes curl
+   *
+   * @return void
+   */
+  private function initCurl()
+  {
+    if (!isset(static::$curl) || static::$curl->isClosed()) {
+      static::$curl = new CURLRequest();
+      static::$curl->setOption(CURLOPT_ENCODING, '');
+      static::$curl->setOption(CURLOPT_FOLLOWLOCATION, true);
+    }
   }
 
   ////////////////////////////////////////////////////////////////////////
@@ -161,7 +171,7 @@ class FileGrabber
   public function grabFile($url)
   {
     if ($this->isAllowed($url)) {
-      if (!$this->isGrabbed($url)) {
+      if (!$this->isGrabbed($url) || isset($_GET['refresh'])) {
         $this->enqueue($url);
       }
       return $this->localURL($url);
@@ -213,6 +223,9 @@ class FileGrabber
     $image = $this->extractImageFromContent($content, $imagePosition);
 
     if ($image) {
+      if (Filters::exists('FileGrabber-ImageSource')) {
+        $image = Filters::apply('FileGrabber-ImageSource', $image);
+      }
       return $this->grabFile($image);
     } else {
       return false;
@@ -467,6 +480,7 @@ class FileGrabber
    */
   public function processQueue()
   {
+    $this->initCurl();
     $errors = array();
     foreach ($this->queue as $url) {
       try {
