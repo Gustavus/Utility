@@ -314,11 +314,60 @@ class String extends Base implements ArrayAccess
         } else {
           $set->offsetSet($index, [$splitArr[1]]);
         }
+      } else if (strpos($splitArr[0], '[') !== false) {
+        $converted = self::convertNestedQueryStringsToArray($splitArr[0], $splitArr[1]);
+        $index = key($converted);
+
+        if ($set->offsetExists($index)) {
+          $set->offsetSet($index, self::mergeQueryStringArrays($set->offsetGet($index), current($converted)));
+        } else {
+          $set->offsetSet($index, current($converted));
+        }
       } else {
         $set->offsetSet($splitArr[0], $splitArr[1]);
       }
     }
     return $set;
+  }
+
+  /**
+   * Converts nested query strings to a nested array
+   *
+   * @param  string $key   Key we are converting
+   * @param  string|array $value Value to assign to the key
+   * @return array
+   */
+  private static function convertNestedQueryStringsToArray($key, $value)
+  {
+    preg_match('`(.+)\[([^\[]+)\]$`', $key, $keyMatches);
+    if (isset($keyMatches[1], $keyMatches[2])) {
+      return self::convertNestedQueryStringsToArray($keyMatches[1], [$keyMatches[2] => $value]);
+    } else {
+      return [$key => $value];
+    }
+  }
+
+  /**
+   * Recursively merges query string arrays maintaining keys
+   *
+   * @param  array|string $array    Array to merge onto. String for last iteration.
+   * @param  array|string $arrayTwo Array to merge. Duplicate keys will take the value from this array. String for last iteration.
+   * @return array
+   */
+  private static function mergeQueryStringArrays($array, $arrayTwo)
+  {
+    if (!is_array($array) || !is_array($arrayTwo)) {
+      return $arrayTwo;
+    }
+    $similarKeys = array_intersect(array_keys($array), array_keys($arrayTwo));
+    if (empty($similarKeys)) {
+      return $array + $arrayTwo;
+    }
+    $return = $array + $arrayTwo;
+    foreach ($similarKeys as $similarKey) {
+      $return[$similarKey] = self::mergeQueryStringArrays($array[$similarKey], $arrayTwo[$similarKey]);
+    }
+    return $return;
   }
 
   /**
