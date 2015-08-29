@@ -28,7 +28,7 @@ use DateTime as PHPDateTime,
 class DateTime extends Base
 {
   // Unicode characters to use in spans (instead of HTML entities)
-  const NDASH_CHARACTER = '&ndash';
+  const NDASH_CHARACTER = '&ndash;';
   const NON_BREAKING_SPACE_CHARACTER = '&nbsp;';
 
   /**
