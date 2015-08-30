@@ -593,26 +593,6 @@ class StringTest extends Test
 
   /**
    * @test
-   * @dataProvider mergeQueryStringArraysData
-   */
-  public function mergeQueryStringArrays($expected, $array, $arrayTwo)
-  {
-    $actual = $this->call('\Gustavus\Utility\String', 'mergeQueryStringArrays', [$array, $arrayTwo]);
-    $this->assertSame($expected, $actual);
-  }
-
-  public static function mergeQueryStringArraysData()
-  {
-    return [
-      [['1' => 'arst', '2' => 'test'], ['1' => 'arst'], ['2' => 'test']],
-      [['1' => ['nest' => 'arst', 'test' => 'test']], ['1' => ['nest' => 'arst']], ['1' => ['test' => 'test']]],
-      [['1' => ['nest' => 'arst', 'test' => 'test'], '2' => 'two'], ['1' => ['nest' => 'arst']], ['1' => ['test' => 'test'], '2' => 'two']],
-      [['1' => ['nest' => 'testing']], ['1' => ['nest' => 'arst']], ['1' => ['nest' => 'testing']]],
-    ];
-  }
-
-  /**
-   * @test
    * @dataProvider findNearestInstanceData
    */
   public function testFindNearestInstance($string, $search, $offset, $expected)
