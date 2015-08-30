@@ -479,4 +479,31 @@ class SetTest extends Test
       ['arst'],
     ];
   }
+
+  /**
+   * @test
+   * @dataProvider recursivelyMergeArraysData
+   */
+  public function recursivelyMergeArrays($expected, $array, $arrayTwo)
+  {
+    $actual = $this->call('\Gustavus\Utility\Set', 'recursivelyMergeArrays', [$array, $arrayTwo]);
+    $this->assertSame($expected, $actual);
+
+    $set = new Set($array);
+    $this->assertSame($expected, $set->mergeArrays($arrayTwo)->getValue());
+  }
+
+  /**
+   * Data provider for recursivelyMergeArrays
+   * @return array
+   */
+  public static function recursivelyMergeArraysData()
+  {
+    return [
+      [['1' => 'arst', '2' => 'test'], ['1' => 'arst'], ['2' => 'test']],
+      [['1' => ['nest' => 'arst', 'test' => 'test']], ['1' => ['nest' => 'arst']], ['1' => ['test' => 'test']]],
+      [['1' => ['nest' => 'arst', 'test' => 'test'], '2' => 'two'], ['1' => ['nest' => 'arst']], ['1' => ['test' => 'test'], '2' => 'two']],
+      [['1' => ['nest' => 'testing']], ['1' => ['nest' => 'arst']], ['1' => ['nest' => 'testing']]],
+    ];
+  }
 }

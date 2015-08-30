@@ -283,6 +283,41 @@ class Set extends Base implements ArrayAccess
   }
 
   /**
+   * Recursively merges arrays
+   *
+   * @param  array  $array Array to merge
+   * @return Set
+   */
+  public function mergeArrays(array $array)
+  {
+    $this->setValue(self::recursivelyMergeArrays($this->value, $array));
+    return $this;
+  }
+
+  /**
+   * Recursively merges arrays maintaining keys
+   *
+   * @param  array|string $array    Array to merge onto. String for last iteration.
+   * @param  array|string $arrayTwo Array to merge. Duplicate keys will take the value from this array. String for last iteration.
+   * @return array
+   */
+  public static function recursivelyMergeArrays($array, $arrayTwo)
+  {
+    if (!is_array($array) || !is_array($arrayTwo)) {
+      return $arrayTwo;
+    }
+    $similarKeys = array_intersect(array_keys($array), array_keys($arrayTwo));
+    if (empty($similarKeys)) {
+      return $array + $arrayTwo;
+    }
+    $return = $array + $arrayTwo;
+    foreach ($similarKeys as $similarKey) {
+      $return[$similarKey] = self::recursivelyMergeArrays($array[$similarKey], $arrayTwo[$similarKey]);
+    }
+    return $return;
+  }
+
+  /**
    * Format an array
    *
    * Usage:
