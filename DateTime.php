@@ -585,7 +585,7 @@ class DateTime extends Base
         $result .= $end->format($monthForm . ' j, Y');
       }
     } else {
-      if ($end->format($monthForm) === $thismonth && $s->format($monthForm) === $end->format($monthForm) && $end-format('Y') === $thisyear) {
+      if ($end->format($monthForm) === $thismonth && $s->format($monthForm) === $end->format($monthForm) && $end->format('Y') === $thisyear) {
         $result .= $end->format('j');
       } else if ($end->format('Y') === $thisyear) {
         if ($end->format($monthForm) !== $s->format($monthForm)) {
