@@ -50,7 +50,7 @@ abstract class Base
       $this->value = $value;
       return $this;
     } else {
-      throw new \DomainException('The value does not belong to the domain of this object.');
+      throw new \DomainException('The value does not belong to the domain of this object. (' . get_called_class() . ')');
     }
   }
 
