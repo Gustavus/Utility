@@ -154,7 +154,7 @@ class DateTime extends Base
    * Figures out the class name based off of the DateInterval
    *
    * @param integer|string $now time to get relative time against
-   * @return String
+   * @return GACString
    */
   public function toRelativeClassName($now = null)
   {
@@ -169,17 +169,17 @@ class DateTime extends Base
     if (!empty($firstKey)) {
       if ($firstKey === 'second') {
         if ($intervalArr['second'] > 10) {
-          return new String('minute');
+          return new GACString('minute');
         } else {
-          return new String('now');
+          return new GACString('now');
         }
       } else if ($intervalArr[$firstKey] > 1) {
-        return new String("{$firstKey}s");
+        return new GACString("{$firstKey}s");
       } else {
-        return new String($firstKey);
+        return new GACString($firstKey);
       }
     } else {
-      return new String('now');
+      return new GACString('now');
     }
   }
 
@@ -265,7 +265,7 @@ class DateTime extends Base
    *
    * @param integer|string $now Time to get relative time against
    * @param boolean $beSpecific whether to output the greatest time measurement, or to be as specific as possible
-   * @return String
+   * @return GACString
    */
   public function toRelative($now = null, $beSpecific = false)
   {
@@ -288,7 +288,7 @@ class DateTime extends Base
           $relative[] = $nonSpecificDate['relative'];
         }
       } else {
-        return new String($nonSpecificDate);
+        return new GACString($nonSpecificDate);
       }
     } else {
       // make specific date array
@@ -301,11 +301,11 @@ class DateTime extends Base
 
     if (empty($relative)) {
       // modified less than a second ago, output just now
-      return new String('Just Now');
+      return new GACString('Just Now');
     }
 
     $setUtil = new Set($relative);
-    return new String(sprintf(
+    return new GACString(sprintf(
         '%s%s %s',
         $startText,
         $setUtil->toSentence(),
@@ -381,7 +381,7 @@ class DateTime extends Base
    * @param string $nightValue
    *  The value to return if this DateTime represents a time in the night (10pm-4am).
    *
-   * @return String
+   * @return GACString
    *  The value chosen based on the relative time-of-day.
    */
   public function chooseByTimeOfDay($morningValue = null, $afternoonValue = null, $eveningValue = null, $nightValue = null)
@@ -398,7 +398,7 @@ class DateTime extends Base
       $result = $nightValue;
     }
 
-    return new String($result);
+    return new GACString($result);
   }
 
   /**
@@ -424,7 +424,7 @@ class DateTime extends Base
    *  The value to return if this DateTime represents a time in the night (10pm-4am). Defaults to
    *  "Good night".
    *
-   * @return String
+   * @return GACString
    *  The greeting chosen based on the relative time-of-day.
    */
   public function getGreeting($morningGreeting = 'Good morning', $afternoonGreeting = 'Good afternoon', $eveningGreeting = 'Good evening', $nightGreeting = 'Good night')
@@ -440,7 +440,7 @@ class DateTime extends Base
    * @param boolean $relative
    * @param string $firstDateLink
    * @param string $secondDateLink
-   * @return String Formatted span of dates and times (e.g. "May 4 at 3-5 pm")
+   * @return GACString Formatted span of dates and times (e.g. "May 4 at 3-5 pm")
    */
   public function dateTimeSpan($e, $long = false, $relative = true, $firstDateLink = '', $secondDateLink = '')
   {
@@ -466,7 +466,7 @@ class DateTime extends Base
 
     $r .= $this->timeSpan($e, $long, $relative, $firstDateLink, $secondDateLink)->getValue();
 
-    return new String($r);
+    return new GACString($r);
   }
 
   /**
@@ -477,7 +477,7 @@ class DateTime extends Base
    * @param boolean $relative
    * @param string $firstDateLink
    * @param string $secondDateLink
-   * @return String Formatted span of dates (e.g. "May 4-5")
+   * @return GACString Formatted span of dates (e.g. "May 4-5")
    */
   public function dateSpan($e, $long = false, $relative = true, $firstDateLink = '', $secondDateLink = '')
   {
@@ -530,11 +530,11 @@ class DateTime extends Base
     // return the date that the event happens on
     if (!$this->isMultipleDays($end)) {
       if (!empty($result)) {
-        return new String($wrapper[0] . $result . $wrapper[1]);
+        return new GACString($wrapper[0] . $result . $wrapper[1]);
       } else if ($s->format('Y') == $thisyear) {
-        return new String($wrapper[0] . $s->format($monthForm . ' j') . $wrapper[1]); // This year, so we leave out the year
+        return new GACString($wrapper[0] . $s->format($monthForm . ' j') . $wrapper[1]); // This year, so we leave out the year
       } else {
-        return new String($wrapper[0] . $s->format($monthForm . ' j, Y') . $wrapper[1]);
+        return new GACString($wrapper[0] . $s->format($monthForm . ' j, Y') . $wrapper[1]);
       }
     }
 
@@ -602,7 +602,7 @@ class DateTime extends Base
 
     $result .= $wrapper[3];
 
-    return new String($result);
+    return new GACString($result);
   }
 
   /**
@@ -613,7 +613,7 @@ class DateTime extends Base
    * @param boolean $relative
    * @param string $firstDateLink
    * @param string $secondDateLink
-   * @return String If $s and $e are on the same day, will return formatted span of times (e.g. "6-8 pm")
+   * @return GACString If $s and $e are on the same day, will return formatted span of times (e.g. "6-8 pm")
    */
   public function timeSpan($e, $hCalendar = false, $relative = true, $firstDateLink = '', $secondDateLink = '')
   {
@@ -628,9 +628,9 @@ class DateTime extends Base
 
     if ($this->isAllDay($end)) {
       if ($hCalendar) {
-        return new String(' <abbr style="display:none;" class="dtstart" title="' . $s->format('Y-m-d') . '">All day</abbr>');
+        return new GACString(' <abbr style="display:none;" class="dtstart" title="' . $s->format('Y-m-d') . '">All day</abbr>');
       } else {
-        return new String('');
+        return new GACString('');
       }
     }
 
@@ -703,6 +703,6 @@ class DateTime extends Base
     }
 
     //replace am or pm with a.m. and p.m. then return
-    return new String(str_replace(array('am','pm'), array('a.m.','p.m.'), $r));
+    return new GACString(str_replace(array('am','pm'), array('a.m.','p.m.'), $r));
   }
 }

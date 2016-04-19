@@ -4,6 +4,7 @@
  *
  * @author Joe Lencioni
  * @author Billy Visto
+ * @author Justin Holcomb
  */
 namespace Gustavus\Utility;
 
@@ -14,6 +15,7 @@ namespace Gustavus\Utility;
  *
  * @author Joe Lencioni
  * @author Billy Visto
+ * @author Justin Holcomb
  */
 class Number extends Base
 {
@@ -61,7 +63,7 @@ class Number extends Base
    * @param string $singularPattern Singular form of object name (e.g. '%s dog')
    * @param string $pluralPattern Plural form of object name (e.g. '%s dogs')
    * @param string $zeroPattern Zero form of object name (e.g. 'no dogs')
-   * @return String
+   * @return GACString
    */
   public function toQuantity($singularPattern, $pluralPattern, $zeroPattern = null)
   {
@@ -82,14 +84,14 @@ class Number extends Base
       $displayNumber .= ltrim((string) $this->value, '-1234567890');
     }
 
-    $string = new String(sprintf($pattern, $displayNumber));
+    $string = new GACString(sprintf($pattern, $displayNumber));
     return $string;
   }
 
   /**
    * Format a number as an ordinal.
    *
-   * @return String e.g. '1st', '2nd', '3rd'
+   * @return GACString e.g. '1st', '2nd', '3rd'
    * @link http://www.php.net/manual/en/ref.math.php#77609
    */
   public function toOrdinal()
@@ -104,25 +106,25 @@ class Number extends Base
     }
 
     if ($tens == 1) {
-      return new String("{$cardinal}th");
+      return new GACString("{$cardinal}th");
     }
 
     switch ($digit) {
       case 1:
-          return new String("{$cardinal}st");
+          return new GACString("{$cardinal}st");
       case 2:
-          return new String("{$cardinal}nd");
+          return new GACString("{$cardinal}nd");
       case 3:
-          return new String("{$cardinal}rd");
+          return new GACString("{$cardinal}rd");
       default:
-          return new String("{$cardinal}th");
+          return new GACString("{$cardinal}th");
     }
   }
 
   /**
    * Convert an arabic numeral to a roman numeral
    *
-   * @return String Roman numeral
+   * @return GACString Roman numeral
    * @link http://www.go4expert.com/forums/showthread.php?t=4948
    */
   public function toRomanNumeral()
@@ -131,7 +133,7 @@ class Number extends Base
     $number = (integer) $this->value;
 
     if ($number === 0) {
-      return new String('N');
+      return new GACString('N');
     }
 
     $result = $this->isNegative() ? '-' : '';
@@ -166,7 +168,7 @@ class Number extends Base
     }
 
     // The Roman numeral should be built, return it
-    return new String($result);
+    return new GACString($result);
   }
 
   /**
@@ -301,18 +303,18 @@ class Number extends Base
    * // Outputs: One Hunbred One
    * </code>
    *
-   * @return String
+   * @return GACString
    */
   public function toSentence()
   {
     if ($this->isZero()) {
-      return new String('Zero');
+      return new GACString('Zero');
     }
 
     $number         = (string) abs($this->value);
     $splitByDecimal = explode('.', $number);
 
-    return new String(trim(preg_replace(
+    return new GACString(trim(preg_replace(
         '`\s+`',
         ' ',
         sprintf(
@@ -327,7 +329,7 @@ class Number extends Base
   /**
    * Formats a number as a readable length of time in weeks, days, hours, minutes, and seconds
    *
-   * @return String
+   * @return GACString
    */
   public function toDuration()
   {
@@ -348,7 +350,7 @@ class Number extends Base
       }
     }
 
-    return new String(join(' ', $ret));
+    return new GACString(join(' ', $ret));
   }
 
   /**
@@ -362,27 +364,27 @@ class Number extends Base
    * // Outputs: 1813
    * </code>
    *
-   * @return String
+   * @return GACString
    */
   public function shortYear()
   {
     assert('is_int($this->value)');
 
     if ($this->value < 10) {
-      return new String('');
+      return new GACString('');
     }
 
     if ($this->value >= 1000 && $this->value <= ((int) (new \DateTime())->format('Y')) - 90) {
-      return new String((string) $this->value);
+      return new GACString((string) $this->value);
     }
 
-    return new String('’' . substr((string) $this->value, -2, 2));
+    return new GACString('’' . substr((string) $this->value, -2, 2));
   }
 
   /**
    * Converts a persons credit year to string.
    *
-   * @return String        Returns a string for the students year.
+   * @return GACString        Returns a string for the students year.
    */
   public function yearInCredit()
   {
@@ -432,6 +434,6 @@ class Number extends Base
           break;
     }
 
-    return new String($string);
+    return new GACString($string);
   }
 }

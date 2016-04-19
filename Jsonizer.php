@@ -2,6 +2,7 @@
 /**
  * @package Utility
  * @author  Nicholas Dobie <ndobie@gustavus.edu>
+ * @author Justin Holcomb
  */
 namespace Gustavus\Utility;
 
@@ -10,6 +11,7 @@ namespace Gustavus\Utility;
  *
  * @package Utility
  * @author  Nicholas Dobie <ndobie@gustavus.edu>
+ * @author Justin Holcomb
  */
 class Jsonizer
 {
@@ -70,7 +72,7 @@ class Jsonizer
    * Returns a JSON or JSON-P string to be sent to the browser.
    *
    * @param  Array  $array  Array to encode into JSON format.
-   * @return String         Encoded JSON or JSON-P string.
+   * @return string         Encoded JSON or JSON-P string.
    */
   public static function toJSON($array)
   {

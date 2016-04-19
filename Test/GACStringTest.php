@@ -9,13 +9,13 @@ namespace Gustavus\Utility\Test;
 use Gustavus\Utility,
   Gustavus\Test\Test,
   Gustavus\Test\TestObject,
-  Gustavus\Utility\String;
+  Gustavus\Utility\GACString;
 
 /**
  * @package Utility
  * @subpackage Test
  */
-class StringTest extends Test
+class GACStringTest extends Test
 {
   /**
    * @var string
@@ -33,7 +33,7 @@ class StringTest extends Test
   private $shortText      = 'Phasellus aliquam imperdiet leo.';
 
   /**
-   * @var Utility\String
+   * @var Utility\GACString
    */
   private $string;
 
@@ -43,7 +43,7 @@ class StringTest extends Test
    */
   public function setUp()
   {
-    $this->string = new TestObject(new Utility\String('set up'));
+    $this->string = new TestObject(new Utility\GACString('set up'));
   }
 
   /**
@@ -60,7 +60,7 @@ class StringTest extends Test
    */
   public function toString()
   {
-    $set = new Utility\String('one, two, and three');
+    $set = new Utility\GACString('one, two, and three');
 
     $this->expectOutputString('one, two, and three');
     echo $set;
@@ -72,7 +72,7 @@ class StringTest extends Test
    */
   public function setValue()
   {
-    $this->assertInstanceOf('DomainException', new Utility\String(1));
+    $this->assertInstanceOf('DomainException', new Utility\GACString(1));
   }
 
   /**
@@ -92,7 +92,7 @@ class StringTest extends Test
    */
   public function arrayAccess()
   {
-    $string = new Utility\String('test');
+    $string = new Utility\GACString('test');
 
     $this->assertSame('t', $string[0]);
     $this->assertSame('e', $string[1]);
@@ -573,7 +573,7 @@ class StringTest extends Test
    */
   public function convertNestedQueryStringsToArray($expected, $key, $value)
   {
-    $actual = $this->call('\Gustavus\Utility\String', 'convertNestedQueryStringsToArray', [$key, $value]);
+    $actual = $this->call('\Gustavus\Utility\GACString', 'convertNestedQueryStringsToArray', [$key, $value]);
     $this->assertSame($expected, $actual);
   }
 
@@ -822,9 +822,9 @@ class StringTest extends Test
    */
   public function PhoneWithNumbersThatAreTooShort()
   {
-    $this->assertSame('1', (new String('1'))->phone()->getValue());
-    $this->assertSame('12', (new String('12'))->phone()->getValue());
-    $this->assertSame('123', (new String('123'))->phone()->getValue());
+    $this->assertSame('1', (new GACString('1'))->phone()->getValue());
+    $this->assertSame('12', (new GACString('12'))->phone()->getValue());
+    $this->assertSame('123', (new GACString('123'))->phone()->getValue());
   }
 
   /**
@@ -832,7 +832,7 @@ class StringTest extends Test
    */
   public function PhoneWithNumbersThatAreTooLong()
   {
-    $this->assertSame('11111111112222222222', (new String('11111111112222222222'))->phone()->getValue());
+    $this->assertSame('11111111112222222222', (new GACString('11111111112222222222'))->phone()->getValue());
   }
 
   /**
@@ -840,60 +840,60 @@ class StringTest extends Test
    */
   public function PhoneWithOnCampusNumbers()
   {
-    // $this->assertSame('507-933-1234', (new String('1234'))->phone()->getValue());
-    // $this->assertSame('507-933-1234', (new String(' 1234'))->phone()->getValue());
-    // $this->assertSame('507-933-1234', (new String('1234 '))->phone()->getValue());
-    // $this->assertSame('507-933-1234', (new String(' 1234 '))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new GACString('1234'))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new GACString(' 1234'))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new GACString('1234 '))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new GACString(' 1234 '))->phone()->getValue());
 
-    // $this->assertSame('507-933-1234', (new String('x1234'))->phone()->getValue());
-    // $this->assertSame('507-933-1234', (new String(' x1234'))->phone()->getValue());
-    // $this->assertSame('507-933-1234', (new String('x1234 '))->phone()->getValue());
-    // $this->assertSame('507-933-1234', (new String(' x1234 '))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new GACString('x1234'))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new GACString(' x1234'))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new GACString('x1234 '))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new GACString(' x1234 '))->phone()->getValue());
 
-    // $this->assertSame('507-933-1234', (new String('9331234'))->phone()->getValue());
-    // $this->assertSame('507-933-1234', (new String(' 9331234'))->phone()->getValue());
-    // $this->assertSame('507-933-1234', (new String('9331234 '))->phone()->getValue());
-    // $this->assertSame('507-933-1234', (new String(' 9331234 '))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new GACString('9331234'))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new GACString(' 9331234'))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new GACString('9331234 '))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new GACString(' 9331234 '))->phone()->getValue());
 
-    // $this->assertSame('507-933-1234', (new String('933-1234'))->phone()->getValue());
-    // $this->assertSame('507-933-1234', (new String(' 933-1234'))->phone()->getValue());
-    // $this->assertSame('507-933-1234', (new String('933-1234 '))->phone()->getValue());
-    // $this->assertSame('507-933-1234', (new String(' 933-1234 '))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new GACString('933-1234'))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new GACString(' 933-1234'))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new GACString('933-1234 '))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new GACString(' 933-1234 '))->phone()->getValue());
 
-    // $this->assertSame('507-933-1234', (new String('5079331234'))->phone()->getValue());
-    // $this->assertSame('507-933-1234', (new String(' 5079331234'))->phone()->getValue());
-    // $this->assertSame('507-933-1234', (new String('5079331234 '))->phone()->getValue());
-    // $this->assertSame('507-933-1234', (new String(' 5079331234 '))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new GACString('5079331234'))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new GACString(' 5079331234'))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new GACString('5079331234 '))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new GACString(' 5079331234 '))->phone()->getValue());
 
-    // $this->assertSame('507-933-1234', (new String('507-933-1234'))->phone()->getValue());
-    // $this->assertSame('507-933-1234', (new String(' 507-933-1234'))->phone()->getValue());
-    // $this->assertSame('507-933-1234', (new String('507-933-1234 '))->phone()->getValue());
-    // $this->assertSame('507-933-1234', (new String(' 507-933-1234 '))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new GACString('507-933-1234'))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new GACString(' 507-933-1234'))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new GACString('507-933-1234 '))->phone()->getValue());
+    // $this->assertSame('507-933-1234', (new GACString(' 507-933-1234 '))->phone()->getValue());
 
-    // $this->assertSame('507-933-1234', (new String('1234'))->phone('short')->getValue());
-    $this->assertSame('<span class="nodisplay">507-</span>933-1234', (new String('1234'))->phone('medium')->getValue());
-    $this->assertSame('507-933-1234', (new String('1234'))->phone('long')->getValue());
+    // $this->assertSame('507-933-1234', (new GACString('1234'))->phone('short')->getValue());
+    $this->assertSame('<span class="nodisplay">507-</span>933-1234', (new GACString('1234'))->phone('medium')->getValue());
+    $this->assertSame('507-933-1234', (new GACString('1234'))->phone('long')->getValue());
 
-    $this->assertSame('<a href="tel:1-507-933-1234">507-933-1234</a>', (new String('1234'))->phone('mobile')->getValue());
-    $this->assertSame('<a href="tel:1-507-933-1234">507-933-1234</a>', (new String(' 1234'))->phone('mobile')->getValue());
-    $this->assertSame('<a href="tel:1-507-933-1234">507-933-1234</a>', (new String('1234 '))->phone('mobile')->getValue());
-    $this->assertSame('<a href="tel:1-507-933-1234">507-933-1234</a>', (new String(' 1234 '))->phone('mobile')->getValue());
+    $this->assertSame('<a href="tel:1-507-933-1234">507-933-1234</a>', (new GACString('1234'))->phone('mobile')->getValue());
+    $this->assertSame('<a href="tel:1-507-933-1234">507-933-1234</a>', (new GACString(' 1234'))->phone('mobile')->getValue());
+    $this->assertSame('<a href="tel:1-507-933-1234">507-933-1234</a>', (new GACString('1234 '))->phone('mobile')->getValue());
+    $this->assertSame('<a href="tel:1-507-933-1234">507-933-1234</a>', (new GACString(' 1234 '))->phone('mobile')->getValue());
 
-    $this->assertSame('507-933-1234', (new String('1234'))->phone('short', true)->getValue());
-    $this->assertSame('507-933-1234', (new String(' 1234'))->phone('short', true)->getValue());
-    $this->assertSame('507-933-1234', (new String('1234 '))->phone('short', true)->getValue());
-    $this->assertSame('507-933-1234', (new String(' 1234 '))->phone('short', true)->getValue());
+    $this->assertSame('507-933-1234', (new GACString('1234'))->phone('short', true)->getValue());
+    $this->assertSame('507-933-1234', (new GACString(' 1234'))->phone('short', true)->getValue());
+    $this->assertSame('507-933-1234', (new GACString('1234 '))->phone('short', true)->getValue());
+    $this->assertSame('507-933-1234', (new GACString(' 1234 '))->phone('short', true)->getValue());
 
-    $this->assertSame('933-1234', (new String('1234'))->phone('medium', true)->getValue());
-    $this->assertSame('507-933-1234', (new String('1234'))->phone('long', true)->getValue());
+    $this->assertSame('933-1234', (new GACString('1234'))->phone('medium', true)->getValue());
+    $this->assertSame('507-933-1234', (new GACString('1234'))->phone('long', true)->getValue());
 
-    $this->assertSame('507-933-1234', (new String('9331234'))->phone('short', true)->getValue());
-    $this->assertSame('933-1234', (new String('9331234'))->phone('medium', true)->getValue());
-    $this->assertSame('507-933-1234', (new String('9331234'))->phone('long', true)->getValue());
+    $this->assertSame('507-933-1234', (new GACString('9331234'))->phone('short', true)->getValue());
+    $this->assertSame('933-1234', (new GACString('9331234'))->phone('medium', true)->getValue());
+    $this->assertSame('507-933-1234', (new GACString('9331234'))->phone('long', true)->getValue());
 
-    $this->assertSame('507-933-1234', (new String('5079331234'))->phone('short', true)->getValue());
-    $this->assertSame('933-1234', (new String('5079331234'))->phone('medium', true)->getValue());
-    $this->assertSame('507-933-1234', (new String('5079331234'))->phone('long', true)->getValue());
+    $this->assertSame('507-933-1234', (new GACString('5079331234'))->phone('short', true)->getValue());
+    $this->assertSame('933-1234', (new GACString('5079331234'))->phone('medium', true)->getValue());
+    $this->assertSame('507-933-1234', (new GACString('5079331234'))->phone('long', true)->getValue());
   }
 
   /**
@@ -901,44 +901,44 @@ class StringTest extends Test
    */
   public function PhoneWithOffCampusNumbers()
   {
-    $this->assertSame('<span class="nodisplay">507-</span>931-1234', (new String('9311234'))->phone()->getValue());
-    $this->assertSame('<span class="nodisplay">507-</span>931-1234', (new String(' 9311234'))->phone()->getValue());
-    $this->assertSame('<span class="nodisplay">507-</span>931-1234', (new String('9311234 '))->phone()->getValue());
-    $this->assertSame('<span class="nodisplay">507-</span>931-1234', (new String(' 9311234 '))->phone()->getValue());
+    $this->assertSame('<span class="nodisplay">507-</span>931-1234', (new GACString('9311234'))->phone()->getValue());
+    $this->assertSame('<span class="nodisplay">507-</span>931-1234', (new GACString(' 9311234'))->phone()->getValue());
+    $this->assertSame('<span class="nodisplay">507-</span>931-1234', (new GACString('9311234 '))->phone()->getValue());
+    $this->assertSame('<span class="nodisplay">507-</span>931-1234', (new GACString(' 9311234 '))->phone()->getValue());
 
-    $this->assertSame('<span class="nodisplay">507-</span>931-1234', (new String('931-1234'))->phone()->getValue());
-    $this->assertSame('<span class="nodisplay">507-</span>931-1234', (new String(' 931-1234'))->phone()->getValue());
-    $this->assertSame('<span class="nodisplay">507-</span>931-1234', (new String('931-1234 '))->phone()->getValue());
-    $this->assertSame('<span class="nodisplay">507-</span>931-1234', (new String(' 931-1234 '))->phone()->getValue());
+    $this->assertSame('<span class="nodisplay">507-</span>931-1234', (new GACString('931-1234'))->phone()->getValue());
+    $this->assertSame('<span class="nodisplay">507-</span>931-1234', (new GACString(' 931-1234'))->phone()->getValue());
+    $this->assertSame('<span class="nodisplay">507-</span>931-1234', (new GACString('931-1234 '))->phone()->getValue());
+    $this->assertSame('<span class="nodisplay">507-</span>931-1234', (new GACString(' 931-1234 '))->phone()->getValue());
 
-    $this->assertSame('555-555-1234', (new String('5555551234'))->phone()->getValue());
-    $this->assertSame('555-555-1234', (new String(' 5555551234'))->phone()->getValue());
-    $this->assertSame('555-555-1234', (new String('5555551234 '))->phone()->getValue());
-    $this->assertSame('555-555-1234', (new String(' 5555551234 '))->phone()->getValue());
+    $this->assertSame('555-555-1234', (new GACString('5555551234'))->phone()->getValue());
+    $this->assertSame('555-555-1234', (new GACString(' 5555551234'))->phone()->getValue());
+    $this->assertSame('555-555-1234', (new GACString('5555551234 '))->phone()->getValue());
+    $this->assertSame('555-555-1234', (new GACString(' 5555551234 '))->phone()->getValue());
 
-    $this->assertSame('555-555-1234', (new String('5555551234'))->phone('short')->getValue());
-    $this->assertSame('555-555-1234', (new String('5555551234'))->phone('medium')->getValue());
-    $this->assertSame('555-555-1234', (new String('5555551234'))->phone('long')->getValue());
+    $this->assertSame('555-555-1234', (new GACString('5555551234'))->phone('short')->getValue());
+    $this->assertSame('555-555-1234', (new GACString('5555551234'))->phone('medium')->getValue());
+    $this->assertSame('555-555-1234', (new GACString('5555551234'))->phone('long')->getValue());
 
-    $this->assertSame('<span class="nodisplay">507-</span>555-1234', (new String('5551234'))->phone('short')->getValue());
-    $this->assertSame('<span class="nodisplay">507-</span>555-1234', (new String('5551234'))->phone('medium')->getValue());
-    $this->assertSame('507-555-1234', (new String('5551234'))->phone('long')->getValue());
+    $this->assertSame('<span class="nodisplay">507-</span>555-1234', (new GACString('5551234'))->phone('short')->getValue());
+    $this->assertSame('<span class="nodisplay">507-</span>555-1234', (new GACString('5551234'))->phone('medium')->getValue());
+    $this->assertSame('507-555-1234', (new GACString('5551234'))->phone('long')->getValue());
 
-    $this->assertSame('931-1234', (new String('9311234'))->phone('short', true)->getValue());
-    $this->assertSame('931-1234', (new String(' 9311234'))->phone('short', true)->getValue());
-    $this->assertSame('931-1234', (new String('9311234 '))->phone('short', true)->getValue());
-    $this->assertSame('931-1234', (new String(' 9311234 '))->phone('short', true)->getValue());
+    $this->assertSame('931-1234', (new GACString('9311234'))->phone('short', true)->getValue());
+    $this->assertSame('931-1234', (new GACString(' 9311234'))->phone('short', true)->getValue());
+    $this->assertSame('931-1234', (new GACString('9311234 '))->phone('short', true)->getValue());
+    $this->assertSame('931-1234', (new GACString(' 9311234 '))->phone('short', true)->getValue());
 
-    $this->assertSame('931-1234', (new String('9311234'))->phone('medium', true)->getValue());
-    $this->assertSame('507-931-1234', (new String('9311234'))->phone('long', true)->getValue());
+    $this->assertSame('931-1234', (new GACString('9311234'))->phone('medium', true)->getValue());
+    $this->assertSame('507-931-1234', (new GACString('9311234'))->phone('long', true)->getValue());
 
-    $this->assertSame('931-1234', (new String('9311234'))->phone('short', true)->getValue());
-    $this->assertSame('931-1234', (new String('9311234'))->phone('medium', true)->getValue());
-    $this->assertSame('507-931-1234', (new String('9311234'))->phone('long', true)->getValue());
+    $this->assertSame('931-1234', (new GACString('9311234'))->phone('short', true)->getValue());
+    $this->assertSame('931-1234', (new GACString('9311234'))->phone('medium', true)->getValue());
+    $this->assertSame('507-931-1234', (new GACString('9311234'))->phone('long', true)->getValue());
 
-    $this->assertSame('555-931-1234', (new String('5559311234'))->phone('short', true)->getValue());
-    $this->assertSame('555-931-1234', (new String('5559311234'))->phone('medium', true)->getValue());
-    $this->assertSame('555-931-1234', (new String('5559311234'))->phone('long', true)->getValue());
+    $this->assertSame('555-931-1234', (new GACString('5559311234'))->phone('short', true)->getValue());
+    $this->assertSame('555-931-1234', (new GACString('5559311234'))->phone('medium', true)->getValue());
+    $this->assertSame('555-931-1234', (new GACString('5559311234'))->phone('long', true)->getValue());
   }
 
   /**
@@ -946,29 +946,29 @@ class StringTest extends Test
    */
   public function PhoneWithDifferentDefaults()
   {
-    $this->assertSame('555-931-1234', (new String('1234'))->phone('short', false, '555', '931')->getValue());
-    $this->assertSame('555-931-1234', (new String('9311234'))->phone('short', false, '555', '931')->getValue());
-    $this->assertSame('555-931-1234', (new String('5559311234'))->phone('short', false, '555', '931')->getValue());
+    $this->assertSame('555-931-1234', (new GACString('1234'))->phone('short', false, '555', '931')->getValue());
+    $this->assertSame('555-931-1234', (new GACString('9311234'))->phone('short', false, '555', '931')->getValue());
+    $this->assertSame('555-931-1234', (new GACString('5559311234'))->phone('short', false, '555', '931')->getValue());
 
-    $this->assertSame('<span class="nodisplay">555-</span>931-1234', (new String('1234'))->phone('medium', false, '555', '931')->getValue());
-    $this->assertSame('<span class="nodisplay">555-</span>931-1234', (new String('9311234'))->phone('medium', false, '555', '931')->getValue());
-    $this->assertSame('<span class="nodisplay">555-</span>931-1234', (new String('5559311234'))->phone('medium', false, '555', '931')->getValue());
+    $this->assertSame('<span class="nodisplay">555-</span>931-1234', (new GACString('1234'))->phone('medium', false, '555', '931')->getValue());
+    $this->assertSame('<span class="nodisplay">555-</span>931-1234', (new GACString('9311234'))->phone('medium', false, '555', '931')->getValue());
+    $this->assertSame('<span class="nodisplay">555-</span>931-1234', (new GACString('5559311234'))->phone('medium', false, '555', '931')->getValue());
 
-    $this->assertSame('555-931-1234', (new String('1234'))->phone('long', false, '555', '931')->getValue());
-    $this->assertSame('555-931-1234', (new String('9311234'))->phone('long', false, '555', '931')->getValue());
-    $this->assertSame('555-931-1234', (new String('5559311234'))->phone('long', false, '555', '931')->getValue());
+    $this->assertSame('555-931-1234', (new GACString('1234'))->phone('long', false, '555', '931')->getValue());
+    $this->assertSame('555-931-1234', (new GACString('9311234'))->phone('long', false, '555', '931')->getValue());
+    $this->assertSame('555-931-1234', (new GACString('5559311234'))->phone('long', false, '555', '931')->getValue());
 
-    $this->assertSame('555-931-1234', (new String('1234'))->phone('short', true, '555', '931')->getValue());
-    $this->assertSame('555-931-1234', (new String('9311234'))->phone('short', true, '555', '931')->getValue());
-    $this->assertSame('555-931-1234', (new String('5559311234'))->phone('short', true, '555', '931')->getValue());
+    $this->assertSame('555-931-1234', (new GACString('1234'))->phone('short', true, '555', '931')->getValue());
+    $this->assertSame('555-931-1234', (new GACString('9311234'))->phone('short', true, '555', '931')->getValue());
+    $this->assertSame('555-931-1234', (new GACString('5559311234'))->phone('short', true, '555', '931')->getValue());
 
-    $this->assertSame('931-1234', (new String('1234'))->phone('medium', true, '555', '931')->getValue());
-    $this->assertSame('931-1234', (new String('9311234'))->phone('medium', true, '555', '931')->getValue());
-    $this->assertSame('931-1234', (new String('5559311234'))->phone('medium', true, '555', '931')->getValue());
+    $this->assertSame('931-1234', (new GACString('1234'))->phone('medium', true, '555', '931')->getValue());
+    $this->assertSame('931-1234', (new GACString('9311234'))->phone('medium', true, '555', '931')->getValue());
+    $this->assertSame('931-1234', (new GACString('5559311234'))->phone('medium', true, '555', '931')->getValue());
 
-    $this->assertSame('555-931-1234', (new String('1234'))->phone('long', true, '555', '931')->getValue());
-    $this->assertSame('555-931-1234', (new String('9311234'))->phone('long', true, '555', '931')->getValue());
-    $this->assertSame('555-931-1234', (new String('5559311234'))->phone('long', true, '555', '931')->getValue());
+    $this->assertSame('555-931-1234', (new GACString('1234'))->phone('long', true, '555', '931')->getValue());
+    $this->assertSame('555-931-1234', (new GACString('9311234'))->phone('long', true, '555', '931')->getValue());
+    $this->assertSame('555-931-1234', (new GACString('5559311234'))->phone('long', true, '555', '931')->getValue());
   }
 
   /**
@@ -976,7 +976,7 @@ class StringTest extends Test
    */
   public function PhoneWithWeirdFormat()
   {
-    $this->assertSame('507-933-1234', (new String('1234'))->phone('arstieanrstien')->getValue());
+    $this->assertSame('507-933-1234', (new GACString('1234'))->phone('arstieanrstien')->getValue());
   }
 
   /**
@@ -984,7 +984,7 @@ class StringTest extends Test
    */
   public function PhoneWithZero()
   {
-    $this->assertSame('', (new String('0'))->phone()->getValue());
+    $this->assertSame('', (new GACString('0'))->phone()->getValue());
   }
 
   /**
@@ -992,7 +992,7 @@ class StringTest extends Test
    */
   public function PhoneTooLongFromTickeTrak()
   {
-    $this->assertSame('', (new String('123456789123456789'))->phone('tickeTrak')->getValue());
+    $this->assertSame('', (new GACString('123456789123456789'))->phone('tickeTrak')->getValue());
   }
 
   /**
@@ -1000,15 +1000,15 @@ class StringTest extends Test
    */
   public function IsOncampusPhoneNumber()
   {
-    $this->assertTrue($this->call(new String('7072'), 'isOncampusPhoneNumber'));
-    $this->assertTrue($this->call(new String('8888'), 'isOncampusPhoneNumber'));
-    $this->assertTrue($this->call(new String('9337072'), 'isOncampusPhoneNumber'));
-    $this->assertTrue($this->call(new String('5079337072'), 'isOncampusPhoneNumber'));
-    $this->assertTrue($this->call(new String('507-933-7072'), 'isOncampusPhoneNumber'));
+    $this->assertTrue($this->call(new GACString('7072'), 'isOncampusPhoneNumber'));
+    $this->assertTrue($this->call(new GACString('8888'), 'isOncampusPhoneNumber'));
+    $this->assertTrue($this->call(new GACString('9337072'), 'isOncampusPhoneNumber'));
+    $this->assertTrue($this->call(new GACString('5079337072'), 'isOncampusPhoneNumber'));
+    $this->assertTrue($this->call(new GACString('507-933-7072'), 'isOncampusPhoneNumber'));
 
-    $this->assertFalse($this->call(new String('763-389-1787'), 'isOncampusPhoneNumber'));
-    $this->assertFalse($this->call(new String('389-1787'), 'isOncampusPhoneNumber'));
-    $this->assertFalse($this->call(new String('787'), 'isOncampusPhoneNumber'));
+    $this->assertFalse($this->call(new GACString('763-389-1787'), 'isOncampusPhoneNumber'));
+    $this->assertFalse($this->call(new GACString('389-1787'), 'isOncampusPhoneNumber'));
+    $this->assertFalse($this->call(new GACString('787'), 'isOncampusPhoneNumber'));
   }
 
   /**
@@ -1017,7 +1017,7 @@ class StringTest extends Test
    */
   public function ByteStringToBytes($stringVal, $expected)
   {
-    $string = new String($stringVal);
+    $string = new GACString($stringVal);
     $this->assertInstanceOf('Gustavus\Utility\Number', $string->toBytes());
     $this->assertEquals($expected, $string->toBytes()->getValue());
   }
@@ -1045,7 +1045,7 @@ class StringTest extends Test
    */
   public function ByteStringExceptionOnInvalidFormat($string)
   {
-    (new String($string))->toBytes();
+    (new GACString($string))->toBytes();
   }
 
   /**
@@ -1288,8 +1288,8 @@ class StringTest extends Test
 
     $vnsExpecting = 'Santa Claus is a jolly man 99% of the time.';
 
-    $result = String::vnsprintf($vnsFormat, $vnsValues);
-    $this->assertInstanceOf('\\Gustavus\\Utility\\String', $result);
+    $result = GACString::vnsprintf($vnsFormat, $vnsValues);
+    $this->assertInstanceOf('\\Gustavus\\Utility\\GACString', $result);
     $this->assertSame($vnsExpecting, $result->getValue());
   }
 
@@ -1300,8 +1300,8 @@ class StringTest extends Test
   {
     $vnsFormat = '%name$s is a %adjective$s %noun$s %percent$d%% of the time.';
 
-    $result = String::vnsprintf($vnsFormat, []);
-    $this->assertInstanceOf('\\Gustavus\\Utility\\String', $result);
+    $result = GACString::vnsprintf($vnsFormat, []);
+    $this->assertInstanceOf('\\Gustavus\\Utility\\GACString', $result);
     $this->assertSame($vnsFormat, $result->getValue());
   }
 
@@ -1321,8 +1321,8 @@ class StringTest extends Test
 
     $vnsExpecting = 'Santa Claus is a jolly man 99% of the time.';
 
-    $result = (new String($vnsFormat))->expand($vnsValues);
-    $this->assertInstanceOf('\\Gustavus\\Utility\\String', $result);
+    $result = (new GACString($vnsFormat))->expand($vnsValues);
+    $this->assertInstanceOf('\\Gustavus\\Utility\\GACString', $result);
     $this->assertSame($vnsExpecting, $result->getValue());
   }
 
@@ -1333,8 +1333,8 @@ class StringTest extends Test
   {
     $vnsFormat = '%name$s is a %adjective$s %noun$s %percent$d%% of the time.';
 
-    $result = (new String($vnsFormat))->expand([]);
-    $this->assertInstanceOf('\\Gustavus\\Utility\\String', $result);
+    $result = (new GACString($vnsFormat))->expand([]);
+    $this->assertInstanceOf('\\Gustavus\\Utility\\GACString', $result);
     $this->assertSame($vnsFormat, $result->getValue());
   }
 
@@ -1343,22 +1343,22 @@ class StringTest extends Test
    */
   public function YesNo()
   {
-    // $this->assertSame('Yes', (new String(1))->yesNo());
-    // $this->assertSame('Yes', (new String(true))->yesNo());
-    $this->assertSame('Yes', (new String('yes'))->yesNo());
-    $this->assertSame('Yes', (new String('y'))->yesNo());
-    $this->assertSame('Yes', (new String('ye'))->yesNo());
-    $this->assertSame('Yes', (new String('1'))->yesNo());
-    $this->assertSame('Yes', (new String('true'))->yesNo());
-    // $this->assertSame('Yes', (new String(2))->yesNo());
-    // $this->assertSame('Yes', (new String(-1))->yesNo());
+    // $this->assertSame('Yes', (new GACString(1))->yesNo());
+    // $this->assertSame('Yes', (new GACString(true))->yesNo());
+    $this->assertSame('Yes', (new GACString('yes'))->yesNo());
+    $this->assertSame('Yes', (new GACString('y'))->yesNo());
+    $this->assertSame('Yes', (new GACString('ye'))->yesNo());
+    $this->assertSame('Yes', (new GACString('1'))->yesNo());
+    $this->assertSame('Yes', (new GACString('true'))->yesNo());
+    // $this->assertSame('Yes', (new GACString(2))->yesNo());
+    // $this->assertSame('Yes', (new GACString(-1))->yesNo());
 
-    // $this->assertSame('No', (new String(0))->yesNo());
-    // $this->assertSame('No', (new String(false))->yesNo());
-    $this->assertSame('No', (new String('no'))->yesNo());
-    $this->assertSame('No', (new String('n'))->yesNo());
-    $this->assertSame('No', (new String('0'))->yesNo());
-    $this->assertSame('No', (new String('false'))->yesNo());
+    // $this->assertSame('No', (new GACString(0))->yesNo());
+    // $this->assertSame('No', (new GACString(false))->yesNo());
+    $this->assertSame('No', (new GACString('no'))->yesNo());
+    $this->assertSame('No', (new GACString('n'))->yesNo());
+    $this->assertSame('No', (new GACString('0'))->yesNo());
+    $this->assertSame('No', (new GACString('false'))->yesNo());
   }
 
   /**
@@ -1374,7 +1374,7 @@ class StringTest extends Test
     $input    = "\x82\x83\x84\x85\x86\x87\x88\x89\x8A\x8B\x8C\x91\x92\x93\x94\x95\x96\x97\x98\x99\x9A\x9B\x9C\x9F";
     $expected = "'\x83\"...\x86\x87^\x89\x8A<\x8C''\"\"----~(tm)\x9A>\x9C\x9F";
 
-    $string = new String($input);
+    $string = new GACString($input);
     $this->assertSame($input, $string->getValue());
 
     $result = $string->clean();
@@ -1388,7 +1388,7 @@ class StringTest extends Test
    */
   public function Highlight($input, $highlight, $ignore, $expected)
   {
-    $string = new String($input);
+    $string = new GACString($input);
 
     $result = $string->highlight($highlight, $ignore);
     $this->assertSame($string, $result);
@@ -1423,8 +1423,8 @@ class StringTest extends Test
    */
   public function Address($expected, $company, $streetAddress, $city, $state, $zip, $country = null, $lineBreak = "<br/>\n")
   {
-    $string = String::address($company, $streetAddress, $city, $state, $zip, $country, $lineBreak);
-    $this->assertInstanceOf('\\Gustavus\\Utility\\String', $string);
+    $string = GACString::address($company, $streetAddress, $city, $state, $zip, $country, $lineBreak);
+    $this->assertInstanceOf('\\Gustavus\\Utility\\GACString', $string);
     $this->assertSame($expected, $string->getValue());
   }
 
@@ -1452,7 +1452,7 @@ class StringTest extends Test
    */
   public function AddressLine($expected, $input)
   {
-    $string = new String($input);
+    $string = new GACString($input);
 
     $result = $string->addressLine();
     $this->assertSame($string, $result);
@@ -1480,7 +1480,7 @@ class StringTest extends Test
    */
   public function testParagraphs($input, $preserveNewLines, $expected)
   {
-    $string = new String($input);
+    $string = new GACString($input);
 
     $result = $string->paragraphs($preserveNewLines);
     $this->assertSame($string, $result);
@@ -1510,7 +1510,7 @@ class StringTest extends Test
    */
   public function correctIndefiniteArticles($expected, $value)
   {
-    $string = new String($value);
+    $string = new GACString($value);
 
     $result = $string->correctIndefiniteArticles();
     $this->assertSame($expected, $string->getValue());

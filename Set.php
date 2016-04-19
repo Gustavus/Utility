@@ -2,6 +2,7 @@
 /**
  * @package Utility
  * @author  Billy Visto
+ * @author Justin Holcomb
  */
 namespace Gustavus\Utility;
 
@@ -15,6 +16,7 @@ use Gustavus\TwigFactory\TwigFactory,
  *
  * @package Utility
  * @author  Billy Visto
+ * @author Justin Holcomb
  */
 class Set extends Base implements ArrayAccess
 {
@@ -32,7 +34,7 @@ class Set extends Base implements ArrayAccess
   /**
    * Magical function to return the constructor param if the object is echoed
    *
-   * @return String
+   * @return string
    */
   public function __toString()
   {
@@ -121,7 +123,7 @@ class Set extends Base implements ArrayAccess
   public function titleCase(array $exceptions = null)
   {
     $this->mapRecursive(function ($value) use ($exceptions) {
-      $string = new String($value);
+      $string = new GACString($value);
       return $string->titleCase($exceptions)->getValue();
     });
 
@@ -170,7 +172,7 @@ class Set extends Base implements ArrayAccess
    * @param  string  $endWord        e.g. 'and' or 'or'
    * @param  integer $max            Number of items to display in the sentence
    * @param  string  $separator      How values should be separated
-   * @return String
+   * @return GACString
    */
   public function toSentence($templateString = '{{ value }}', $endWord = 'and', $max = 0, $separator = ',')
   {
@@ -186,7 +188,7 @@ class Set extends Base implements ArrayAccess
     $templateString = "{% autoescape false %}{$templateString}{% endautoescape %}";
 
     // Render!
-    return new String($twig->render('sentence.twig', array('values' => $this->value, 'endWord' => $endWord, 'max' => $max, 'wordUnit' => $templateString, 'separator' => $separator)));
+    return new GACString($twig->render('sentence.twig', array('values' => $this->value, 'endWord' => $endWord, 'max' => $max, 'wordUnit' => $templateString, 'separator' => $separator)));
   }
 
   /**
@@ -335,7 +337,7 @@ class Set extends Base implements ArrayAccess
    * @param string $pattern Pattern to format each value of the array in sprintf() pattern format
    * @param array $keyArray Array of keys to use from sub-arrays in order of usage in $pattern. Use '[key]' for the key of the array
    * @param array $callbacks Functions to perform on each value
-   * @return String
+   * @return GACString
    */
   public function format($pattern = '%s', array $keyArray = array(0), array $callbacks = array())
   {
@@ -380,7 +382,7 @@ class Set extends Base implements ArrayAccess
       } // foreach
     } // if
 
-    return new String($r);
+    return new GACString($r);
   }
 
   /**
@@ -396,7 +398,7 @@ class Set extends Base implements ArrayAccess
    *     <li>fragment</li>
    *   </ul>
    *
-   * @return String
+   * @return GACString
    */
   public function buildURL()
   {
@@ -420,6 +422,6 @@ class Set extends Base implements ArrayAccess
     if (isset($this->value['fragment'])) {
       $url .= sprintf('#%s', $this->value['fragment']);
     }
-    return new String($url);
+    return new GACString($url);
   }
 }

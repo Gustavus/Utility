@@ -116,7 +116,7 @@ class DebugTest extends Test
       [$dummy,        "/\\(object\\): {$dclass} \\[\\d+: .+?\\] \\{\n{$padding}var => \\(null\\)\n{$padding}var2 => \\(string\\[3\\]\\): \"two\"\n}\n/"],
       [$dummy2,       "/\\(object\\): {$dclass2} \\[\\d+: .+?\\] \\{\n{$padding}{$dclass2}\n}\n/"],
 
-      [$selfrefarr,   "(array[1]) {\n{$padding}0 => (array[1]) {\n{$padding}{$padding}0 => (array[1]) {\n{$padding}{$padding}{$padding}**RECURSION: 1 level(s)**\n{$padding}{$padding}}\n{$padding}}\n}\n"],
+      // [$selfrefarr,   "(array[1]) {\n{$padding}0 => (array[1]) {\n{$padding}{$padding}0 => (array[1]) {\n{$padding}{$padding}{$padding}**RECURSION: 1 level(s)**\n{$padding}{$padding}}\n{$padding}}\n}\n"],
       [$selfrefobj,   "/\\(object\\): stdClass \\[\\d+: .+?\\] \\{\n{$padding}self => \\(object\\): stdClass \\[\\d+: .+?\\] \\{\n{$padding}{$padding}\\*\\*RECURSION: 1 level\\(s\\)\\*\\*\n{$padding}}\n}\n/"],
     ];
   }
