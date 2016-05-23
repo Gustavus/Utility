@@ -3,6 +3,7 @@
  * @package Utility
  * @author  Billy Visto
  * @author  Chris Rog <crog@gustavus.edu>
+ * @author Justin Holcomb
  */
 namespace Gustavus\Utility;
 
@@ -16,6 +17,7 @@ use InvalidArgumentException,
  * @package Utility
  * @author  Billy Visto
  * @author  Chris Rog <crog@gustavus.edu>
+ * @author Justin Holcomb
  */
 class File extends Base
 {
@@ -318,14 +320,14 @@ class File extends Base
    *  Data to use in view
    *
    * @param boolean $useVnsprintf
-   *  If true, will use String::vnsprintf() for formatting, otherwise will use vsprintf() for
+   *  If true, will use GACString::vnsprintf() for formatting, otherwise will use vsprintf() for
    *  formatting.
    *
    * @param boolean $evaluateView
    *  If true, will evaluate any PHP in the view
    *
-   * @return String
-   *  A String instance containing the rendered view.
+   * @return GACString
+   *  A GACString instance containing the rendered view.
    */
   public function renderAsPView(array $data, $useVnsprintf = false, $evaluateView = false)
   {
@@ -345,14 +347,14 @@ class File extends Base
       $view = $evaluateView ? $this->loadAndEvaluate() : file_get_contents($fullPath);
 
       if ($useVnsprintf) {
-        $r = String::vnsprintf($view, $data);
+        $r = GACString::vnsprintf($view, $data);
       } else {
-        $r = new String(vsprintf($view, $data));
+        $r = new GACString(vsprintf($view, $data));
       }
 
       $datastore->setValue($key, $r->getValue(), static::VIEW_TTL);
     } else {
-      $r = new String($r);
+      $r = new GACString($r);
     }
 
     return $r;

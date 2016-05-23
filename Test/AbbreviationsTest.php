@@ -43,6 +43,7 @@ class AbbreviationsTest extends Test
     }
 
     $rp->setValue(null, $val);
+    parent::setUpBeforeClass();
   }
 
 

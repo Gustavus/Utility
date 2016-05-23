@@ -6,6 +6,7 @@
  * @author Billy Visto
  * @author Chris Rog
  * @author Nicholas Dobie <ndobie@gustavus.edu>
+ * @author Justin Holcomb
  */
 namespace Gustavus\Utility;
 
@@ -14,7 +15,7 @@ use ArrayAccess,
     Gustavus\Regex\Regex;
 
 /**
- * Object for working with Strings
+ * Object for working with GACStrings
  *
  * @package Utility
  *
@@ -22,8 +23,9 @@ use ArrayAccess,
  * @author Billy Visto
  * @author Chris Rog
  * @author Nicholas Dobie <ndobie@gustavus.edu>
+ * @author Justin Holcomb
  */
-class String extends Base implements ArrayAccess
+class GACString extends Base implements ArrayAccess
 {
   /**
    * @var array Exceptions for title case
@@ -125,8 +127,8 @@ class String extends Base implements ArrayAccess
    *  A collection of words to not capitalize while converting. If omitted, a default set of
    *  exceptions will be used.
    *
-   * @return \Gustavus\Utility\String
-   *  This String instance.
+   * @return \Gustavus\Utility\GACString
+   *  This GACString instance.
    */
   public function titleCase(array $exceptions = null)
   {
@@ -186,15 +188,15 @@ class String extends Base implements ArrayAccess
    *
    * Usage:
    * <code>
-   * $string = new String('gac.edu/test/');
+   * $string = new GACString('gac.edu/test/');
    * echo $string->url()->getValue();
    * // Outputs: http://gustavus.edu/test/
    *
-   * $string = new String('google.com/testing/');
+   * $string = new GACString('google.com/testing/');
    * echo $string->url()->getValue();
    * // Outputs: http://google.com/testing/
    *
-   * $string = new String('www.gustavus.edu');
+   * $string = new GACString('www.gustavus.edu');
    * echo $string->url()->getValue();
    * // Outputs: http://gustavus.edu
    * </code>
@@ -229,12 +231,12 @@ class String extends Base implements ArrayAccess
    *
    * Usage:
    * <code>
-   * $string = new String('/admission/');
+   * $string = new GACString('/admission/');
    * echo $string->buildUrl()->getValue();
    * // Outputs: https://gustavus.edu/admission/ on Live or https://beta.gac.edu/admission on Beta.
    *
    * // called from /admission/index.php
-   * $string = new String('apply');
+   * $string = new GACString('apply');
    * echo $string->buildUrl()->getValue();
    * // Outputs: https://gustavus.edu/admission/apply
    * </code>
@@ -351,7 +353,7 @@ class String extends Base implements ArrayAccess
    * Makes a url adding the queryParams specified to the end
    *
    * @param  array  $queryParams Associative array of parameters
-   * @return String
+   * @return GACString
    */
   public function addQueryString(array $queryParams = array())
   {
@@ -375,7 +377,7 @@ class String extends Base implements ArrayAccess
    * Makes a url removing the queryParams specified
    *
    * @param  array  $queryParams Array of parameters to remove
-   * @return String
+   * @return GACString
    */
   public function removeQueryStringParams(array $queryParams = array())
   {
@@ -384,7 +386,7 @@ class String extends Base implements ArrayAccess
 
       if (isset($urlParts['query'])) {
         // we might have things to remove
-        $query = (new String($urlParts['query']))->splitQueryString()->getValue();
+        $query = (new GACString($urlParts['query']))->splitQueryString()->getValue();
         $queryKeysToRemove = array_intersect(array_keys($query), $queryParams);
         // remove all keys we need to remove
         foreach ($queryKeysToRemove as $removal) {
@@ -406,15 +408,15 @@ class String extends Base implements ArrayAccess
    *
    * Usage:
    * <code>
-   * $string = new String('jerry');
+   * $string = new GACString('jerry');
    * echo $string->email();
    * // Outputs: jerry@gustavus.edu
    *
-   * $string = new String('jerry@gac.edu');
+   * $string = new GACString('jerry@gac.edu');
    * echo $string->email();
    * // Outputs: jerry@gustavus.edu
    *
-   * $string = new String('jerry@gustavus.edu');
+   * $string = new GACString('jerry@gustavus.edu');
    * echo $string->email();
    * // Outputs: jerry@gustavus.edu
    * </code>
@@ -439,13 +441,13 @@ class String extends Base implements ArrayAccess
    *
    * Example:
    * <code>
-   * $string = new String('This is a test');
+   * $string = new GACString('This is a test');
    * echo $string->widont();
    * // Outputs: "This is a&nbsp;test"
    * </code>
    *
    * @param integer $lastWordMaxLength
-   * @return $this String with widows removed
+   * @return $this GACString with widows removed
    *
    * @author Shaun Inman <io@shauninman.com>
    * @link http://shauninman.com/archive/2007/01/03/widont_2_1_wordpress_plugin
@@ -487,8 +489,8 @@ class String extends Base implements ArrayAccess
    * Note: In the case of 'I', we return 'my', so the caller should modify
    *       the result manually if it ought to be 'My' or 'MY'
    *
-   * @return \Gustavus\Utility\String
-   *  This String instance.
+   * @return \Gustavus\Utility\GACString
+   *  This GACString instance.
    *
    * @todo Add proteins to the method by optionally returning possessive pronouns ('mine', 'yours', 'ours', 'theirs')
    * @todo Allow string to be HTML and possessivise its contents
@@ -624,8 +626,8 @@ class String extends Base implements ArrayAccess
    * @throws \InvalidArgumentException
    *  if $offset or $length are not integers, or $length is zero.
    *
-   * @return Gustavus\Utility\String
-   *  This String instance.
+   * @return Gustavus\Utility\GACString
+   *  This GACString instance.
    */
   public function excerpt($length = 200, $offset = 0, $appendEllipsis = true)
   {
@@ -655,7 +657,7 @@ class String extends Base implements ArrayAccess
     $target = $offset + $length;
 
     if ($baseLen > $length) {
-      $baseStr = new String($base);
+      $baseStr = new GACString($base);
 
       $start = $baseStr->findNearestInstance('/\s|\A/', $offset);
       $end = $baseStr->findNearestInstance('/\s|\z/', $target);
@@ -753,8 +755,8 @@ class String extends Base implements ArrayAccess
    * @throws \InvalidArgumentException
    *  if $content is null or not a string.
    *
-   * @return Gustavus\Utility\String
-   *  This String instance.
+   * @return Gustavus\Utility\GACString
+   *  This GACString instance.
    */
   public function prepend($content)
   {
@@ -775,8 +777,8 @@ class String extends Base implements ArrayAccess
    * @throws \InvalidArgumentException
    *  if $content is null or not a string.
    *
-   * @return Gustavus\Utility\String
-   *  This String instance.
+   * @return Gustavus\Utility\GACString
+   *  This GACString instance.
    */
   public function append($content)
   {
@@ -797,8 +799,8 @@ class String extends Base implements ArrayAccess
    * @throws \InvalidArgumentException
    *  if $tagName is null, not a string or not a well-formed tag name.
    *
-   * @return Gustavus\Utility\String
-   *  This String instance.
+   * @return Gustavus\Utility\GACString
+   *  This GACString instance.
    */
   public function encaseInTag($tagName)
   {
@@ -823,8 +825,8 @@ class String extends Base implements ArrayAccess
    * @param string $prefix
    * @param string $number
    *
-   * @return String
-   *  This String instance.
+   * @return GACString
+   *  This GACString instance.
    */
   public function internationalizePhone($internationalCode = '1', $areaCode = '507', $prefix = '933', $number = '8000')
   {
@@ -1033,7 +1035,7 @@ class String extends Base implements ArrayAccess
    *   Nullam vitae augue non ipsum aliquam sagittis. Nullam sed velit. Nunc magna est,
    *   lacinia eget, tristique sit amet, pretium sed, turpis. Nulla faucibus aliquet
    *   libero. Mauris metus risus, auctor ut, gravida hendrerit, pharetra amet.';
-   * echo (new String($content))->summary(50)->getValue();
+   * echo (new GACString($content))->summary(50)->getValue();
    * // Will output "Phasellus aliquam imperdiet leo. Suspendisse accumsan…"
    * </code>
    *
@@ -1042,7 +1044,7 @@ class String extends Base implements ArrayAccess
    * @param string $append Content to append to summary
    * @param boolean $plainText
    * @param string $newline Character used to signify a new line
-   * @return String
+   * @return GACString
    *
    * @todo add a switch that enables removing words from the middle or beginning of the text instead of the end
    */
@@ -1201,7 +1203,7 @@ class String extends Base implements ArrayAccess
    * @param  boolean $url        Link URLs.
    * @param  boolean $email      Link E-Mail addresses.
    * @param  boolean $phone      Link phone numbers.
-   * @return String              Returns $this.
+   * @return GACString              Returns $this.
    */
   public function linkify(array $attributes = array(), $url = true, $email = true, $phone = true)
   {
@@ -1303,8 +1305,8 @@ class String extends Base implements ArrayAccess
    * @throws InvalidArgumentException
    *  if $format is not a string.
    *
-   * @return String
-   *  A new String instance containing the expanded string.
+   * @return GACString
+   *  A new GACString instance containing the expanded string.
    */
   public static function vnsprintf($format, array $data)
   {
@@ -1312,7 +1314,7 @@ class String extends Base implements ArrayAccess
       throw new InvalidArgumentException('$format is not a string.');
     }
 
-    return (new String($format))->expand($data);
+    return (new GACString($format))->expand($data);
   }
 
   /**
@@ -1325,8 +1327,8 @@ class String extends Base implements ArrayAccess
    * @param array $data
    *  The data with which to expand this string.
    *
-   * @return String
-   *  This String instance.
+   * @return GACString
+   *  This GACString instance.
    */
   public function expand(array $data)
   {
@@ -1359,11 +1361,11 @@ class String extends Base implements ArrayAccess
    *
    * Example:
    * <code>
-   * $string = new String(0);
+   * $string = new GACString(0);
    * echo $string->yesNo();
    * // Outputs: No
    *
-   * $string = new String('y');
+   * $string = new GACString('y');
    * echo $string->yesNo();
    * // Outputs: Yes
    * </code>
@@ -1401,8 +1403,8 @@ class String extends Base implements ArrayAccess
    * <strong>Note:</strong>
    *  This is a (relative) port of the Format::cleanString function.
    *
-   * @return String
-   *  This String instance.
+   * @return GACString
+   *  This GACString instance.
    *
    * @link
    *  http://www.cs.tut.fi/~jkorpela/www/windows-chars.html
@@ -1447,8 +1449,8 @@ class String extends Base implements ArrayAccess
    * <strong>Note:</strong>
    *  This is a port of the Format::simplifyUTF8 function.
    *
-   * @return String
-   *  This String instance.
+   * @return GACString
+   *  This GACString instance.
    */
   public static function simplifyUTF8()
   {
@@ -1471,8 +1473,8 @@ class String extends Base implements ArrayAccess
    * @param string|array $words
    * @param string $ignoredCharacters
    * @param string $before
-   * @return String
-   *  This String instance.
+   * @return GACString
+   *  This GACString instance.
    *
    * @link http://krijnhoetmer.nl/stuff/php/word-highlighter/
    */
@@ -1539,8 +1541,8 @@ class String extends Base implements ArrayAccess
    * @param string $country
    * @param string $lineBreak
    *
-   * @return String
-   *  This String instance.
+   * @return GACString
+   *  This GACString instance.
    */
   public static function address($company, $streetAddress, $city, $state, $zip, $country = null, $lineBreak = "<br/>\n")
   {
@@ -1588,7 +1590,7 @@ class String extends Base implements ArrayAccess
       $r[] = $country;
     }
 
-    return new String(implode($lineBreak, $r));
+    return new GACString(implode($lineBreak, $r));
   }
 
   /**
@@ -1597,8 +1599,8 @@ class String extends Base implements ArrayAccess
    * <strong>Note:</strong>
    *  This is a port of the Format::addressLine function.
    *
-   * @return String
-   *  This String instance.
+   * @return GACString
+   *  This GACString instance.
    */
   public function addressLine()
   {
@@ -1641,8 +1643,8 @@ class String extends Base implements ArrayAccess
    *  <em>Optional</em>
    *  Whether or not to preserve new lines within WordPress. Defaults to true.
    *
-   * @return String
-   *  This String instance.
+   * @return GACString
+   *  This GACString instance.
    */
   public function paragraphs($preserveNewLines = true)
   {

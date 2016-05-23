@@ -285,7 +285,7 @@ class FileTest extends Test
     $file = new File(__DIR__ . '/views/vnsprintf.view.html');
 
     $result = $file->renderAsPView($vnsValues, true);
-    $this->assertInstanceOf('\\Gustavus\\Utility\\String', $result);
+    $this->assertInstanceOf('\\Gustavus\\Utility\\GACString', $result);
     $this->assertSame($vnsExpecting, $result->getValue());
   }
 
@@ -306,7 +306,7 @@ class FileTest extends Test
     $file = new File(__DIR__ . '/views/vnsprintf.view.php');
 
     $result = $file->renderAsPView($vnsValues, true, true);
-    $this->assertInstanceOf('\\Gustavus\\Utility\\String', $result);
+    $this->assertInstanceOf('\\Gustavus\\Utility\\GACString', $result);
     $this->assertSame($vnsExpecting, $result->getValue());
   }
 
@@ -328,7 +328,7 @@ class FileTest extends Test
     $file = new File(__DIR__ . '/views/vsprintf.view.html');
 
     $result = $file->renderAsPView($vnsValues);
-    $this->assertInstanceOf('\\Gustavus\\Utility\\String', $result);
+    $this->assertInstanceOf('\\Gustavus\\Utility\\GACString', $result);
     $this->assertSame($vnsExpecting, $result->getValue());
   }
 
@@ -350,7 +350,7 @@ class FileTest extends Test
     $file = new File(__DIR__ . '/views/vsprintf.view.php');
 
     $result = $file->renderAsPView($vnsValues, false, true);
-    $this->assertInstanceOf('\\Gustavus\\Utility\\String', $result);
+    $this->assertInstanceOf('\\Gustavus\\Utility\\GACString', $result);
     $this->assertSame($vnsExpecting, $result->getValue());
   }
 
@@ -396,11 +396,11 @@ class FileTest extends Test
     $file = new File(__DIR__ . '/views/vnsprintf.view.html');
 
     $result = $file->renderAsPView($vnsValues, true);
-    $this->assertInstanceOf('\\Gustavus\\Utility\\String', $result);
+    $this->assertInstanceOf('\\Gustavus\\Utility\\GACString', $result);
     $this->assertSame($vnsExpecting, $result->getValue());
 
     $result = $file->renderAsPView($vnsValues, true);
-    $this->assertInstanceOf('\\Gustavus\\Utility\\String', $result);
+    $this->assertInstanceOf('\\Gustavus\\Utility\\GACString', $result);
     $this->assertSame($vnsExpecting, $result->getValue());
   }
 }
