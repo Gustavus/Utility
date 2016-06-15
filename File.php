@@ -338,7 +338,15 @@ class File extends Base
     }
 
     $viewModifiedOn = filemtime($fullPath);
-    $key = 'pview_' . hash('md4', "{$useVnsprintf}-{$fullPath}-{$viewModifiedOn}-" . json_encode($data));
+
+    $cacheKeyData = array_map(function($item) {
+      if (is_string($item)) {
+        return urlencode($item);
+      }
+      return $item;
+    }, $data);
+
+    $key = 'pview_' . hash('md4', "{$useVnsprintf}-{$fullPath}-{$viewModifiedOn}-" . json_encode($cacheKeyData));
 
     $datastore = GlobalCache::getGlobalDataStore();
     $r = $datastore->getValue($key, $incache);
