@@ -125,7 +125,13 @@ class FileGrabber
    */
   public function __destruct()
   {
-    $this->processQueue();
+    $result = $this->processQueue();
+    if ($result !== true && is_array($result)) {
+      foreach ($result as $error) {
+        // throw our errors that were caught
+        throw $error['error'];
+      }
+    }
   }
 
   /**
@@ -530,6 +536,11 @@ class FileGrabber
   {
     if (preg_match(Regex::url(), $url) && $this->isAllowedDomain($url)) {
       $attempt = 0;
+      if (\Config::isBeta() && strpos($url, 'blog-beta.gac.edu') !== false) {
+        static::$curl->setOption(CURLOPT_SSL_VERIFYPEER, false);
+      } else {
+        static::$curl->setOption(CURLOPT_SSL_VERIFYPEER, true);
+      }
 
       do {
         ++$attempt;
