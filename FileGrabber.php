@@ -129,7 +129,7 @@ class FileGrabber
     if ($result !== true && is_array($result)) {
       foreach ($result as $error) {
         // throw our errors that were caught
-        throw $error['error'];
+        trigger_error('File grabber curl error: ' . $error['error']->getMessage(), E_USER_WARNING);
       }
     }
   }
