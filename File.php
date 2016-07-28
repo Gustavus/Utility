@@ -198,11 +198,11 @@ class File extends Base
    * Looks for the specified filename up the directory tree from the server's requested file
    *
    * @param mixed  $startDir     Directory to start looking in for the file
-   * @param mixed  $defaultValue Default return value if nothing is found
+   * @param string  $defaultValue Default return value if nothing is found
    * @param integer $levels      Maximum number of levels higher to check
-   * @return mixed Path of file if it is found. Defaults to false if a file isn't found.
+   * @return File File object with the path of the file set as the value.
    */
-  public function find($startDir = null, $defaultValue = false, $levels = 5)
+  public function find($startDir = null, $defaultValue = '', $levels = 5)
   {
     assert('is_int($levels)');
     if ($startDir === null) {

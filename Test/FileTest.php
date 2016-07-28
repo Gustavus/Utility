@@ -170,7 +170,7 @@ class FileTest extends Test
   {
     $this->path = 'site_nav.php';
     $this->init();
-    $this->assertSame(false, $this->file->find()->getValue());
+    $this->assertSame('', $this->file->find()->getValue());
   }
 
   /**
@@ -251,7 +251,7 @@ class FileTest extends Test
   {
     $this->path = 'site_nav_test.php';
     $this->init();
-    $this->assertFalse($this->file->find('/cis/lib/Gustavus/Utility/Test/some/random/directory/that/is/above/five/levels/deep/')->getValue());
+    $this->assertSame('', $this->file->find('/cis/lib/Gustavus/Utility/Test/some/random/directory/that/is/above/five/levels/deep/')->getValue());
   }
 
   /**
