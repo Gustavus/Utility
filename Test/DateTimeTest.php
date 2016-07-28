@@ -378,7 +378,10 @@ class DateTimeTest extends Test
   public function adjustYearsIfNeeded($expectedStart, $expectedEnd, $start, $end, $dateToTestAround)
   {
     // set up mock so whenever DateTime calls makeDateTime, we return the date we want to test around, instead of using the current date
-    $dateMock = $this->getMock('\Gustavus\Utility\DateTime', array('makeDateTime'), [$dateToTestAround]);
+    $dateMock = $this->getMockBuilder('\Gustavus\Utility\DateTime')
+      ->setMethods(['makeDateTime'])
+      ->setConstructorArgs([$dateToTestAround])
+      ->getMock();
 
     $dateMock->expects($this->any())
       ->method('makeDateTime')
